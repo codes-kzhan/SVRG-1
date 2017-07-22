@@ -1,6 +1,7 @@
 import openml
 from sklearn import preprocessing, ensemble
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 
 # get dataset
 datasets = openml.datasets.list_datasets()
@@ -12,18 +13,19 @@ dataset = openml.datasets.get_dataset(dataset_id)
 X, y, categorical = dataset.get_data(
     target=dataset.default_target_attribute,
     return_categorical_indicator=True)
-print(X.shape, y.shape)
+print("shape of data points:", X.shape, "shape of targets:", y.shape)
 # one-hot code
-print(categorical)
+#print(categorical)
 enc = preprocessing.OneHotEncoder(categorical_features=categorical)  # one-hot code
 print(enc)
 X = enc.fit_transform(X).todense()
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
 
 # model
 clf = ensemble.RandomForestClassifier()
-clf.fit(X, y)
+clf.fit(X_train, y_train)
 
 # evaluate model
-y_pred = clf.predict(X)
-score = accuracy_score(y, y_pred)
-print("Training accuracy: %f" % score)
+y_pred = clf.predict(X_test)
+score = accuracy_score(y_test, y_pred)
+print("Test accuracy: %f" % score)
