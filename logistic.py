@@ -23,6 +23,8 @@ print("shape of data points:", X.shape, "shape of targets:", y.shape)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
 
 # model 1
+
+print("\nVanilla Logistic regression")
 clf = linear_model.LogisticRegression(C=1.e4 / X.shape[0], penalty='l2', solver='sag')
 clf.fit(X_train, y_train)
 
