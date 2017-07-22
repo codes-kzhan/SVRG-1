@@ -1,3 +1,7 @@
+#!/usr/bin/python3
+"""
+This script import datasets from openml and build a logistic regression with different solvers
+"""
 import openml
 from sklearn import preprocessing, linear_model
 from sklearn.linear_model import SGDClassifier
