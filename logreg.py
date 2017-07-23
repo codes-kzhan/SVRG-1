@@ -33,7 +33,8 @@ class Model:
         return -(1 / X.shape[0]) * np.dot(X.T, (Y - self.Hypothesis(X))) + self.C * self.W  # n-by-k gradient matrix
 
     def UpdateGradient(self, X, Y, eta):  # eta: step size
-        newW = self.W - eta * self.Gradient(X, Y)
+        grad = self.Gradient(X, Y)
+        newW = self.W - eta * grad
         self.W = newW
 
     def Fit(self, X, y):
@@ -43,7 +44,7 @@ class Model:
         self.classes = np.unique(y)
         self.k = self.classes.shape[0]
         #initialize W
-        self.W = np.random.rand(n, self.k) * 1e-3
+        self.W = np.random.rand(n, self.k) * 1e-2
         # binarize labels
         self.lb = LabelBinarizer(sparse_output=False)  # @NOTE I don't know whether it should be sparse or not
         self.lb.fit(self.classes)
@@ -51,18 +52,19 @@ class Model:
 
         # iteration: SGD algorithm
         iterCount = 0
-        currentCost = self.CostFunc(X_train, Y_train)
+        previousCost = self.CostFunc(X_train, Y_train)
         while iterCount < self.iterNum:
             index = np.random.choice(X_train.shape[0], 128)
+            eta = 1/(self.C * (iterCount + 1))
+            self.UpdateGradient(X_train[index], Y_train[index], eta)
+            iterCount = iterCount + 1
             if 0 == iterCount % 100:
                 currentCost = self.CostFunc(X_train[index], Y_train[index])
                 print("iteration: %d, cost: %f" % (iterCount, currentCost))
-                if currentCost < self.tol:
+                if abs(previousCost - currentCost)  < self.tol:
+                    print("terminated")
                     break
-            eta = 1/(self.C * (iterCount + 1))
-            eta = 0.01
-            self.UpdateGradient(X_train[index], Y_train[index], eta)
-            iterCount = iterCount + 1
+                previousCost = currentCost
 
     def Predict(self, X):
         X_test = np.append(np.ones((X.shape[0], 1)), X, axis=1)
@@ -79,7 +81,7 @@ if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadData(dataset_id=150, test_size=0.05)
     # fit model
-    model = Model(tol=1e-4, C=1.0, iterNum=1000)
+    model = Model(tol=1e-4, C=1.0, iterNum=100000)
     model.Fit(X_train, y_train)
     # test
     print("training accuracy:", model.Score(X_train, y_train))
