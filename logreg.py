@@ -84,5 +84,5 @@ if __name__ == '__main__':
     model = Model(tol=1e-4, C=1.0, iterNum=100000)
     model.Fit(X_train, y_train)
     # test
-    print("training accuracy:", model.Score(X_train, y_train))
+    #print("training accuracy:", model.Score(X_train, y_train))
     print("test accuracy:", model.Score(X_test, y_test))
