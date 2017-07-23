@@ -27,7 +27,7 @@ class Model:
     def CostFunc(self, X, Y):
         cost = -np.sum(np.multiply(Y, np.log(self.Hypothesis(X))))
         regTerm = self.C/2 * np.sum(LA.norm(self.W, axis=0))
-        return 1 / X.shape[0] * (cost + regTerm)
+        return 1 / X.shape[0] * cost + regTerm
 
     def Gradient(self, X, Y):
         return -(1 / X.shape[0]) * np.dot(X.T, (Y - self.Hypothesis(X))) + self.C * self.W  # n-by-k gradient matrix
