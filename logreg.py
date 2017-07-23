@@ -26,11 +26,11 @@ class Model:
 
     def CostFunc(self, X, Y):
         cost = -np.sum(np.multiply(Y, np.log(self.Hypothesis(X))))
-        regTerm = self.C/2 * np.sum(LA.norm(self.W, axis=0))
+        regTerm = self.C/2 * np.sum(np.square(self.W))
         return 1 / X.shape[0] * cost + regTerm
 
     def Gradient(self, X, Y):
-        return -(1 / X.shape[0]) * np.dot(X.T, (Y - self.Hypothesis(X))) + self.C * self.W  # n-by-k gradient matrix
+        return 1 / X.shape[0] * np.dot(X.T, (self.Hypothesis(X) - Y)) + self.C * self.W  # n-by-k gradient matrix
 
     def UpdateGradient(self, X, Y, eta):  # eta: step size
         grad = self.Gradient(X, Y)
@@ -87,5 +87,5 @@ if __name__ == '__main__':
     model = Model(tol=1e-4, C=2.625e-3, iterNum=100000)
     model.Fit(X_train, y_train)
     # test
-    #print("training accuracy:", model.Score(X_train, y_train))
+    print("training accuracy:", model.Score(X_train, y_train))
     print("test accuracy:", model.Score(X_test, y_test))
