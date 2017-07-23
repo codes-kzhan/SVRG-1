@@ -45,26 +45,29 @@ class Model:
         self.k = self.classes.shape[0]
         #initialize W
         self.W = np.random.rand(n, self.k) * 1e-2
+        optW = 0
         # binarize labels
         self.lb = LabelBinarizer(sparse_output=False)  # @NOTE I don't know whether it should be sparse or not
         self.lb.fit(self.classes)
         Y_train = self.lb.transform(y)  # make y_train a m*k matrix
 
         # iteration: SGD algorithm
-        iterCount = 0
+        iterCount = 1
         previousCost = self.CostFunc(X_train, Y_train)
         while iterCount < self.iterNum:
             index = np.random.choice(X_train.shape[0], 128)
-            eta = 1/(self.C * (iterCount + 1))
+            eta = min(2/(self.C * (iterCount + 1)), 1)
             self.UpdateGradient(X_train[index], Y_train[index], eta)
-            iterCount = iterCount + 1
             if 0 == iterCount % 100:
                 currentCost = self.CostFunc(X_train[index], Y_train[index])
                 print("iteration: %d, cost: %f" % (iterCount, currentCost))
-                if abs(previousCost - currentCost)  < self.tol:
-                    print("terminated")
-                    break
+                #if abs(previousCost - currentCost)  < self.tol:
+                #    print("terminated")
+                #    break
                 previousCost = currentCost
+            optW += 2 * iterCount * self.W / (self.iterNum * (self.iterNum + 1))
+            iterCount = iterCount + 1
+        self.W = optW
 
     def Predict(self, X):
         X_test = np.append(np.ones((X.shape[0], 1)), X, axis=1)
@@ -81,7 +84,7 @@ if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadData(dataset_id=150, test_size=0.05)
     # fit model
-    model = Model(tol=1e-4, C=1.0, iterNum=100000)
+    model = Model(tol=1e-4, C=2.625e-3, iterNum=100000)
     model.Fit(X_train, y_train)
     # test
     #print("training accuracy:", model.Score(X_train, y_train))
