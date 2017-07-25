@@ -3,9 +3,12 @@
 This script provides useful common functions
 """
 import openml
+import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_svmlight_file
+from sklearn import preprocessing
 
-def LoadData(dataset_id=150, test_size=0.33, random_state=42):
+def LoadOpenMLData(dataset_id=150, test_size=0.33, random_state=42):
     """ Load data from openml.org
     @dataset_id: id of covertype dataset on www.openml.org
     @test_size: the size of the test set, range: (0, 1)
@@ -27,4 +30,14 @@ def LoadData(dataset_id=150, test_size=0.33, random_state=42):
     #enc = preprocessing.OneHotEncoder(categorical_features=categorical)  # one-hot code
     #print(enc)
     #X = enc.fit_transform(X).todense()
+    return train_test_split(X, y, test_size=test_size, random_state=random_state)
+
+def LoadTxtData(path, test_size=0.33, random_state=42, scale=False):
+    df = pd.read_csv(path, sep=',', header=None)
+    dataset = df.values
+    y = dataset[:, 0]
+    if scale:
+        X = preprocessing.scale(dataset[:, 1:])
+    else:
+        X = dataset[:, 1:]
     return train_test_split(X, y, test_size=test_size, random_state=random_state)

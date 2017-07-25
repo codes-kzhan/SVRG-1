@@ -82,7 +82,7 @@ class Model:
 
 if __name__ == '__main__':
     # load data
-    X_train, X_test, y_train, y_test = comm.LoadData(dataset_id=150, test_size=0.05)
+    X_train, X_test, y_train, y_test = comm.LoadOpenMLData(dataset_id=150, test_size=0.05)
     # fit model
     model = Model(tol=1e-4, C=2.625e-3, iterNum=100000)
     model.Fit(X_train, y_train)
