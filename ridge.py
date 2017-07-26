@@ -29,7 +29,7 @@ class Model:
         return cost + regTerm
 
     def Gradient(self, X, y):
-        grad = 1 / X.shape[0] * np.dot(X.T, np.dot(X, self.W) - y) + self.C * self.W # n-by-1 vector
+        grad = np.dot(1 / X.shape[0] *  X.T, np.dot(X, self.W) - y) + self.C * self.W # n-by-1 vector
         return grad
 
     def UpdateGradient(self, X, Y, eta):  # eta: step size
@@ -51,12 +51,12 @@ class Model:
         while iterCount < self.iterNum:
             index = np.random.choice(X_train.shape[0], 128)
             #eta = min(2/(self.C * (iterCount + 1)), 1)
-            eta = 0.1
+            eta = 0.01
             self.UpdateGradient(X_train[index], y[index], eta)
             if 0 == iterCount % 100:
                 #currentCost = self.CostFunc(X_train[index], y[index])
                 #print("iteration: %d, cost: %f" % (iterCount, currentCost))
-                print("iteration: %d, W[0-4]: %f" % (iterCount, self.W[0]))
+                print("iteration: %d, W[0]: %f" % (iterCount, self.W[0]))
                 #if abs(previousCost - currentCost)  < self.tol:
                 #    print("terminated")
                 #    break
@@ -78,16 +78,16 @@ class Model:
 
 if __name__ == '__main__':
     # load data
-    X_train, X_test, y_train, y_test = comm.LoadTxtData('../data/YearPredictionMSD.txt', test_size=0.05, scale=False)
-    # # fit model
-    # model = Model(tol=1e-4, C=1.0e0, iterNum=100000)
-    # model.Fit(X_train, y_train)
-    # # test
-    # print("training accuracy:", model.Score(X_train, y_train))
-    # print("test accuracy:", model.Score(X_test, y_test))
+    X_train, X_test, y_train, y_test = comm.LoadTxtData('../data/YearPredictionMSD.txt', test_size=0.05, scale=True)
+    # fit model
+    model = Model(tol=1e-4, C=1e-3, iterNum=100000)
+    model.Fit(X_train, y_train)
+    # test
+    print("training accuracy:", model.Score(X_train, y_train))
+    print("test accuracy:", model.Score(X_test, y_test))
 
     # scikit learn
-    clf = Ridge(alpha=1.0)
+    clf = Ridge(alpha=1e4)
     clf.fit(X_train, y_train)
     # test
     print("\n")

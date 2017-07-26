@@ -35,9 +35,10 @@ def LoadOpenMLData(dataset_id=150, test_size=0.33, random_state=42):
 def LoadTxtData(path, test_size=0.33, random_state=42, scale=False):
     df = pd.read_csv(path, sep=',', header=None)
     dataset = df.values
-    y = dataset[:, 0]
     if scale:
         X = preprocessing.scale(dataset[:, 1:])
+        y = preprocessing.scale(dataset[:, 0])
     else:
         X = dataset[:, 1:]
+        y = dataset[:, 0]
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
