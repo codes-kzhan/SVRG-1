@@ -29,11 +29,11 @@ class Model:
         regTerm = self.C/2 * np.sum(np.square(self.W))
         return 1 / X.shape[0] * cost + regTerm
 
-    def Gradient(self, X, Y):
-        return 1 / X.shape[0] * np.dot(X.T, (self.Hypothesis(X) - Y)) + self.C * self.W  # n-by-k gradient matrix
+    def Gradient(self, W, X, Y):
+        return 1 / X.shape[0] * np.dot(X.T, (self.Hypothesis(X) - Y)) + self.C * W  # n-by-k gradient matrix
 
     def UpdateGradient(self, X, Y, eta):  # eta: step size
-        grad = self.Gradient(X, Y)
+        grad = self.Gradient(self.W, X, Y)
         newW = self.W - eta * grad
         self.W = newW
 
@@ -45,15 +45,20 @@ class Model:
         self.k = self.classes.shape[0]
         #initialize W
         self.W = np.random.rand(n, self.k) * 1e-2
-        optW = 0
         # binarize labels
         self.lb = LabelBinarizer(sparse_output=False)  # @NOTE I don't know whether it should be sparse or not
         self.lb.fit(self.classes)
         Y_train = self.lb.transform(y)  # make y_train a m*k matrix
+        #self.W = self.SGD(X_train, Y_train)  # SGD optimization
+        self.W = self.SVRG(X_train, Y_train, 200, int(self.iterNum / 200), 0.1)
 
+
+    def SGD(self, X_train, Y_train):
         # iteration: SGD algorithm
+        optW = 0
         iterCount = 1
         previousCost = self.CostFunc(X_train, Y_train)
+        print("iteration: %d, cost: %f" % (iterCount, previousCost))
         while iterCount < self.iterNum:
             index = np.random.choice(X_train.shape[0], 128)
             eta = min(2/(self.C * (iterCount + 1)), 1)
@@ -67,7 +72,31 @@ class Model:
                 previousCost = currentCost
             optW += 2 * iterCount * self.W / (self.iterNum * (self.iterNum + 1))
             iterCount = iterCount + 1
-        self.W = optW
+        return optW
+
+    def SVRG(self, X_train, Y_train, iterNum, epoch, eta):
+        # SVRG algorithm
+
+        w_tilde = self.W
+        for s in range(epoch):
+            tmpW = 0
+            preW= w_tilde
+            n_tilde = self.Gradient(w_tilde, X_train, Y_train)
+
+            indices = np.random.choice(X_train.shape[0], 50)
+            print("iteration: %d, cost: %f" % (s * iterNum, self.CostFunc(X_train[indices], Y_train[indices])))
+            for t in range(iterNum):
+                index = np.random.choice(X_train.shape[0], 1)
+                newW = preW - eta * (self.Gradient(preW, X_train[index], Y_train[index]) - self.Gradient(w_tilde, X_train[index], Y_train[index]) + n_tilde)
+                tmpW = tmpW + newW
+                preW = newW
+            #w_tilde = tmpW / iterNum
+            w_tilde = newW
+
+        index = np.random.choice(X_train.shape[0], 1)
+        return w_tilde
+
+
 
     def Predict(self, X):
         X_test = np.append(np.ones((X.shape[0], 1)), X, axis=1)
@@ -84,7 +113,7 @@ if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadOpenMLData(dataset_id=150, test_size=0.05)
     # fit model
-    model = Model(tol=1e-4, C=2.625e-3, iterNum=100000)
+    model = Model(tol=1e-4, C=2.625e-3, iterNum=10000)
     model.Fit(X_train, y_train)
     # test
     print("training accuracy:", model.Score(X_train, y_train))
