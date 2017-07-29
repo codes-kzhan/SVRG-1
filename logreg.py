@@ -50,8 +50,8 @@ class Model:
         self.lb.fit(self.classes)
         Y_train = self.lb.transform(y)  # make y_train a m*k matrix
         #self.W = self.SGD(X_train, Y_train)  # SGD optimization
-        self.W = self.SVRG(X_train, Y_train, 50, int(self.iterNum / 50), 4.4531e-1)
-        print("total cost: %f" % (self.CostFunc(self.W, X_train, Y_train)))
+        self.W = self.SVRG(X_train, Y_train, 1000, int(self.iterNum / 1000), 4.4531e-1)
+        print("total cost: %.54f" % (self.CostFunc(self.W, X_train, Y_train)))
 
 
     def SGD(self, X_train, Y_train):
@@ -65,11 +65,11 @@ class Model:
             eta = min(2/(self.C * (iterCount + 1)), 1)
             self.UpdateGradient(X_train[index], Y_train[index], eta)
             if 0 == iterCount % 50:
-                currentCost = self.CostFunc(self.W, X_train, Y_train)
+                currentCost = self.CostFunc(optW, X_train, Y_train)
                 print("iteration: %d, cost: %f" % (iterCount, currentCost))
-                #if abs(previousCost - currentCost)  < self.tol:
-                #    print("terminated")
-                #    break
+                if abs(previousCost - currentCost)  < self.tol:
+                    print("terminated")
+                    break
                 previousCost = currentCost
             optW += 2 * iterCount * self.W / (self.iterNum * (self.iterNum + 1))
             iterCount = iterCount + 1
@@ -84,7 +84,7 @@ class Model:
             n_tilde = self.Gradient(w_tilde, X_train, Y_train)
 
             #indices = np.random.choice(X_train.shape[0], 50)
-            print("iteration: %d, cost: %f" % (s * iterNum, self.CostFunc(self.W, X_train, Y_train)))
+            print("iteration: %d, cost: %.54f" % (s * iterNum, self.CostFunc(self.W, X_train, Y_train)))
             for t in range(iterNum):
                 index = np.random.choice(X_train.shape[0], 1)
                 deltaW = (self.Gradient(W, X_train[index], Y_train[index]) - self.Gradient(w_tilde, X_train[index], Y_train[index]) + n_tilde)
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadOpenMLData(dataset_id=150, test_size=0.05)
     # fit model
-    model = Model(tol=1e-4, C=2.625e-3, iterNum=2500)
+    model = Model(tol=1e-8, C=2.625e-3, iterNum=100000)
     model.Fit(X_train, y_train)
     # test
     print("training accuracy:", model.Score(X_train, y_train))
