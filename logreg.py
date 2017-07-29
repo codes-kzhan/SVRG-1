@@ -19,18 +19,18 @@ class Model:
         self.C = C
         self.iterNum = iterNum
 
-    def Hypothesis(self, X, W):
+    def Hypothesis(self, W, X):
         tmpH = np.exp(np.dot(X, W))
         denominator = np.sum(tmpH, axis=1)
         return tmpH / denominator.reshape(len(denominator), 1) # return a m-by-k matrix
 
-    def CostFunc(self, X, Y):
-        cost = -np.sum(np.multiply(Y, np.log(self.Hypothesis(X, self.W))))
-        regTerm = self.C/2 * np.sum(np.square(self.W))
+    def CostFunc(self, W, X, Y):
+        cost = -np.sum(np.multiply(Y, np.log(self.Hypothesis(W, X))))
+        regTerm = self.C/2 * np.sum(np.square(W))
         return 1 / X.shape[0] * cost + regTerm
 
     def Gradient(self, W, X, Y):
-        return 1 / X.shape[0] * np.dot(X.T, (self.Hypothesis(X, W) - Y)) + self.C * W  # n-by-k gradient matrix
+        return 1 / X.shape[0] * np.dot(X.T, (self.Hypothesis(W, X) - Y)) + self.C * W  # n-by-k gradient matrix
 
     def UpdateGradient(self, X, Y, eta):  # eta: step size
         grad = self.Gradient(self.W, X, Y)
@@ -50,21 +50,22 @@ class Model:
         self.lb.fit(self.classes)
         Y_train = self.lb.transform(y)  # make y_train a m*k matrix
         self.W = self.SGD(X_train, Y_train)  # SGD optimization
-        #self.W = self.SVRG(X_train, Y_train, 50, int(self.iterNum / 50), 1e-1)
+        #self.W = self.SVRG(X_train, Y_train, 25, int(self.iterNum / 25), 6.25e-1)
+        print("total cost: %f" % (self.CostFunc(self.W, X_train, Y_train)))
 
 
     def SGD(self, X_train, Y_train):
         # iteration: SGD algorithm
         optW = 0
         iterCount = 1
-        previousCost = self.CostFunc(X_train, Y_train)
+        previousCost = self.CostFunc(self.W, X_train, Y_train)
         print("iteration: %d, cost: %f" % (iterCount, previousCost))
         while iterCount < self.iterNum:
             index = np.random.choice(X_train.shape[0], 128)
             eta = min(2/(self.C * (iterCount + 1)), 1)
             self.UpdateGradient(X_train[index], Y_train[index], eta)
             if 0 == iterCount % 100:
-                currentCost = self.CostFunc(X_train[index], Y_train[index])
+                currentCost = self.CostFunc(self.W, X_train[index], Y_train[index])
                 print("iteration: %d, cost: %f" % (iterCount, currentCost))
                 #if abs(previousCost - currentCost)  < self.tol:
                 #    print("terminated")
@@ -79,11 +80,11 @@ class Model:
 
         w_tilde = self.W
         for s in range(epoch):
-            W= w_tilde
+            W = w_tilde
             n_tilde = self.Gradient(w_tilde, X_train, Y_train)
 
             indices = np.random.choice(X_train.shape[0], 50)
-            print("iteration: %d, cost: %f" % (s * iterNum, self.CostFunc(X_train[indices], Y_train[indices])))
+            print("iteration: %d, cost: %f" % (s * iterNum, self.CostFunc(self.W, X_train[indices], Y_train[indices])))
             for t in range(iterNum):
                 index = np.random.choice(X_train.shape[0], 1)
                 deltaW = (self.Gradient(W, X_train[index], Y_train[index]) - self.Gradient(w_tilde, X_train[index], Y_train[index]) + n_tilde)
@@ -96,7 +97,7 @@ class Model:
 
     def Predict(self, X):
         X_test = np.append(np.ones((X.shape[0], 1)), X, axis=1)
-        Y_test = self.Hypothesis(X_test, self.W)
+        Y_test = self.Hypothesis(self.W, X_test)
         labels = np.zeros_like(Y_test)
         labels[np.arange(len(Y_test)), Y_test.argmax(1)] = 1
         return self.lb.inverse_transform(labels)
@@ -109,7 +110,7 @@ if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadOpenMLData(dataset_id=150, test_size=0.05)
     # fit model
-    model = Model(tol=1e-4, C=2.625e-3, iterNum=1000)
+    model = Model(tol=1e-4, C=2.625e-3, iterNum=10)
     model.Fit(X_train, y_train)
     # test
     print("training accuracy:", model.Score(X_train, y_train))
