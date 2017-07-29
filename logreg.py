@@ -1,8 +1,13 @@
 import comm
 import numpy as np
+import math
 from numpy import linalg as LA
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelBinarizer
+import matplotlib.pyplot as plt
+
+PLOT_NUM = 50
+points = []
 
 class Model:
     """ logistic regression model
@@ -18,6 +23,7 @@ class Model:
         self.tol = tol
         self.C = C
         self.iterNum = iterNum
+        self.optSolution = 0.872841085854215270600775511411484330892562866210937500
 
     def Hypothesis(self, W, X):
         tmpH = np.exp(np.dot(X, W))
@@ -50,7 +56,7 @@ class Model:
         self.lb.fit(self.classes)
         Y_train = self.lb.transform(y)  # make y_train a m*k matrix
         #self.W = self.SGD(X_train, Y_train)  # SGD optimization
-        self.W = self.SVRG(X_train, Y_train, 1000, int(self.iterNum / 1000), 4.4531e-1)
+        self.W = self.SVRG(X_train, Y_train, 100, int(self.iterNum / 100), 4.4531e-1)
         print("total cost: %.54f" % (self.CostFunc(self.W, X_train, Y_train)))
 
 
@@ -89,6 +95,11 @@ class Model:
                 index = np.random.choice(X_train.shape[0], 1)
                 deltaW = (self.Gradient(W, X_train[index], Y_train[index]) - self.Gradient(w_tilde, X_train[index], Y_train[index]) + n_tilde)
                 W = W - eta * deltaW
+
+                # we need to store the cost functions so that we can plot them
+                if s * iterNum + t < PLOT_NUM:
+                    points.append([s*iterNum+t, math.log(self.CostFunc(W, X_train, Y_train) - self.optSolution)])
+
             w_tilde = W
             self.W = w_tilde
         return w_tilde
@@ -110,8 +121,20 @@ if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadOpenMLData(dataset_id=150, test_size=0.05)
     # fit model
-    model = Model(tol=1e-8, C=2.625e-3, iterNum=100000)
+    points.clear()  # clear the list of costs of all iterations
+    model = Model(tol=1e-8, C=2.625e-3, iterNum=100)
     model.Fit(X_train, y_train)
     # test
     print("training accuracy:", model.Score(X_train, y_train))
     print("test accuracy:", model.Score(X_test, y_test))
+
+    # plot the convergence curve
+    plt.figure("log-suboptimality of SVRG")
+    points = np.array(points)
+    plt.plot(points[:, 0], points[:, 1])
+    plt.xlabel('#iterations')
+    plt.ylabel('log-suboptimality')
+
+    plt.xlim(points[:, 0].min(), points[:, 0].max())
+    plt.ylim(points[:, 1].min(), points[:, 1].max())
+    plt.show()
