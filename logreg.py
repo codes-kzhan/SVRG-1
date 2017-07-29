@@ -49,8 +49,8 @@ class Model:
         self.lb = LabelBinarizer(sparse_output=False)  # @NOTE I don't know whether it should be sparse or not
         self.lb.fit(self.classes)
         Y_train = self.lb.transform(y)  # make y_train a m*k matrix
-        self.W = self.SGD(X_train, Y_train)  # SGD optimization
-        #self.W = self.SVRG(X_train, Y_train, 25, int(self.iterNum / 25), 6.25e-1)
+        #self.W = self.SGD(X_train, Y_train)  # SGD optimization
+        self.W = self.SVRG(X_train, Y_train, 50, int(self.iterNum / 50), 4.4531e-1)
         print("total cost: %f" % (self.CostFunc(self.W, X_train, Y_train)))
 
 
@@ -64,8 +64,8 @@ class Model:
             index = np.random.choice(X_train.shape[0], 128)
             eta = min(2/(self.C * (iterCount + 1)), 1)
             self.UpdateGradient(X_train[index], Y_train[index], eta)
-            if 0 == iterCount % 100:
-                currentCost = self.CostFunc(self.W, X_train[index], Y_train[index])
+            if 0 == iterCount % 50:
+                currentCost = self.CostFunc(self.W, X_train, Y_train)
                 print("iteration: %d, cost: %f" % (iterCount, currentCost))
                 #if abs(previousCost - currentCost)  < self.tol:
                 #    print("terminated")
@@ -83,8 +83,8 @@ class Model:
             W = w_tilde
             n_tilde = self.Gradient(w_tilde, X_train, Y_train)
 
-            indices = np.random.choice(X_train.shape[0], 50)
-            print("iteration: %d, cost: %f" % (s * iterNum, self.CostFunc(self.W, X_train[indices], Y_train[indices])))
+            #indices = np.random.choice(X_train.shape[0], 50)
+            print("iteration: %d, cost: %f" % (s * iterNum, self.CostFunc(self.W, X_train, Y_train)))
             for t in range(iterNum):
                 index = np.random.choice(X_train.shape[0], 1)
                 deltaW = (self.Gradient(W, X_train[index], Y_train[index]) - self.Gradient(w_tilde, X_train[index], Y_train[index]) + n_tilde)
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadOpenMLData(dataset_id=150, test_size=0.05)
     # fit model
-    model = Model(tol=1e-4, C=2.625e-3, iterNum=10)
+    model = Model(tol=1e-4, C=2.625e-3, iterNum=2500)
     model.Fit(X_train, y_train)
     # test
     print("training accuracy:", model.Score(X_train, y_train))
