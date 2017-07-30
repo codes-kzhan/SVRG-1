@@ -6,7 +6,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelBinarizer
 import matplotlib.pyplot as plt
 
-PLOT_NUM = 50
+PLOT_NUM = 4000
 points = []
 
 class Model:
@@ -98,7 +98,7 @@ class Model:
 
                 # we need to store the cost functions so that we can plot them
                 if s * iterNum + t < PLOT_NUM:
-                    points.append([s*iterNum+t, math.log(self.CostFunc(W, X_train, Y_train) - self.optSolution)])
+                    points.append([s*iterNum+t, math.log(self.CostFunc(W, X_train, Y_train) - self.optSolution, 10)])
 
             w_tilde = W
             self.W = w_tilde
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     X_train, X_test, y_train, y_test = comm.LoadOpenMLData(dataset_id=150, test_size=0.05)
     # fit model
     points.clear()  # clear the list of costs of all iterations
-    model = Model(tol=1e-8, C=2.625e-3, iterNum=100)
+    model = Model(tol=1e-8, C=2.625e-3, iterNum=5000)
     model.Fit(X_train, y_train)
     # test
     print("training accuracy:", model.Score(X_train, y_train))
