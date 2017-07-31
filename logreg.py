@@ -7,7 +7,6 @@ from sklearn.preprocessing import LabelBinarizer
 import matplotlib.pyplot as plt
 
 PLOT_NUM = 4000
-points = []
 
 class Model:
     """ logistic regression model
@@ -43,7 +42,7 @@ class Model:
         newW = self.W - eta * grad
         self.W = newW
 
-    def Fit(self, X, y):
+    def Fit(self, X, y, solver='SVRG'):
         # deal with data first
         X_train = np.append(np.ones((X.shape[0], 1)), X, axis=1)
         m, n = X_train.shape # m: sample size, n: feature size
@@ -55,8 +54,10 @@ class Model:
         self.lb = LabelBinarizer(sparse_output=False)  # @NOTE I don't know whether it should be sparse or not
         self.lb.fit(self.classes)
         Y_train = self.lb.transform(y)  # make y_train a m*k matrix
-        #self.W = self.SGD(X_train, Y_train)  # SGD optimization
-        self.W = self.SVRG(X_train, Y_train, 100, int(self.iterNum / 100), 4.4531e-1)
+        if solver == 'SVRG':
+            self.W = self.SVRG(X_train, Y_train, 100, int(self.iterNum / 100), 4.4531e-1)
+        else:
+            self.W = self.SGD(X_train, Y_train)  # SGD optimization
         print("total cost: %.54f" % (self.CostFunc(self.W, X_train, Y_train)))
 
 
@@ -79,6 +80,11 @@ class Model:
                 previousCost = currentCost
             optW += 2 * iterCount * self.W / (self.iterNum * (self.iterNum + 1))
             iterCount = iterCount + 1
+
+            # we need to store the cost functions so that we can plot them
+            if iterCount < PLOT_NUM:
+                points.append([iterCount, math.log(self.CostFunc(self.W, X_train, Y_train) - self.optSolution, 10)])
+
         return optW
 
     def SVRG(self, X_train, Y_train, iterNum, epoch, eta):
@@ -120,10 +126,12 @@ class Model:
 if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadOpenMLData(dataset_id=150, test_size=0.05)
+    model = Model(tol=1e-8, C=2.625e-3, iterNum=4003)
     # fit model
-    points.clear()  # clear the list of costs of all iterations
-    model = Model(tol=1e-8, C=2.625e-3, iterNum=5000)
-    model.Fit(X_train, y_train)
+
+    points = []
+    # clear the list of costs of all iterations
+    model.Fit(X_train, y_train, solver='SVRG')
     # test
     print("training accuracy:", model.Score(X_train, y_train))
     print("test accuracy:", model.Score(X_test, y_test))
@@ -131,10 +139,28 @@ if __name__ == '__main__':
     # plot the convergence curve
     plt.figure("log-suboptimality of SVRG")
     points = np.array(points)
-    plt.plot(points[:, 0], points[:, 1])
+    plt.plot(points[:, 0], points[:, 1], label='SVRG')
+    x_min = points[:, 0].min()
+    x_max = points[:, 0].max()
+    y_min = points[:, 1].min()
+    y_max = points[:, 1].max()
+
+
+    # fit again
+    points = []
+    model.Fit(X_train, y_train, solver='SGD')
+
+    points = np.array(points)
+    plt.plot(points[:, 0], points[:, 1], label='SGD')
+
+    x_min = min(points[:, 0].min(), x_min)
+    x_max = max(points[:, 0].max(), x_max)
+    y_min = min(points[:, 1].min(), y_min)
+    y_max = max(points[:, 1].max(), y_max)
+
+    plt.legend()
     plt.xlabel('#iterations')
     plt.ylabel('log-suboptimality')
-
-    plt.xlim(points[:, 0].min(), points[:, 0].max())
-    plt.ylim(points[:, 1].min(), points[:, 1].max())
+    plt.xlim(x_min, x_max)
+    plt.ylim(y_min, y_max)
     plt.show()
