@@ -54,12 +54,15 @@ class Model:
         self.lb = LabelBinarizer(sparse_output=False)  # @NOTE I don't know whether it should be sparse or not
         self.lb.fit(self.classes)
         Y_train = self.lb.transform(y)  # make y_train a m*k matrix
+
+        # find optimal W
         if solver == 'SVRG':
             self.W = self.SVRG(X_train, Y_train, 100, int(self.iterNum / 100), 4.4531e-1)
         elif solver == 'SGD':
             self.W = self.SGD(X_train, Y_train)  # SGD optimization
         elif solver == 'SAGA':
-            pass # @TODO
+            self.W = self.SAGA(X_train, Y_train)  # SGD optimization
+
         print("total cost: %.54f" % (self.CostFunc(self.W, X_train, Y_train)))
 
 
@@ -112,7 +115,29 @@ class Model:
             self.W = w_tilde
         return w_tilde
 
-    def SAGA(self, X_train, Y_train, iterNum, ):
+    def SAGA(self, X_train, Y_train, gamma=1.953125e-1):
+        W = self.W
+        # initialize gradients
+        gradients = np.zeros([X_train.shape[0], X_train.shape[1], W.shape[1]])
+        for i in range(X_train.shape[0]):
+            gradients[i] = self.Gradient(self.W, X_train[[i]], Y_train[[i]])
+        sum_gradients = np.sum(gradients, axis=0)
+        for t in range(self.iterNum):
+            # pick an index uniformly at random
+            index = np.random.choice(X_train.shape[0], 1)
+            index_scalar = index[0]
+            # update W
+            new_grad = self.Gradient(W, X_train[index], Y_train[index])
+            W = (1 - gamma * self.C) * W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/X_train.shape[0])
+
+            sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
+            gradients[index_scalar] = new_grad
+
+            if 0 == t % 100:
+                currentCost = self.CostFunc(W, X_train, Y_train)
+                print("iteration: %d, cost: %f" % (t, currentCost))
+
+        return W
 
 
     def Predict(self, X):
@@ -129,41 +154,45 @@ class Model:
 if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadOpenMLData(dataset_id=150, test_size=0.05)
-    model = Model(tol=1e-8, C=2.625e-3, iterNum=4003)
-    # fit model
+    model = Model(tol=1e-8, C=2.625e-3, iterNum=4000)
 
-    points = []
-    # clear the list of costs of all iterations
-    model.Fit(X_train, y_train, solver='SVRG')
+    model.Fit(X_train, y_train, solver='SAGA')
     # test
     print("training accuracy:", model.Score(X_train, y_train))
     print("test accuracy:", model.Score(X_test, y_test))
 
-    # plot the convergence curve
-    plt.figure("log-suboptimality of SVRG")
-    points = np.array(points)
-    plt.plot(points[:, 0], points[:, 1], label='SVRG')
-    x_min = points[:, 0].min()
-    x_max = points[:, 0].max()
-    y_min = points[:, 1].min()
-    y_max = points[:, 1].max()
-
-
-    # fit again
-    points = []
-    model.Fit(X_train, y_train, solver='SGD')
-
-    points = np.array(points)
-    plt.plot(points[:, 0], points[:, 1], label='SGD')
-
-    x_min = min(points[:, 0].min(), x_min)
-    x_max = max(points[:, 0].max(), x_max)
-    y_min = min(points[:, 1].min(), y_min)
-    y_max = max(points[:, 1].max(), y_max)
-
-    plt.legend()
-    plt.xlabel('#iterations')
-    plt.ylabel('log-suboptimality')
-    plt.xlim(x_min, x_max)
-    plt.ylim(y_min, y_max)
-    plt.show()
+    # # fit model
+    # points = []  # clear the list of costs of all iterations
+    # model.Fit(X_train, y_train, solver='SVRG')
+    # # test
+    # print("training accuracy:", model.Score(X_train, y_train))
+    # print("test accuracy:", model.Score(X_test, y_test))
+    #
+    # # plot the convergence curve
+    # plt.figure("log-suboptimality of SVRG")
+    # points = np.array(points)
+    # plt.plot(points[:, 0], points[:, 1], label='SVRG')
+    # x_min = points[:, 0].min()
+    # x_max = points[:, 0].max()
+    # y_min = points[:, 1].min()
+    # y_max = points[:, 1].max()
+    #
+    #
+    # # fit again
+    # points = []
+    # model.Fit(X_train, y_train, solver='SGD')
+    #
+    # points = np.array(points)
+    # plt.plot(points[:, 0], points[:, 1], label='SGD')
+    #
+    # x_min = min(points[:, 0].min(), x_min)
+    # x_max = max(points[:, 0].max(), x_max)
+    # y_min = min(points[:, 1].min(), y_min)
+    # y_max = max(points[:, 1].max(), y_max)
+    #
+    # plt.legend()
+    # plt.xlabel('#iterations')
+    # plt.ylabel('log-suboptimality')
+    # plt.xlim(x_min, x_max)
+    # plt.ylim(y_min, y_max)
+    # plt.show()
