@@ -109,6 +109,34 @@ class Model:
             self.W = w_tilde
         return w_tilde
 
+    def SAGA(self, X_train, Y_train, gamma=9.621875e-4):
+        W = self.W
+        # initialize gradients
+        gradients = np.zeros([X_train.shape[0], X_train.shape[1]])
+        for i in range(X_train.shape[0]):
+            gradients[i] = self.Gradient(self.W, X_train[[i]], Y_train[[i]])
+        sum_gradients = np.sum(gradients, axis=0)
+        for t in range(self.iterNum):
+            # pick an index uniformly at random
+            index = np.random.choice(X_train.shape[0], 1)
+            index_scalar = index[0]
+            # update W
+            new_grad = self.Gradient(W, X_train[index], Y_train[index])
+            W = (1 - gamma * self.C) * W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/X_train.shape[0])
+
+            sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
+            gradients[index_scalar] = new_grad
+
+            if 0 == t % 100:
+                currentCost = self.CostFunc(W, X_train, Y_train)
+                print("iteration: %d, cost: %f" % (t, currentCost))
+
+            # we need to store the cost functions so that we can plot them
+            if t < PLOT_NUM:
+                points.append([t, math.log(self.CostFunc(W, X_train, Y_train) - self.optSolution, 10)])
+
+        return W
+
     def Predict(self, X):
         X_test = np.append(np.ones((X.shape[0], 1)), X, axis=1)
         Y_test = self.Hypothesis(self.W, X_test)
@@ -122,43 +150,30 @@ class Model:
 if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadTxtData('../data/YearPredictionMSD.txt', test_size=0.05, scale=True)
-    # fit model
-    points = []  # clear the list of costs of all iterations
     model = Model(tol=1e-4, C=1e-3, iterNum=4003)
-    model.Fit(X_train, y_train, solver='SVRG')
-    # test
-    print("training accuracy:", model.Score(X_train, y_train))
-    print("test accuracy:", model.Score(X_test, y_test))
 
-    # scikit learn
-    clf = Ridge(alpha=1e4)
-    clf.fit(X_train, y_train)
-    # test
-    print("\n")
-    print("training accuracy:", explained_variance_score(y_train, clf.predict(X_train)))
-    print("test accuracy:", explained_variance_score(y_test, clf.predict(X_test)))
+    # a new figure
+    plt.figure("Convergence rates of SGD, SVRG and SAGA")
+    x_min = math.inf
+    x_max = -math.inf
+    y_min = math.inf
+    y_max = -math.inf
 
-    # plot the convergence curve
-    plt.figure("log-suboptimality of SVRG")
-    points = np.array(points)
-    plt.plot(points[:, 0], points[:, 1], label='SVRG')
-    x_min = points[:, 0].min()
-    x_max = points[:, 0].max()
-    y_min = points[:, 1].min()
-    y_max = points[:, 1].max()
+    for solver in ['SGD', 'SVRG', 'SAGA']:
+        # fit model
+        points = []  # clear the list of costs of all iterations
+        model.Fit(X_train, y_train, solver=solver)
+        # test
+        print("training accuracy:", model.Score(X_train, y_train))
+        print("test accuracy:", model.Score(X_test, y_test))
 
+        points = np.array(points)
+        plt.plot(points[:, 0], points[:, 1], label=solver)
 
-    # fit again
-    points = []
-    model.Fit(X_train, y_train, solver='SGD')
-
-    points = np.array(points)
-    plt.plot(points[:, 0], points[:, 1], label='SGD')
-
-    x_min = min(points[:, 0].min(), x_min)
-    x_max = max(points[:, 0].max(), x_max)
-    y_min = min(points[:, 1].min(), y_min)
-    y_max = max(points[:, 1].max(), y_max)
+        x_min = min(points[:, 0].min(), x_min)
+        x_max = max(points[:, 0].max(), x_max)
+        y_min = min(points[:, 1].min(), y_min)
+        y_max = max(points[:, 1].max(), y_max)
 
     plt.legend()
     plt.xlabel('#iterations')
