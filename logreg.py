@@ -56,8 +56,10 @@ class Model:
         Y_train = self.lb.transform(y)  # make y_train a m*k matrix
         if solver == 'SVRG':
             self.W = self.SVRG(X_train, Y_train, 100, int(self.iterNum / 100), 4.4531e-1)
-        else:
+        elif solver == 'SGD':
             self.W = self.SGD(X_train, Y_train)  # SGD optimization
+        elif solver == 'SAGA':
+            pass # @TODO
         print("total cost: %.54f" % (self.CostFunc(self.W, X_train, Y_train)))
 
 
@@ -110,6 +112,7 @@ class Model:
             self.W = w_tilde
         return w_tilde
 
+    def SAGA(self, X_train, Y_train, iterNum, ):
 
 
     def Predict(self, X):
