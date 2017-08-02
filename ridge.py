@@ -57,23 +57,26 @@ class Model:
         elif solver == 'SAGA':
             self.W = self.SAGA(X_train, y)  # SGD optimization
 
-        print("total cost: %.54f" % (self.CostFunc(self.W, X_train, y)))
+        print("total cost: %.16f" % (self.CostFunc(self.W, X_train, y)))
 
     def SGD(self, X_train, y):
         # iteration: SGD algorithm
         optW = 0
         iterCount = 1
         previousCost = self.CostFunc(self.W, X_train, y)
-        print("iteration: %d, cost: %f" % (iterCount, previousCost))
+        print("epoch: %2d, cost: %f" % (0, previousCost))
         while iterCount < self.iterNum:
             index = np.random.choice(X_train.shape[0], 128)
             #eta = min(2/(self.C * (iterCount + 1)), 1)
             eta = 0.01
             self.UpdateGradient(X_train[index], y[index], eta)
-            if 0 == iterCount % 100:
+            if 0 == iterCount % X_train.shape[0]:
                 currentCost = self.CostFunc(optW, X_train, y)
-                print("iteration: %d, cost: %f" % (iterCount, currentCost))
-                #print("iteration: %d, W[0]: %f" % (iterCount, self.W[0]))
+                print("epoch: %2d, cost: %.16f" % (int(iterCount/X_train.shape[0]), currentCost))
+
+                # we need to store the cost functions so that we can plot them
+                points.append([int(iterCount/X_train.shape[0]), math.log(self.CostFunc(self.W, X_train, y) - self.optSolution, 10)])
+                #print("iteration: %2d, W[0]: %f" % (iterCount, self.W[0]))
                 #if abs(previousCost - currentCost)  < self.tol:
                 #    print("terminated")
                 #    break
@@ -81,9 +84,6 @@ class Model:
             optW += 2 * iterCount * self.W / (self.iterNum * (self.iterNum + 1))
             iterCount = iterCount + 1
 
-            # we need to store the cost functions so that we can plot them
-            if iterCount < PLOT_NUM:
-                points.append([iterCount, math.log(self.CostFunc(self.W, X_train, y) - self.optSolution, 10)])
         return optW
 
     def SVRG(self, X_train, Y_train, iterNum, epoch, eta=5.875e-4):
@@ -95,7 +95,7 @@ class Model:
             n_tilde = self.Gradient(w_tilde, X_train, Y_train)
 
             #indices = np.random.choice(X_train.shape[0], 50)
-            print("epoch: %d, cost: %.54f" % (s, self.CostFunc(self.W, X_train, Y_train)))
+            print("epoch: %2d, cost: %.16f" % (s, self.CostFunc(self.W, X_train, Y_train)))
 
             # we need to store the cost functions so that we can plot them
             points.append([s, math.log(self.CostFunc(W, X_train, Y_train) - self.optSolution, 10)])
@@ -109,7 +109,7 @@ class Model:
             self.W = w_tilde
         return w_tilde
 
-    def SAGA(self, X_train, Y_train, gamma=2.0e-4):
+    def SAGA(self, X_train, Y_train, gamma=2.5e-5):
         W = self.W
         # initialize gradients
         gradients = np.zeros([X_train.shape[0], X_train.shape[1]])
@@ -129,8 +129,9 @@ class Model:
             gradients[index_scalar] = new_grad
 
             if 0 == t % X_train.shape[0]:
+                sum_gradients = np.sum(gradients, axis=0)
                 currentCost = self.CostFunc(W, X_train, Y_train)
-                print("epoch: %d, cost: %.54f" % (int(t/X_train.shape[0]), currentCost))
+                print("epoch: %2d, cost: %.16f" % (int(t/X_train.shape[0]), currentCost))
 
                 # we need to store the cost functions so that we can plot them
                 points.append([int(t/X_train.shape[0]), math.log(self.CostFunc(W, X_train, Y_train) - self.optSolution, 10)])
@@ -159,8 +160,8 @@ if __name__ == '__main__':
     y_min = math.inf
     y_max = -math.inf
 
-    #solvers = ['SGD', 'SVRG', 'SAGA']
-    solvers = ['SAGA']
+    solvers = ['SGD', 'SVRG', 'SAGA']
+    #solvers = ['SAGA']
     for solver in solvers:
         # fit model
         points = []  # clear the list of costs of all iterations
