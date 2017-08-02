@@ -7,7 +7,7 @@ from sklearn.preprocessing import LabelBinarizer
 from sklearn.linear_model import Ridge
 import matplotlib.pyplot as plt
 
-PLOT_NUM = 4000
+PLOT_NUM = 20
 
 class Model:
     """ ridge regression model
@@ -51,7 +51,7 @@ class Model:
 
         # find optimal W
         if solver == 'SVRG':
-            self.W = self.SVRG(X_train, y, 100, int(self.iterNum/100))
+            self.W = self.SVRG(X_train, y, m, int(self.iterNum/m))
         elif solver == 'SGD':
             self.W = self.SGD(X_train, y)  # SGD optimization
         elif solver == 'SAGA':
@@ -86,7 +86,7 @@ class Model:
                 points.append([iterCount, math.log(self.CostFunc(self.W, X_train, y) - self.optSolution, 10)])
         return optW
 
-    def SVRG(self, X_train, Y_train, iterNum, epoch, eta=5.875e-3):
+    def SVRG(self, X_train, Y_train, iterNum, epoch, eta=5.875e-4):
         # SVRG algorithm
 
         w_tilde = self.W
@@ -95,21 +95,21 @@ class Model:
             n_tilde = self.Gradient(w_tilde, X_train, Y_train)
 
             #indices = np.random.choice(X_train.shape[0], 50)
-            print("iteration: %d, cost: %.54f" % (s * iterNum, self.CostFunc(self.W, X_train, Y_train)))
+            print("epoch: %d, cost: %.54f" % (s, self.CostFunc(self.W, X_train, Y_train)))
+
+            # we need to store the cost functions so that we can plot them
+            points.append([s, math.log(self.CostFunc(W, X_train, Y_train) - self.optSolution, 10)])
+
             for t in range(iterNum):
                 index = np.random.choice(X_train.shape[0], 1)
                 deltaW = (self.Gradient(W, X_train[index], Y_train[index]) - self.Gradient(w_tilde, X_train[index], Y_train[index]) + n_tilde)
                 W = W - eta * deltaW
 
-                # we need to store the cost functions so that we can plot them
-                if s * iterNum + t < PLOT_NUM:
-                    points.append([s*iterNum+t, math.log(self.CostFunc(W, X_train, Y_train) - self.optSolution, 10)])
-
             w_tilde = W
             self.W = w_tilde
         return w_tilde
 
-    def SAGA(self, X_train, Y_train, gamma=9.621875e-4):
+    def SAGA(self, X_train, Y_train, gamma=2.0e-4):
         W = self.W
         # initialize gradients
         gradients = np.zeros([X_train.shape[0], X_train.shape[1]])
@@ -122,18 +122,18 @@ class Model:
             index_scalar = index[0]
             # update W
             new_grad = self.Gradient(W, X_train[index], Y_train[index])
-            W = (1 - gamma * self.C) * W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/X_train.shape[0])
-
+            #W = (1 - gamma * self.C) * W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/X_train.shape[0])
+            W_prime = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/X_train.shape[0])
+            W = 1 / (self.C * gamma + 1) * W_prime
             sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
             gradients[index_scalar] = new_grad
 
-            if 0 == t % 100:
+            if 0 == t % X_train.shape[0]:
                 currentCost = self.CostFunc(W, X_train, Y_train)
-                print("iteration: %d, cost: %f" % (t, currentCost))
+                print("epoch: %d, cost: %.54f" % (int(t/X_train.shape[0]), currentCost))
 
-            # we need to store the cost functions so that we can plot them
-            if t < PLOT_NUM:
-                points.append([t, math.log(self.CostFunc(W, X_train, Y_train) - self.optSolution, 10)])
+                # we need to store the cost functions so that we can plot them
+                points.append([int(t/X_train.shape[0]), math.log(self.CostFunc(W, X_train, Y_train) - self.optSolution, 10)])
 
         return W
 
@@ -150,7 +150,7 @@ class Model:
 if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadTxtData('../data/YearPredictionMSD.txt', test_size=0.05, scale=True)
-    model = Model(tol=1e-4, C=1e-3, iterNum=4003)
+    model = Model(tol=1e-4, C=1e-3, iterNum=X_train.shape[0] * 20 + 1)
 
     # a new figure
     plt.figure("Convergence rates of SGD, SVRG and SAGA")
@@ -159,7 +159,9 @@ if __name__ == '__main__':
     y_min = math.inf
     y_max = -math.inf
 
-    for solver in ['SGD', 'SVRG', 'SAGA']:
+    #solvers = ['SGD', 'SVRG', 'SAGA']
+    solvers = ['SAGA']
+    for solver in solvers:
         # fit model
         points = []  # clear the list of costs of all iterations
         model.Fit(X_train, y_train, solver=solver)
@@ -176,7 +178,7 @@ if __name__ == '__main__':
         y_max = max(points[:, 1].max(), y_max)
 
     plt.legend()
-    plt.xlabel('#iterations')
+    plt.xlabel('#gradients/n')
     plt.ylabel('log-suboptimality')
     plt.xlim(x_min, x_max)
     plt.ylim(y_min, y_max)
