@@ -73,7 +73,7 @@ class Model:
                 # we need to store the cost functions so that we can plot them
                 points.append([int(iterCount/X_train.shape[0]), math.log(currentCost - self.optSolution, 10)])
 
-            optW += 2 * (iterCount + 1） * self.W / (self.iterNum * (self.iterNum + 1))
+            optW += 2 * (iterCount + 1) * self.W / (self.iterNum * (self.iterNum + 1))
             iterCount = iterCount + 1
 
         return optW
@@ -100,7 +100,7 @@ class Model:
 
             w_tilde = W
             self.W = w_tilde
-        #for the last iteration 
+        #for the last iteration
         cost = self.CostFunc(self.W, X_train, Y_train)
         print("epoch: %2d, cost: %.16f" % (s, cost))
         points.append([s, math.log(cost - self.optSolution, 10)])
@@ -126,7 +126,6 @@ class Model:
             gradients[index_scalar] = new_grad
 
             if 0 == t % X_train.shape[0]:
-                sum_gradients = np.sum(gradients, axis=0)
                 currentCost = self.CostFunc(W, X_train, Y_train)
                 print("epoch: %2d, cost: %.16f" % (int(t/X_train.shape[0]), currentCost))
 
