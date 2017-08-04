@@ -6,6 +6,7 @@ from sklearn.metrics import explained_variance_score
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.linear_model import Ridge
 import matplotlib.pyplot as plt
+from random import shuffle
 
 PLOT_NUM = 20
 
@@ -56,6 +57,8 @@ class Model:
             self.W = self.SGD(X_train, y)  # SGD optimization
         elif solver == 'SAGA':
             self.W = self.SAGA(X_train, y)  # SGD optimization
+        elif solver == 'WithoutReplacementSVRG':
+            self.W = self.WithoutReplacementSVRG(X_train, y, m, int(self.iterNum/m))
 
         print("total cost: %.16f" % (self.CostFunc(self.W, X_train, y)))
 
@@ -105,6 +108,37 @@ class Model:
         print("epoch: %2d, cost: %.16f" % (s, cost))
         points.append([s, math.log(cost - self.optSolution, 10)])
         return w_tilde
+
+    def WithoutReplacementSVRG(self, X_train, Y_train, iterNum, epoch, eta=1.0e-6):
+        # SVRG algorithm
+
+        w_tilde = self.W
+        for s in range(epoch):
+            W = w_tilde
+            n_tilde = self.Gradient(w_tilde, X_train, Y_train)
+
+            #indices = np.random.choice(X_train.shape[0], 50)
+            cost = self.CostFunc(self.W, X_train, Y_train)
+            print("epoch: %2d, cost: %.16f" % (s, cost))
+
+            # we need to store the cost functions so that we can plot them
+            points.append([s, math.log(cost - self.optSolution, 10)])
+
+            perm = list(range(iterNum))  # @NOTE iterNum must be #samples
+            shuffle(perm)
+            for t in range(iterNum):
+                index = np.array(perm[t])
+                deltaW = (self.Gradient(W, X_train[index], Y_train[index]) - self.Gradient(w_tilde, X_train[index], Y_train[index]) + n_tilde)
+                W = W - eta * deltaW
+
+            w_tilde = W
+            self.W = w_tilde
+        #for the last iteration
+        cost = self.CostFunc(self.W, X_train, Y_train)
+        print("epoch: %2d, cost: %.16f" % (s, cost))
+        points.append([s, math.log(cost - self.optSolution, 10)])
+        return w_tilde
+
 
     def SAGA(self, X_train, Y_train, gamma=2.5e-5):
         W = self.W
@@ -156,8 +190,9 @@ if __name__ == '__main__':
     y_min = math.inf
     y_max = -math.inf
 
-    solvers = ['SGD', 'SVRG', 'SAGA']
-    #solvers = ['SAGA']
+    #solvers = ['SGD', 'SVRG', 'SAGA', 'WithoutReplacementSVRG']
+    solvers = ['WithoutReplacementSVRG']
+    #solvers = ['SVRG']
     for solver in solvers:
         # fit model
         points = []  # clear the list of costs of all iterations
