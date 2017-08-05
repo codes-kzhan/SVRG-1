@@ -6,7 +6,7 @@ from sklearn.metrics import explained_variance_score
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.linear_model import Ridge
 import matplotlib.pyplot as plt
-from random import shuffle
+import random
 
 PLOT_NUM = 20
 
@@ -57,8 +57,8 @@ class Model:
             self.W = self.SGD(X_train, y)  # SGD optimization
         elif solver == 'SAGA':
             self.W = self.SAGA(X_train, y)  # SGD optimization
-        elif solver == 'WithoutReplacementSVRG':
-            self.W = self.WithoutReplacementSVRG(X_train, y, m, int(self.iterNum/m))
+        elif solver == 'WOSVRG':
+            self.W = self.WithoutReplacementSVRG(X_train, y, int(m/20), 20)
 
         print("total cost: %.16f" % (self.CostFunc(self.W, X_train, y)))
 
@@ -109,10 +109,14 @@ class Model:
         points.append([s, math.log(cost - self.optSolution, 10)])
         return w_tilde
 
-    def WithoutReplacementSVRG(self, X_train, Y_train, iterNum, epoch, eta=1.0e-6):
+    def WOSVRG(self, X_train, Y_train, iterNum, epoch, eta=5.875e-4):
         # SVRG algorithm
 
         w_tilde = self.W
+
+        perm = np.array(list(range(X_train.shape[0])))  # @NOTE iterNum must be #samples
+        np.random.shuffle(perm)
+
         for s in range(epoch):
             W = w_tilde
             n_tilde = self.Gradient(w_tilde, X_train, Y_train)
@@ -124,10 +128,8 @@ class Model:
             # we need to store the cost functions so that we can plot them
             points.append([s, math.log(cost - self.optSolution, 10)])
 
-            perm = list(range(iterNum))  # @NOTE iterNum must be #samples
-            shuffle(perm)
             for t in range(iterNum):
-                index = np.array(perm[t])
+                index = perm[s* iterNum + t]
                 deltaW = (self.Gradient(W, X_train[index], Y_train[index]) - self.Gradient(w_tilde, X_train[index], Y_train[index]) + n_tilde)
                 W = W - eta * deltaW
 
@@ -190,8 +192,8 @@ if __name__ == '__main__':
     y_min = math.inf
     y_max = -math.inf
 
-    #solvers = ['SGD', 'SVRG', 'SAGA', 'WithoutReplacementSVRG']
-    solvers = ['WithoutReplacementSVRG']
+    #solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
+    solvers = ['WOSVRG']
     #solvers = ['SVRG']
     for solver in solvers:
         # fit model
