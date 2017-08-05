@@ -136,10 +136,6 @@ class Model:
 
             w_tilde = W
             self.W = w_tilde
-        #for the last iteration
-        #cost = self.CostFunc(self.W, X_train, Y_train)
-        #print("epoch: %2d, cost: %.16f" % (s, cost))
-        #points.append([s, math.log(cost - self.optSolution, 10)])
         return w_tilde
 
 
