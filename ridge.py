@@ -160,7 +160,7 @@ class Model:
         return w_tilde
 
 
-    def SAGA(self, X_train, Y_train, gamma=2.5e-5):
+    def SAGA(self, X_train, Y_train, gamma=2.5e-4):
         W = self.W
         # initialize gradients
         gradients = np.zeros([X_train.shape[0], X_train.shape[1]])
@@ -204,15 +204,15 @@ if __name__ == '__main__':
     model = Model(tol=1e-4, C=1e-3, iterNum=X_train.shape[0] * 20 + 1)
 
     # a new figure
-    plt.figure("Convergence rates of SGD, SVRG and SAGA")
+    plt.figure("Convergence rates of SGD, SVRG, SAGA and WOSVRG")
     x_min = math.inf
     x_max = -math.inf
     y_min = math.inf
     y_max = -math.inf
 
-    solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
+    #solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
     #solvers = ['SVRG', 'WOSVRG']
-    #solvers = ['SAGA']
+    solvers = ['SAGA']
     #solvers = ['SVRG']
     for solver in solvers:
         # fit model
@@ -232,7 +232,7 @@ if __name__ == '__main__':
         y_max = max(points[:, 1].max(), y_max)
 
     plt.legend()
-    plt.xlabel('#gradients/n')
+    plt.xlabel('effect pass')
     plt.ylabel('log-suboptimality')
     plt.xlim(x_min, x_max)
     plt.ylim(y_min, y_max)
