@@ -8,8 +8,6 @@ from sklearn.linear_model import Ridge
 import matplotlib.pyplot as plt
 import random
 
-PLOT_NUM = 20
-
 class Model:
     """ ridge regression model
     @attributes:
@@ -24,7 +22,7 @@ class Model:
         self.tol = tol
         self.C = C
         self.iterNum = iterNum
-        self.optSolution = 0.381876662416058776372551619715522974729537963867187500
+        self.optSolution = 0.381876662416058720861400388457695953547954559326171875
 
     def Hypothesis(self, W, X):
         return np.dot(X, W) # return a m-by-1 vector
@@ -58,7 +56,7 @@ class Model:
         elif solver == 'SAGA':
             self.W = self.SAGA(X_train, y)  # SGD optimization
         elif solver == 'WOSVRG':
-            self.W = self.WithoutReplacementSVRG(X_train, y, int(m/20), 20)
+            self.W = self.WOSVRG(X_train, y, m, int(self.iterNum/m))
 
         print("total cost: %.16f" % (self.CostFunc(self.W, X_train, y)))
 
@@ -86,15 +84,18 @@ class Model:
 
         w_tilde = self.W
         for s in range(epoch):
+
+            cost = self.CostFunc(self.W, X_train, Y_train)
+            print("epoch: %2d, cost: %.16f" % (s + 1, cost))
+            # we need to store the cost functions so that we can plot them
+            try:
+                logSuboptimality = math.log(cost - self.optSolution, 10)
+            except:
+                print("cost: %.54f\nopt: %.54f" % (cost, self.optSolution))
+            points.append([s, logSuboptimality])
+
             W = w_tilde
             n_tilde = self.Gradient(w_tilde, X_train, Y_train)
-
-            #indices = np.random.choice(X_train.shape[0], 50)
-            cost = self.CostFunc(self.W, X_train, Y_train)
-            print("epoch: %2d, cost: %.16f" % (s, cost))
-
-            # we need to store the cost functions so that we can plot them
-            points.append([s, math.log(cost - self.optSolution, 10)])
 
             for t in range(iterNum):
                 index = np.random.choice(X_train.shape[0], 1)
@@ -103,10 +104,7 @@ class Model:
 
             w_tilde = W
             self.W = w_tilde
-        #for the last iteration
-        cost = self.CostFunc(self.W, X_train, Y_train)
-        print("epoch: %2d, cost: %.16f" % (s, cost))
-        points.append([s, math.log(cost - self.optSolution, 10)])
+
         return w_tilde
 
     def WOSVRG(self, X_train, Y_train, iterNum, epoch, eta=5.875e-4):
@@ -115,7 +113,7 @@ class Model:
         w_tilde = self.W
 
         perm = np.array(list(range(X_train.shape[0])))  # @NOTE iterNum must be #samples
-        np.random.shuffle(perm)
+        #np.random.shuffle(perm)
 
         for s in range(epoch):
             W = w_tilde
@@ -126,19 +124,22 @@ class Model:
             print("epoch: %2d, cost: %.16f" % (s, cost))
 
             # we need to store the cost functions so that we can plot them
-            points.append([s, math.log(cost - self.optSolution, 10)])
+            points.append([s+1, math.log(cost - self.optSolution, 10)])
 
             for t in range(iterNum):
-                index = perm[s* iterNum + t]
+                #index = perm[s * iterNum + t]
+                index = np.array([perm[t]])
+                #index = t
+                #index = np.random.choice(X_train.shape[0], 1)
                 deltaW = (self.Gradient(W, X_train[index], Y_train[index]) - self.Gradient(w_tilde, X_train[index], Y_train[index]) + n_tilde)
                 W = W - eta * deltaW
 
             w_tilde = W
             self.W = w_tilde
         #for the last iteration
-        cost = self.CostFunc(self.W, X_train, Y_train)
-        print("epoch: %2d, cost: %.16f" % (s, cost))
-        points.append([s, math.log(cost - self.optSolution, 10)])
+        #cost = self.CostFunc(self.W, X_train, Y_train)
+        #print("epoch: %2d, cost: %.16f" % (s, cost))
+        #points.append([s, math.log(cost - self.optSolution, 10)])
         return w_tilde
 
 
@@ -156,8 +157,8 @@ class Model:
             # update W
             new_grad = self.Gradient(W, X_train[index], Y_train[index])
             #W = (1 - gamma * self.C) * W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/X_train.shape[0])
-            W_prime = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/X_train.shape[0])
-            W = 1 / (self.C * gamma + 1) * W_prime
+            W = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/X_train.shape[0])
+            #W = 1 / (self.C * gamma + 1) * W_prime
             sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
             gradients[index_scalar] = new_grad
 
@@ -192,8 +193,8 @@ if __name__ == '__main__':
     y_min = math.inf
     y_max = -math.inf
 
-    #solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
-    solvers = ['WOSVRG']
+    #solvers = ['SGD', 'SVRG', 'SAGA']
+    solvers = ['SVRG', 'WOSVRG']
     #solvers = ['SVRG']
     for solver in solvers:
         # fit model
