@@ -86,7 +86,7 @@ class Model:
         for s in range(epoch):
 
             cost = self.CostFunc(self.W, X_train, Y_train)
-            print("epoch: %2d, cost: %.16f" % (s + 1, cost))
+            print("epoch: %2d, cost: %.16f" % (s, cost))
             # we need to store the cost functions so that we can plot them
             try:
                 logSuboptimality = math.log(cost - self.optSolution, 10)
@@ -104,6 +104,16 @@ class Model:
 
             w_tilde = W
             self.W = w_tilde
+
+        # last pixel
+        cost = self.CostFunc(self.W, X_train, Y_train)
+        print("epoch: %2d, cost: %.16f" % (s + 1, cost))
+        # we need to store the cost functions so that we can plot them
+        try:
+            logSuboptimality = math.log(cost - self.optSolution, 10)
+        except:
+            print("cost: %.54f\nopt: %.54f" % (cost, self.optSolution))
+        points.append([s + 1, logSuboptimality])
 
         return w_tilde
 
@@ -124,7 +134,7 @@ class Model:
             print("epoch: %2d, cost: %.16f" % (s, cost))
 
             # we need to store the cost functions so that we can plot them
-            points.append([s+1, math.log(cost - self.optSolution, 10)])
+            points.append([s, math.log(cost - self.optSolution, 10)])
 
             for t in range(iterNum):
                 #index = perm[s * iterNum + t]
@@ -136,6 +146,17 @@ class Model:
 
             w_tilde = W
             self.W = w_tilde
+
+        # last pixel
+        cost = self.CostFunc(self.W, X_train, Y_train)
+        print("epoch: %2d, cost: %.16f" % (s + 1, cost))
+        # we need to store the cost functions so that we can plot them
+        try:
+            logSuboptimality = math.log(cost - self.optSolution, 10)
+        except:
+            print("cost: %.54f\nopt: %.54f" % (cost, self.optSolution))
+        points.append([s + 1, logSuboptimality])
+
         return w_tilde
 
 
@@ -180,7 +201,7 @@ class Model:
 if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadTxtData('../data/YearPredictionMSD.txt', test_size=0.05, scale=True)
-    model = Model(tol=1e-4, C=1e-3, iterNum=X_train.shape[0] * 20 + 1)
+    model = Model(tol=1e-4, C=1e-3, iterNum=X_train.shape[0] * 3 + 1)
 
     # a new figure
     plt.figure("Convergence rates of SGD, SVRG and SAGA")
@@ -190,8 +211,8 @@ if __name__ == '__main__':
     y_max = -math.inf
 
     #solvers = ['SGD', 'SVRG', 'SAGA']
-    #solvers = ['SVRG', 'WOSVRG']
-    solvers = ['SAGA']
+    solvers = ['SVRG', 'WOSVRG']
+    #solvers = ['SAGA']
     #solvers = ['SVRG']
     for solver in solvers:
         # fit model
