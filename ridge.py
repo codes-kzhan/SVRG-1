@@ -190,7 +190,8 @@ if __name__ == '__main__':
     y_max = -math.inf
 
     #solvers = ['SGD', 'SVRG', 'SAGA']
-    solvers = ['SVRG', 'WOSVRG']
+    #solvers = ['SVRG', 'WOSVRG']
+    solvers = ['SAGA']
     #solvers = ['SVRG']
     for solver in solvers:
         # fit model
