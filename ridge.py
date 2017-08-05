@@ -201,7 +201,7 @@ class Model:
 if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadTxtData('../data/YearPredictionMSD.txt', test_size=0.05, scale=True)
-    model = Model(tol=1e-4, C=1e-3, iterNum=X_train.shape[0] * 3 + 1)
+    model = Model(tol=1e-4, C=1e-3, iterNum=X_train.shape[0] * 20 + 1)
 
     # a new figure
     plt.figure("Convergence rates of SGD, SVRG and SAGA")
@@ -210,8 +210,8 @@ if __name__ == '__main__':
     y_min = math.inf
     y_max = -math.inf
 
-    #solvers = ['SGD', 'SVRG', 'SAGA']
-    solvers = ['SVRG', 'WOSVRG']
+    solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
+    #solvers = ['SVRG', 'WOSVRG']
     #solvers = ['SAGA']
     #solvers = ['SVRG']
     for solver in solvers:
