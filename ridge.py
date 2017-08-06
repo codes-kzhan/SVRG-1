@@ -23,6 +23,7 @@ class Model:
         self.C = C
         self.iterNum = iterNum
         self.optSolution = 0.381876662416058720861400388457695953547954559326171875
+        self.results = []
 
     def Hypothesis(self, W, X):
         return np.dot(X, W) # return a m-by-1 vector
@@ -33,18 +34,21 @@ class Model:
         return cost + regTerm
 
     def Gradient(self, W, X, y):
-        grad = np.dot(1 / X.shape[0] *  X.T, np.dot(X, W) - y) + self.C * W # n-by-1 vector
-        return grad
+        # @NOTE X MUST an m*n matrix, where m denotes #samples, n denotes #features
+        m, n = X.shape # m: sample size, n: feature size
+        return np.dot(1/m *  X.T, np.dot(X, W) - y) + self.C * W # n-by-1 vector
 
-    def UpdateGradient(self, X, Y, eta):  # eta: step size
-        grad = self.Gradient(self.W, X, Y)
-        newW = self.W - eta * grad
-        self.W = newW
+    def PrintCost(self, W, X, y, numEpoch):
+        currentCost = self.CostFunc(W, X, y)
+        print("epoch: %2d, cost: %.16f" % (numEpoch, currentCost))
+        # we need to store the cost functions so that we can plot them
+        self.results.append([numEpoch, math.log(currentCost - self.optSolution, 10)])
 
     def Fit(self, X, y, solver='SVRG'):
         # deal with data first
         X_train = np.append(np.ones((X.shape[0], 1)), X, axis=1)
         m, n = X_train.shape # m: sample size, n: feature size
+        self.results.clear() # we need to store each epoch's cost so that we can plot them
         #initialize W
         self.W = np.random.rand(n) * 1e-4
 
@@ -60,131 +64,97 @@ class Model:
 
         print("total cost: %.16f" % (self.CostFunc(self.W, X_train, y)))
 
-    def SGD(self, X_train, y):
+    def SGD(self, X_train, y_train):
         # iteration: SGD algorithm
+        W = self.W
         optW = 0
-        for iterCount in range(self.iterNum):
-            index = np.random.choice(X_train.shape[0], 10)
-            eta = min(2/(self.C * (iterCount + 2)), 0.01)
-            #eta = 0.01
-            self.UpdateGradient(X_train[index], y[index], eta)
-            if 0 == iterCount % X_train.shape[0]:
-                currentCost = self.CostFunc(self.W, X_train, y)
-                print("epoch: %2d, cost: %.16f" % (int(iterCount/X_train.shape[0]), currentCost))
-                # we need to store the cost functions so that we can plot them
-                points.append([int(iterCount/X_train.shape[0]), math.log(currentCost - self.optSolution, 10)])
+        m, n = X_train.shape # m: sample size, n: feature size
+        batchSize = 10
+        for t in range(self.iterNum):
+            index = np.random.choice(m, batchSize) # minibatch size: 10
+            eta = min(2/(self.C * (t + 2)), 0.01)
+            W = W - eta * (np.dot(1/batchSize * X_train[index].T, np.dot(X_train[index], W) - y_train[index]) + self.C * W)
+            optW += 2 * (t + 1) * W / (self.iterNum * (self.iterNum + 1))
 
-            optW += 2 * (iterCount + 1) * self.W / (self.iterNum * (self.iterNum + 1))
-            iterCount = iterCount + 1
+            # print and plot
+            if 0 == t % m:
+                self.PrintCost(W, X_train, y_train, int(t/m))
 
         return optW
 
-    def SVRG(self, X_train, Y_train, iterNum, epoch, eta=5.875e-4):
+    def SVRG(self, X_train, y_train, iterNum, epoch, eta=5.875e-4):
         # SVRG algorithm
 
+        m, n = X_train.shape # m: sample size, n: feature size
         w_tilde = self.W
         for s in range(epoch):
-
-            cost = self.CostFunc(self.W, X_train, Y_train)
-            print("epoch: %2d, cost: %.16f" % (s, cost))
-            # we need to store the cost functions so that we can plot them
-            try:
-                logSuboptimality = math.log(cost - self.optSolution, 10)
-            except:
-                print("cost: %.54f\nopt: %.54f" % (cost, self.optSolution))
-            points.append([s, logSuboptimality])
+            # print and plot
+            self.PrintCost(w_tilde, X_train, y_train, s)
 
             W = w_tilde
-            n_tilde = self.Gradient(w_tilde, X_train, Y_train)
+            n_tilde = np.dot(1 / m *  X_train.T, np.dot(X_train, w_tilde) - y_train) # n-by-1 vector
 
             for t in range(iterNum):
                 index = np.random.choice(X_train.shape[0], 1)
-                deltaW = (self.Gradient(W, X_train[index], Y_train[index]) - self.Gradient(w_tilde, X_train[index], Y_train[index]) + n_tilde)
+                deltaW = np.dot(X_train[index], W - w_tilde) * X_train[index].T.reshape([n]) + self.C * W + n_tilde
                 W = W - eta * deltaW
 
             w_tilde = W
-            self.W = w_tilde
 
-        # last pixel
-        cost = self.CostFunc(self.W, X_train, Y_train)
-        print("epoch: %2d, cost: %.16f" % (s + 1, cost))
-        # we need to store the cost functions so that we can plot them
-        try:
-            logSuboptimality = math.log(cost - self.optSolution, 10)
-        except:
-            print("cost: %.54f\nopt: %.54f" % (cost, self.optSolution))
-        points.append([s + 1, logSuboptimality])
+        # print and plot the last epoch
+        self.PrintCost(w_tilde, X_train, y_train, s + 1)
 
         return w_tilde
 
-    def WOSVRG(self, X_train, Y_train, iterNum, epoch, eta=5.875e-4):
-        # SVRG algorithm
+    def WOSVRG(self, X_train, y_train, iterNum, epoch, eta=5.875e-4):
+        # Without-Replacement SVRG algorithm
 
+        m, n = X_train.shape # m: sample size, n: feature size
         w_tilde = self.W
-
-        perm = np.array(list(range(X_train.shape[0])))  # @NOTE iterNum must be #samples
-        #np.random.shuffle(perm)
-
         for s in range(epoch):
+            # print and plot
+            self.PrintCost(w_tilde, X_train, y_train, s)
+
             W = w_tilde
-            n_tilde = self.Gradient(w_tilde, X_train, Y_train)
-
-            #indices = np.random.choice(X_train.shape[0], 50)
-            cost = self.CostFunc(self.W, X_train, Y_train)
-            print("epoch: %2d, cost: %.16f" % (s, cost))
-
-            # we need to store the cost functions so that we can plot them
-            points.append([s, math.log(cost - self.optSolution, 10)])
+            n_tilde = np.dot(1 / m *  X_train.T, np.dot(X_train, w_tilde) - y_train) # n-by-1 vector
 
             for t in range(iterNum):
-                #index = perm[s * iterNum + t]
-                index = np.array([perm[t]])
-                #index = t
-                #index = np.random.choice(X_train.shape[0], 1)
-                deltaW = (self.Gradient(W, X_train[index], Y_train[index]) - self.Gradient(w_tilde, X_train[index], Y_train[index]) + n_tilde)
+                index = np.array([t])
+                #accelerated gradient computation
+                deltaW = np.dot(X_train[index], W - w_tilde) * X_train[index].T.reshape([n]) + self.C * W + n_tilde
                 W = W - eta * deltaW
 
             w_tilde = W
-            self.W = w_tilde
 
-        # last pixel
-        cost = self.CostFunc(self.W, X_train, Y_train)
-        print("epoch: %2d, cost: %.16f" % (s + 1, cost))
-        # we need to store the cost functions so that we can plot them
-        try:
-            logSuboptimality = math.log(cost - self.optSolution, 10)
-        except:
-            print("cost: %.54f\nopt: %.54f" % (cost, self.optSolution))
-        points.append([s + 1, logSuboptimality])
+        # print and plot the last epoch
+        self.PrintCost(w_tilde, X_train, y_train, s + 1)
 
         return w_tilde
 
-
-    def SAGA(self, X_train, Y_train, gamma=2.5e-4):
+    def SAGA(self, X_train, y_train, gamma=1.0e-4):
         W = self.W
+        m, n = X_train.shape # m: sample size, n: feature size
+
         # initialize gradients
-        gradients = np.zeros([X_train.shape[0], X_train.shape[1]])
+        gradients = np.zeros([m, n])
         for i in range(X_train.shape[0]):
-            gradients[i] = self.Gradient(self.W, X_train[[i]], Y_train[[i]])
+            gradients[i] = self.Gradient(self.W, X_train[[i]], y_train[[i]])
+        # # initialize gradients
+        # gradients = np.multiply((np.dot(X_train, W) - y_train).reshape([m, 1]), X_train) + self.C * W
         sum_gradients = np.sum(gradients, axis=0)
         for t in range(self.iterNum):
             # pick an index uniformly at random
             index = np.random.choice(X_train.shape[0], 1)
             index_scalar = index[0]
             # update W
-            new_grad = self.Gradient(W, X_train[index], Y_train[index])
-            #W = (1 - gamma * self.C) * W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/X_train.shape[0])
-            W = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/X_train.shape[0])
-            #W = 1 / (self.C * gamma + 1) * W_prime
+            new_grad = self.Gradient(W, X_train[index], y_train[index])
+            W = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/m)
             sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
             gradients[index_scalar] = new_grad
 
-            if 0 == t % X_train.shape[0]:
-                currentCost = self.CostFunc(W, X_train, Y_train)
-                print("epoch: %2d, cost: %.16f" % (int(t/X_train.shape[0]), currentCost))
-
-                # we need to store the cost functions so that we can plot them
-                points.append([int(t/X_train.shape[0]), math.log(currentCost - self.optSolution, 10)])
+            # print and plot
+            if 0 == t % m:
+                self.PrintCost(W, X_train, y_train, int(t/m))
 
         return W
 
@@ -211,28 +181,27 @@ if __name__ == '__main__':
     y_max = -math.inf
 
     #solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
-    #solvers = ['SVRG', 'WOSVRG']
+    #solvers = ['WOSVRG', 'SAGA']
     solvers = ['SAGA']
     #solvers = ['SVRG']
     for solver in solvers:
         # fit model
-        points = []  # clear the list of costs of all iterations
         print("\nFitting data with %s algorithm..." % solver)
         model.Fit(X_train, y_train, solver=solver)
         # test
         print("training accuracy:", model.Score(X_train, y_train))
         print("test accuracy:", model.Score(X_test, y_test))
 
-        points = np.array(points)
-        plt.plot(points[:, 0], points[:, 1], label=solver)
+        results = np.array(model.results)
+        plt.plot(results[:, 0], results[:, 1], label=solver)
 
-        x_min = min(points[:, 0].min(), x_min)
-        x_max = max(points[:, 0].max(), x_max)
-        y_min = min(points[:, 1].min(), y_min)
-        y_max = max(points[:, 1].max(), y_max)
+        x_min = min(results[:, 0].min(), x_min)
+        x_max = max(results[:, 0].max(), x_max)
+        y_min = min(results[:, 1].min(), y_min)
+        y_max = max(results[:, 1].max(), y_max)
 
     plt.legend()
-    plt.xlabel('effect pass')
+    plt.xlabel('effective pass')
     plt.ylabel('log-suboptimality')
     plt.xlim(x_min, x_max)
     plt.ylim(y_min, y_max)
