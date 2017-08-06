@@ -13,10 +13,8 @@ class Model:
     @attributes:
     tol: tolerance of stopping criteria
     C: regularization strength
-    m: sample size
-    n: feature size
-    k: number of classes
     W: n coefficients vector
+    results: a list that stores each epoch's sub-optimality
     """
     def __init__(self, tol=1e-4, C=1.0, iterNum=1000):
         self.tol = tol

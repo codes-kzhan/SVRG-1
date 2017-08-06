@@ -7,10 +7,11 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_svmlight_file
 from sklearn import preprocessing
+from sklearn.datasets import fetch_rcv1
 
 def LoadOpenMLData(dataset_id=150, test_size=0.33, random_state=42):
     """ Load data from openml.org
-    @dataset_id: id of covertype dataset on www.openml.org
+    @dataset_id: id of dataset on www.openml.org (covertype: 150)
     @test_size: the size of the test set, range: (0, 1)
     @random_state: how the data is split
     return [X_train, X_test, y_train, y_test]
@@ -41,4 +42,10 @@ def LoadTxtData(path, test_size=0.33, random_state=42, scale=False):
     else:
         X = dataset[:, 1:]
         y = dataset[:, 0]
+    return train_test_split(X, y, test_size=test_size, random_state=random_state)
+
+def LoadRCV1Data(test_size=0.33, random_state=42, scale=False):
+    rcv1 = fetch_rcv1()
+    X = rcv1.data # @NOTE the feature matrix is a scipy csr matrix
+    y = rcv1.target
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
