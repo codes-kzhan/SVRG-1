@@ -131,16 +131,12 @@ class Model:
 
         return w_tilde
 
-    def SAGA(self, X_train, y_train, gamma=1.0e-4):
+    def SAGA(self, X_train, y_train, gamma=2.5e-5):
         W = self.W
         m, n = X_train.shape # m: sample size, n: feature size
 
         # initialize gradients
-        gradients = np.zeros([m, n])
-        for i in range(X_train.shape[0]):
-            gradients[i] = self.Gradient(self.W, X_train[[i]], y_train[[i]])
-        # # initialize gradients
-        # gradients = np.multiply((np.dot(X_train, W) - y_train).reshape([m, 1]), X_train) + self.C * W
+        gradients = np.multiply((np.dot(X_train, W) - y_train).reshape([m, 1]), X_train) + self.C * W
         sum_gradients = np.sum(gradients, axis=0)
         for t in range(self.iterNum):
             # pick an index uniformly at random
