@@ -27,10 +27,30 @@ classs Model:
     def Hypothesis(self, W, X):
         return np.dot(X, W) # return a m-by-1 vector
 
-    def CostFunc(self, W, X, y):
-        cost = 1/2 * np.average(np.square(self.Hypothesis(W, X) - y))
-        regTerm = self.C/2 * np.sum(np.square(W))
-        return cost + regTerm
+    def CostFunc(self, W, dual, X, y):
+        m, n = X.shape
+        e_pos = np.zeros_like(y)
+        e_pos[np.argwhere(y == 1)] = 1
+        n_pos = np.count_nonzero(e_pos)
+        e_neg = np.zeros_like(y)
+        e_neg[np.argwhere(y == -1)] = 1
+        n_neg = np.count_nonzero(e_neg)
+        a = e_pos/n_pos - e_neg/n_neg
+        M = 1 / (1/n_pos + 1/n_neg)
+        A = np.diag(e_pos/n_pos + e_neg/n_neg) - 1/(n_pos * n_neg) * (np.dot(e_pos, e_neg.T), np.dot(e_neg, e_pos.T)
+        Ainv = np.linalg.inv(A)
+
+        loss = 1/2 + np.dot(dual.T - a.T, np.dot(X, W) - M/2*np.sum(np.square(dual)) - 1/2*np.dot(dual.T, np.dot(Ainv - M*np.identity(m), dual))
+        # compute sum(W[i] - W[j]) where i != j
+        clusterInducingTerm = 0
+        for i in range(n):
+            for j in range(n):
+                if i == j:
+                    continue
+                clusterInducingTerm += abs(W[i] - W[j])
+        clusterInducingTerm = clusterInducingTerm / 2
+        regTerm = self.C/2 * np.sum(np.square(W)) + clusterInducingTerm
+        return loss + regTerm
 
 if __name__ == '__main__':
     # load data
