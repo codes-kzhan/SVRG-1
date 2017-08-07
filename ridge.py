@@ -164,11 +164,11 @@ class Model:
 
 if __name__ == '__main__':
     # load data
-    X_train, X_test, y_train, y_test = comm.LoadTxtData('../data/YearPredictionMSD.txt', test_size=0.05, scale=True)
+    X_train, X_test, y_train, y_test = comm.LoadYearPredictionData(test_size=0.05, scale=True)
     model = Model(tol=1e-4, C=1e-3, iterNum=X_train.shape[0] * 20 + 1)
 
     # a new figure
-    plt.figure("Convergence rates of SGD, SVRG, SAGA and WOSVRG")
+    plt.figure("ridge regression on YearPredictionMSD")
     x_min = math.inf
     x_max = -math.inf
     y_min = math.inf
@@ -200,3 +200,4 @@ if __name__ == '__main__':
     plt.xlim(x_min, x_max)
     plt.ylim(y_min, y_max)
     plt.show()
+    plt.savefig('ridge.png', dpi=96)

@@ -31,3 +31,40 @@ classs Model:
         cost = 1/2 * np.average(np.square(self.Hypothesis(W, X) - y))
         regTerm = self.C/2 * np.sum(np.square(W))
         return cost + regTerm
+
+if __name__ == '__main__':
+    # load data
+    X_train, X_test, y_train, y_test = comm.LoadSidoData(test_size=0.05)
+    model = Model(tol=1e-4, C=1e-3, iterNum=1001)
+
+    # a new figure
+    plt.figure("sido")
+    x_min = math.inf
+    x_max = -math.inf
+    y_min = math.inf
+    y_max = -math.inf
+
+    solvers = ['SAGA']
+    for solver in solvers:
+        # fit model
+        print("\nFitting data with %s algorithm..." % solver)
+        model.Fit(X_train, y_train, solver=solver)
+        # test
+        print("training accuracy:", model.Score(X_train, y_train))
+        print("test accuracy:", model.Score(X_test, y_test))
+
+        results = np.array(model.results)
+        plt.plot(results[:, 0], results[:, 1], label=solver)
+
+        x_min = min(results[:, 0].min(), x_min)
+        x_max = max(results[:, 0].max(), x_max)
+        y_min = min(results[:, 1].min(), y_min)
+        y_max = max(results[:, 1].max(), y_max)
+
+    plt.legend()
+    plt.xlabel('effective pass')
+    plt.ylabel('log-suboptimality')
+    plt.xlim(x_min, x_max)
+    plt.ylim(y_min, y_max)
+    plt.show()
+    plt.savefig('roc.png', dpi=96)

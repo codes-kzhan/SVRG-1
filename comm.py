@@ -33,8 +33,8 @@ def LoadOpenMLData(dataset_id=150, test_size=0.33, random_state=42):
     #X = enc.fit_transform(X).todense()
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
-def LoadTxtData(path, test_size=0.33, random_state=42, scale=False):
-    df = pd.read_csv(path, sep=',', header=None)
+def LoadYearPredictionData(path='../data/YearPredictionMSD.txt', test_size=0.33, random_state=42, scale=False, sep=','):
+    df = pd.read_csv(path, sep=sep, header=None)
     dataset = df.values
     if scale:
         X = preprocessing.scale(dataset[:, 1:])
@@ -44,8 +44,29 @@ def LoadTxtData(path, test_size=0.33, random_state=42, scale=False):
         y = dataset[:, 0]
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
-def LoadRCV1Data(test_size=0.33, random_state=42, scale=False):
+def LoadRCV1Data(test_size=0.33, random_state=42):
     rcv1 = fetch_rcv1()
     X = rcv1.data # @NOTE the feature matrix is a scipy csr matrix
     y = rcv1.target
+    labels = rcv1.target_names[:].tolist()
+    ccat = labels.index('CCAT')
+    y = y.toarray()
+    y_bin = np.ones(y.shape[0])
+    for i in range(y.shape[0]):
+        if y[i][ccat] != 1:
+            y_bin[i] = -1
+    # return X_train, X_test, y_train, y_test, where X_{train, test} is of csr matrix type
+    return train_test_split(X, y_bin, test_size=test_size, random_state=random_state)
+
+def LoadSidoData(dataPath='../data/sido/sido2_train.data', targetPath='../data/sido/sido2_train.targets', test_size=0.33, random_state=42, scale=False, sep=' '):
+    df = pd.read_csv(dataPath, sep=sep, header=None)
+    dataset = df.values
+    tf = pd.read_csv(targetPath, sep=sep, header=None)
+    targets = tf.values
+    if scale:
+        X = preprocessing.scale(dataset)
+        y = preprocessing.scale(targets[:, 0])
+    else:
+        X = dataset
+        y = targets[:, 0]
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
