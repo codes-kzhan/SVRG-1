@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_svmlight_file
 from sklearn import preprocessing
 from sklearn.datasets import fetch_rcv1
+import numpy as np
 
 def LoadOpenMLData(dataset_id=150, test_size=0.33, random_state=42):
     """ Load data from openml.org
@@ -50,10 +51,9 @@ def LoadRCV1Data(test_size=0.33, random_state=42):
     y = rcv1.target
     labels = rcv1.target_names[:].tolist()
     ccat = labels.index('CCAT')
-    y = y.toarray()
     y_bin = np.ones(y.shape[0])
     for i in range(y.shape[0]):
-        if y[i][ccat] != 1:
+        if y[i, ccat] != 1:
             y_bin[i] = -1
     # return X_train, X_test, y_train, y_test, where X_{train, test} is of csr matrix type
     return train_test_split(X, y_bin, test_size=test_size, random_state=random_state)
