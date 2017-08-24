@@ -40,7 +40,7 @@ class Model:
         # @NOTE X MUST an m*n matrix, where m denotes #samples, n denotes #features
         m, n = X.shape # m: sample size, n: feature size
         tmpExp = np.exp(np.multiply(np.dot(X, W), -y))
-        return np.average(np.divide(-(y*tmpExp).reshape([m, 1]) * X, 1 + tmpExp.reshape([m, 1])), axis=0) + self.C * W # n-by-1 vector
+        return np.average(np.divide(-(y*tmpExp).reshape([m, 1]) * X, 1 + tmpExp.reshape([m, 1])), axis=0) # n-by-1 vector
 
     def PrintCost(self, W, X, y, numEpoch):
         currentCost = self.CostFunc(W, X, y)
@@ -72,7 +72,7 @@ class Model:
 
         print("total cost: %.16f" % (self.CostFunc(self.W, X_train, y)))
 
-    def SGD(self, X_train, y_train):  # @TODO
+    def SGD(self, X_train, y_train):
         # iteration: SGD algorithm
         W = self.W
         optW = 0
@@ -81,7 +81,7 @@ class Model:
         for t in range(self.iterNum):
             index = np.random.choice(m, batchSize) # minibatch size: 10
             eta = min(2/(self.C * (t + 2)), 0.01)
-            W = W - eta * self.Gradient(W, X_train[index], y_train[index])
+            W = W - eta * (self.Gradient(W, X_train[index], y_train[index]) + self.C * W)
             optW += 2 * (t + 1) * W / (self.iterNum * (self.iterNum + 1))
 
             # print and plot
@@ -100,11 +100,12 @@ class Model:
             self.PrintCost(w_tilde, X_train, y_train, s)
 
             W = w_tilde
-            n_tilde = np.dot(1 / m *  X_train.T, np.dot(X_train, w_tilde) - y_train) # n-by-1 vector
+
+            n_tilde = self.Gradient(W, X_train, y_train)
 
             for t in range(iterNum):
                 index = np.random.choice(X_train.shape[0], 1)
-                deltaW = np.dot(X_train[index], W - w_tilde) * X_train[index].T.reshape([n]) + self.C * W + n_tilde
+                deltaW = self.Gradient(W, X_train[index],y_train[index]) - self.Gradient(w_tilde, X_train[index], y_train[index])+ self.C * W + n_tilde
                 W = W - eta * deltaW
 
             w_tilde = W
@@ -241,7 +242,7 @@ if __name__ == '__main__':
     #solvers = ['RSSAGA', 'WOSVRG', 'SAGA', 'SVRG']
     #solvers = ['SVRG']
     #solvers = ['RSSAGA']
-    solvers = ['SGD']
+    solvers = ['SGD', 'SVRG']
     for solver in solvers:
         # fit model
         print("\nFitting data with %s algorithm..." % solver)
