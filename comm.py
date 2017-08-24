@@ -9,6 +9,7 @@ from sklearn.datasets import load_svmlight_file
 from sklearn import preprocessing
 from sklearn.datasets import fetch_rcv1
 import numpy as np
+import pickle
 
 def LoadOpenMLData(dataset_id=150, test_size=0.33, random_state=42):
     """ Load data from openml.org
@@ -69,4 +70,36 @@ def LoadSidoData(dataPath='../data/sido/sido2_train.data', targetPath='../data/s
     else:
         X = dataset
         y = targets[:, 0]
+    return train_test_split(X, y, test_size=test_size, random_state=random_state)
+
+def unpickle(file):
+    import pickle
+    with open(file, 'rb') as fo:
+        dict = pickle.load(fo, encoding='bytes')
+    return dict
+
+def LoadCIFARData(datapath='../data/cifar/'):
+    X_train = None
+    y_train = None
+    for i in range(5):
+        filename = datapath + 'data_batch_' + str(i+1)
+        tmpdict = unpickle(filename)
+        if X_train is None:
+            X_train = np.array(tmpdict[b'data'])
+            y_train = np.array(tmpdict[b'labels'])
+        else:
+            X_train = np.append(X_train, np.array(tmpdict[b'data']), axis=0)
+            y_train = np.append(y_train, np.array(tmpdict[b'labels']), axis=0)
+
+    filename = datapath + 'test_batch'
+    tmpdict = unpickle(filename)
+    X_test = np.array(tmpdict[b'data'])
+    y_test = np.array(tmpdict[b'labels'])
+    return X_train, X_test, y_train, y_test
+
+def LoadCovtypeData(datapath='../data/covtype.libsvm.binary.scale', test_size=0.33, random_state=42):
+    data = load_svmlight_file(datapath)
+    X = data[0].toarray()
+    y = data[1]
+    y[np.argwhere(y == 2)] = -1
     return train_test_split(X, y, test_size=test_size, random_state=random_state)

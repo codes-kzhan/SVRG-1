@@ -22,7 +22,7 @@ class Model:
         self.tol = tol
         self.C = C
         self.iterNum = iterNum
-        self.optSolution = 0.872841085854215270600775511411484330892562866210937500
+        self.optSolution = None
 
     def Hypothesis(self, W, X):
         tmpH = np.exp(np.dot(X, W))

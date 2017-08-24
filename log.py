@@ -1,6 +1,7 @@
 import comm
 import math
 import numpy as np
+from sklearn.metrics import accuracy_score
 from numpy import linalg as LA
 from sklearn.metrics import explained_variance_score
 from sklearn.preprocessing import LabelBinarizer
@@ -21,27 +22,31 @@ class Model:
         self.C = C
         self.iterNum = iterNum
         self.optSolution = 0.381876662416058720861400388457695953547954559326171875
-        self.initCost = None
         self.results = []
 
     def Hypothesis(self, W, X):
-        return np.dot(X, W) # return a m-by-1 vector
+        tmpH = np.exp(np.dot(X, W/2)) # return a m-by-1 vector
+        denominator = tmpH + 1/tmpH
+        return tmpH / denominator
+
 
     def CostFunc(self, W, X, y):
-        cost = 1/2 * np.average(np.square(self.Hypothesis(W, X) - y))
+        m, n = X.shape # m: sample size, n: feature size
+        cost = np.average(np.log(1 + np.exp(np.multiply(np.dot(X, W), -y))))
         regTerm = self.C/2 * np.sum(np.square(W))
         return cost + regTerm
 
     def Gradient(self, W, X, y):
         # @NOTE X MUST an m*n matrix, where m denotes #samples, n denotes #features
         m, n = X.shape # m: sample size, n: feature size
-        return np.dot(1/m *  X.T, np.dot(X, W) - y) + self.C * W # n-by-1 vector
+        tmpExp = np.exp(np.multiply(np.dot(X, W), -y))
+        return np.average(np.divide(-(y*tmpExp).reshape([m, 1]) * X, 1 + tmpExp.reshape([m, 1])), axis=0) + self.C * W # n-by-1 vector
 
     def PrintCost(self, W, X, y, numEpoch):
         currentCost = self.CostFunc(W, X, y)
         print("epoch: %2d, cost: %.16f" % (numEpoch, currentCost))
         # we need to store the cost functions so that we can plot them
-        self.results.append([numEpoch, math.log((currentCost - self.optSolution)/(self.initCost - self.optSolution), 10)])
+        #self.results.append([numEpoch, math.log(currentCost - self.optSolution, 10)])
 
     def Fit(self, X, y, solver='SVRG'):
         # deal with data first
@@ -50,25 +55,24 @@ class Model:
         self.results.clear() # we need to store each epoch's cost so that we can plot them
         #initialize W
         self.W = np.random.rand(n) * 1e-4
-        self.initCost = self.CostFunc(self.W, X_train, y)
 
         # find optimal W
         if solver == 'SVRG':
             self.W = self.SVRG(X_train, y, m, int(self.iterNum/m))
         elif solver == 'SGD':
-            self.W = self.SGD(X_train, y)  # SGD optimization
+            self.W = self.SGD(X_train, y)
         elif solver == 'SAGA':
-            self.W = self.SAGA(X_train, y)  # SGD optimization
+            self.W = self.SAGA(X_train, y)
         elif solver == 'WOSVRG':
             self.W = self.WOSVRG(X_train, y, m, int(self.iterNum/m))
         elif solver == 'WOSAGA':
-            self.W = self.WOSAGA(X_train, y)  # SGD optimization
+            self.W = self.WOSAGA(X_train, y)
         elif solver == 'RSSAGA':
-            self.W = self.RSSAGA(X_train, y)  # SGD optimization
+            self.W = self.RSSAGA(X_train, y)
 
         print("total cost: %.16f" % (self.CostFunc(self.W, X_train, y)))
 
-    def SGD(self, X_train, y_train):
+    def SGD(self, X_train, y_train):  # @TODO
         # iteration: SGD algorithm
         W = self.W
         optW = 0
@@ -77,7 +81,7 @@ class Model:
         for t in range(self.iterNum):
             index = np.random.choice(m, batchSize) # minibatch size: 10
             eta = min(2/(self.C * (t + 2)), 0.01)
-            W = W - eta * (np.dot(1/batchSize * X_train[index].T, np.dot(X_train[index], W) - y_train[index]) + self.C * W)
+            W = W - eta * self.Gradient(W, X_train[index], y_train[index])
             optW += 2 * (t + 1) * W / (self.iterNum * (self.iterNum + 1))
 
             # print and plot
@@ -212,17 +216,18 @@ class Model:
     def Predict(self, X):
         X_test = np.append(np.ones((X.shape[0], 1)), X, axis=1)
         Y_test = self.Hypothesis(self.W, X_test)
-        return Y_test
+        labels = np.ones_like(Y_test)
+        labels[np.argwhere(Y_test < 0.5)] = -1
+        return labels
 
     def Score(self, X, y):
         y_pred = self.Predict(X)
-        return explained_variance_score(y, y_pred)
-
+        return accuracy_score(y, y_pred)
 
 if __name__ == '__main__':
     # load data
-    X_train, X_test, y_train, y_test = comm.LoadYearPredictionData(test_size=0.05, scale=True)
-    model = Model(tol=1e-4, C=1e-3, iterNum=X_train.shape[0] * 20 + 1)
+    X_train, X_test, y_train, y_test = comm.LoadCovtypeData(test_size=0.05)
+    model = Model(tol=1e-4, C=1e-3, iterNum=X_train.shape[0] * 3 + 1)
 
     # a new figure
     plt.figure("ridge regression on YearPredictionMSD")
@@ -233,10 +238,10 @@ if __name__ == '__main__':
 
     #solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
     #solvers = ['WOSVRG', 'SAGA']
-    solvers = ['RSSAGA', 'WOSVRG', 'SAGA', 'SVRG']
+    #solvers = ['RSSAGA', 'WOSVRG', 'SAGA', 'SVRG']
     #solvers = ['SVRG']
     #solvers = ['RSSAGA']
-    #solvers = ['WOSVRG']
+    solvers = ['SGD']
     for solver in solvers:
         # fit model
         print("\nFitting data with %s algorithm..." % solver)
@@ -246,17 +251,17 @@ if __name__ == '__main__':
         print("test accuracy:", model.Score(X_test, y_test))
 
         results = np.array(model.results)
-        plt.plot(results[:, 0], results[:, 1], label=solver)
+        #plt.plot(results[:, 0], results[:, 1], label=solver)
 
-        x_min = min(results[:, 0].min(), x_min)
-        x_max = max(results[:, 0].max(), x_max)
-        y_min = min(results[:, 1].min(), y_min)
-        y_max = max(results[:, 1].max(), y_max)
-
-    plt.legend()
-    plt.xlabel('effective pass')
-    plt.ylabel('log-suboptimality')
-    plt.xlim(x_min, x_max)
-    plt.ylim(y_min, y_max)
-    plt.show()
-    plt.savefig('ridge.png', dpi=96)
+    #     x_min = min(results[:, 0].min(), x_min)
+    #     x_max = max(results[:, 0].max(), x_max)
+    #     y_min = min(results[:, 1].min(), y_min)
+    #     y_max = max(results[:, 1].max(), y_max)
+    #
+    # plt.legend()
+    # plt.xlabel('effective pass')
+    # plt.ylabel('log-suboptimality')
+    # plt.xlim(x_min, x_max)
+    # plt.ylim(y_min, y_max)
+    # plt.show()
+    # plt.savefig('ridge.png', dpi=96)
