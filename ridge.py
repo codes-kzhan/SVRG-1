@@ -61,6 +61,8 @@ class Model:
             self.W = self.WOSVRG(X_train, y, m, int(self.iterNum/m))
         elif solver == 'WOSAGA':
             self.W = self.WOSAGA(X_train, y)  # SGD optimization
+        elif solver == 'RSSAGA':
+            self.W = self.RSSAGA(X_train, y)  # SGD optimization
 
         print("total cost: %.16f" % (self.CostFunc(self.W, X_train, y)))
 
@@ -178,18 +180,20 @@ class Model:
 
         return W
 
-    def RSSAGA(self, X_train, y_train, gamma=2.5e-5):
+    def RSSAGA(self, X_train, y_train, gamma=5.0e-6):
         W = self.W
         m, n = X_train.shape # m: sample size, n: feature size
 
         # initialize gradients
         gradients = np.multiply((np.dot(X_train, W) - y_train).reshape([m, 1]), X_train) + self.C * W
         sum_gradients = np.sum(gradients, axis=0)
-        perm = np.random.permutation(m)
         for t in range(self.iterNum):
             # pick an index uniformly at random
-            index = np.array([perm[t%m]])
-            index_scalar = index[0]
+            idx = t % m
+            if idx ==0:
+                perm = np.random.permutation(m)
+            index = np.array([perm[idx]])
+            index_scalar = idx
             # update W
             new_grad = self.Gradient(W, X_train[index], y_train[index])
             W = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/m)
@@ -227,8 +231,10 @@ if __name__ == '__main__':
 
     #solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
     #solvers = ['WOSVRG', 'SAGA']
-    solvers = ['SAGA', 'WOSAGA']
+    #solvers = ['RSSAGA', 'WOSVRG', 'SAGA', 'SVRG']
     #solvers = ['SVRG']
+    #solvers = ['RSSAGA']
+    solvers = ['WOSVRG']
     for solver in solvers:
         # fit model
         print("\nFitting data with %s algorithm..." % solver)
