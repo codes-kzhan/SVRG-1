@@ -59,6 +59,8 @@ class Model:
             self.W = self.SAGA(X_train, y)  # SGD optimization
         elif solver == 'WOSVRG':
             self.W = self.WOSVRG(X_train, y, m, int(self.iterNum/m))
+        elif solver == 'WOSAGA':
+            self.W = self.WOSAGA(X_train, y)  # SGD optimization
 
         print("total cost: %.16f" % (self.CostFunc(self.W, X_train, y)))
 
@@ -152,6 +154,55 @@ class Model:
 
         return W
 
+    def WOSAGA(self, X_train, y_train, gamma=2.5e-5):
+        W = self.W
+        m, n = X_train.shape # m: sample size, n: feature size
+
+        # initialize gradients
+        gradients = np.multiply((np.dot(X_train, W) - y_train).reshape([m, 1]), X_train) + self.C * W
+        sum_gradients = np.sum(gradients, axis=0)
+        perm = np.random.permutation(m)
+        for t in range(self.iterNum):
+            # pick an index uniformly at random
+            index = np.array([perm[t%m]])
+            index_scalar = index[0]
+            # update W
+            new_grad = self.Gradient(W, X_train[index], y_train[index])
+            W = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/m)
+            sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
+            gradients[index_scalar] = new_grad
+
+            # print and plot
+            if 0 == t % m:
+                self.PrintCost(W, X_train, y_train, int(t/m))
+
+        return W
+
+    def RSSAGA(self, X_train, y_train, gamma=2.5e-5):
+        W = self.W
+        m, n = X_train.shape # m: sample size, n: feature size
+
+        # initialize gradients
+        gradients = np.multiply((np.dot(X_train, W) - y_train).reshape([m, 1]), X_train) + self.C * W
+        sum_gradients = np.sum(gradients, axis=0)
+        perm = np.random.permutation(m)
+        for t in range(self.iterNum):
+            # pick an index uniformly at random
+            index = np.array([perm[t%m]])
+            index_scalar = index[0]
+            # update W
+            new_grad = self.Gradient(W, X_train[index], y_train[index])
+            W = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/m)
+            sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
+            gradients[index_scalar] = new_grad
+
+            # print and plot
+            if 0 == t % m:
+                self.PrintCost(W, X_train, y_train, int(t/m))
+
+        return W
+
+
     def Predict(self, X):
         X_test = np.append(np.ones((X.shape[0], 1)), X, axis=1)
         Y_test = self.Hypothesis(self.W, X_test)
@@ -176,7 +227,7 @@ if __name__ == '__main__':
 
     #solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
     #solvers = ['WOSVRG', 'SAGA']
-    solvers = ['SAGA']
+    solvers = ['SAGA', 'WOSAGA']
     #solvers = ['SVRG']
     for solver in solvers:
         # fit model
