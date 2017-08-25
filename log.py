@@ -8,6 +8,7 @@ from sklearn.preprocessing import LabelBinarizer
 from sklearn.linear_model import Ridge
 import matplotlib.pyplot as plt
 import random
+import pickle
 
 class Model:
     """ ridge regression model
@@ -21,7 +22,6 @@ class Model:
         self.tol = tol
         self.C = C
         self.iterNum = iterNum
-        self.optSolution = 0.381876662416058720861400388457695953547954559326171875
         self.results = []
 
     def Hypothesis(self, W, X):
@@ -44,21 +44,33 @@ class Model:
 
     def PrintCost(self, W, X, y, numEpoch):
         currentCost = self.CostFunc(W, X, y)
-        print("epoch: %2d, cost: %.16f" % (numEpoch, currentCost))
+        print("epoch: %2d, cost: %.50f" % (numEpoch, currentCost))
         # we need to store the cost functions so that we can plot them
-        #self.results.append([numEpoch, math.log(currentCost - self.optSolution, 10)])
+        if currentCost < self.optSolution:
+            print('\nOops, the new opt solution is: %.50f' % currentCost)
+            pickle.dump(W, open('../data/logistic_cov.p', 'wb'))
+            sys.exit(1)
+        self.results.append([numEpoch, math.log(currentCost - self.optSolution, 10)])
 
     def Fit(self, X, y, solver='SVRG'):
+
         # deal with data first
         X_train = np.append(np.ones((X.shape[0], 1)), X, axis=1)
         m, n = X_train.shape # m: sample size, n: feature size
+
+        # first, we compute the optimal solution
+        self.optW = pickle.load(open('../data/logistic_cov.p', 'rb'))
+        self.optSolution = self.CostFunc(self.optW, X_train, y)
+
         self.results.clear() # we need to store each epoch's cost so that we can plot them
         #initialize W
-        self.W = np.random.rand(n) * 1e-4
+        #self.W = np.random.rand(n) * 1e-4
+        self.W = np.zeros(n)
 
         # find optimal W
         if solver == 'SVRG':
             self.W = self.SVRG(X_train, y, m, int(self.iterNum/m))
+            #pickle.dump(self.W, open('../data/logistic_cov.p', 'wb'))
         elif solver == 'SGD':
             self.W = self.SGD(X_train, y)
         elif solver == 'SAGA':
@@ -90,7 +102,7 @@ class Model:
 
         return optW
 
-    def SVRG(self, X_train, y_train, iterNum, epoch, eta=5.875e-4):
+    def SVRG(self, X_train, y_train, iterNum, epoch, eta=1e-2):
         # SVRG algorithm
 
         m, n = X_train.shape # m: sample size, n: feature size
@@ -125,12 +137,12 @@ class Model:
             self.PrintCost(w_tilde, X_train, y_train, s)
 
             W = w_tilde
-            n_tilde = np.dot(1 / m *  X_train.T, np.dot(X_train, w_tilde) - y_train) # n-by-1 vector
+            n_tilde = self.Gradient(W, X_train, y_train)
 
             for t in range(iterNum):
                 index = np.array([t])
                 #accelerated gradient computation
-                deltaW = np.dot(X_train[index], W - w_tilde) * X_train[index].T.reshape([n]) + self.C * W + n_tilde
+                deltaW = self.Gradient(W, X_train[index],y_train[index]) - self.Gradient(w_tilde, X_train[index], y_train[index])+ self.C * W + n_tilde
                 W = W - eta * deltaW
 
             w_tilde = W
@@ -140,19 +152,20 @@ class Model:
 
         return w_tilde
 
-    def SAGA(self, X_train, y_train, gamma=2.5e-5):
+    def SAGA(self, X_train, y_train, gamma=2e-3):
         W = self.W
         m, n = X_train.shape # m: sample size, n: feature size
 
         # initialize gradients
-        gradients = np.multiply((np.dot(X_train, W) - y_train).reshape([m, 1]), X_train) + self.C * W
+        tmpExp = np.exp(np.multiply(np.dot(X_train, W), -y_train))
+        gradients = np.divide(-(y_train*tmpExp).reshape([m, 1]) * X_train, 1 + tmpExp.reshape([m, 1])) + self.C * W
         sum_gradients = np.sum(gradients, axis=0)
         for t in range(self.iterNum):
             # pick an index uniformly at random
             index = np.random.choice(X_train.shape[0], 1)
             index_scalar = index[0]
             # update W
-            new_grad = self.Gradient(W, X_train[index], y_train[index])
+            new_grad = self.Gradient(W, X_train[index], y_train[index]) + self.C * W
             W = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/m)
             sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
             gradients[index_scalar] = new_grad
@@ -163,20 +176,23 @@ class Model:
 
         return W
 
-    def WOSAGA(self, X_train, y_train, gamma=2.5e-5):
+    def WOSAGA(self, X_train, y_train, gamma=1.625e-3):
         W = self.W
         m, n = X_train.shape # m: sample size, n: feature size
 
         # initialize gradients
-        gradients = np.multiply((np.dot(X_train, W) - y_train).reshape([m, 1]), X_train) + self.C * W
+        tmpExp = np.exp(np.multiply(np.dot(X_train, W), -y_train))
+        gradients = np.divide(-(y_train*tmpExp).reshape([m, 1]) * X_train, 1 + tmpExp.reshape([m, 1])) + self.C * W
         sum_gradients = np.sum(gradients, axis=0)
         perm = np.random.permutation(m)
+        # shuffle data
+        X_train = X_train[perm]
+        y_train = y_train[perm]
         for t in range(self.iterNum):
-            # pick an index uniformly at random
-            index = np.array([perm[t%m]])
-            index_scalar = index[0]
+            index_scalar = t % m
+            index = np.array([index_scalar])
             # update W
-            new_grad = self.Gradient(W, X_train[index], y_train[index])
+            new_grad = self.Gradient(W, X_train[index], y_train[index]) + self.C * W
             W = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/m)
             sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
             gradients[index_scalar] = new_grad
@@ -187,22 +203,29 @@ class Model:
 
         return W
 
-    def RSSAGA(self, X_train, y_train, gamma=5.0e-6):
+    def RSSAGA(self, X_train, y_train, gamma=1.625e-3):
         W = self.W
         m, n = X_train.shape # m: sample size, n: feature size
 
         # initialize gradients
-        gradients = np.multiply((np.dot(X_train, W) - y_train).reshape([m, 1]), X_train) + self.C * W
+        tmpExp = np.exp(np.multiply(np.dot(X_train, W), -y_train))
+        gradients = np.divide(-(y_train*tmpExp).reshape([m, 1]) * X_train, 1 + tmpExp.reshape([m, 1])) + self.C * W
         sum_gradients = np.sum(gradients, axis=0)
+        perm = np.random.permutation(m)
+        # shuffle data
+        X_train = X_train[perm]
+        y_train = y_train[perm]
         for t in range(self.iterNum):
-            # pick an index uniformly at random
             idx = t % m
             if idx ==0:
+            # reshuffle data
                 perm = np.random.permutation(m)
-            index = np.array([perm[idx]])
+                X_train = X_train[perm]
+                y_train = y_train[perm]
+            index = np.array([idx])
             index_scalar = idx
             # update W
-            new_grad = self.Gradient(W, X_train[index], y_train[index])
+            new_grad = self.Gradient(W, X_train[index], y_train[index]) + self.C * W
             W = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/m)
             sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
             gradients[index_scalar] = new_grad
@@ -212,7 +235,6 @@ class Model:
                 self.PrintCost(W, X_train, y_train, int(t/m))
 
         return W
-
 
     def Predict(self, X):
         X_test = np.append(np.ones((X.shape[0], 1)), X, axis=1)
@@ -228,10 +250,10 @@ class Model:
 if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadCovtypeData(test_size=0.05)
-    model = Model(tol=1e-4, C=1e-3, iterNum=X_train.shape[0] * 3 + 1)
+    model = Model(tol=1e-4, C=1e-4, iterNum=X_train.shape[0] * 100 + 1)
 
     # a new figure
-    plt.figure("ridge regression on YearPredictionMSD")
+    plt.figure("logistic regression with l2-norm")
     x_min = math.inf
     x_max = -math.inf
     y_min = math.inf
@@ -240,9 +262,9 @@ if __name__ == '__main__':
     #solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
     #solvers = ['WOSVRG', 'SAGA']
     #solvers = ['RSSAGA', 'WOSVRG', 'SAGA', 'SVRG']
-    #solvers = ['SVRG']
+    solvers = ['SVRG']
     #solvers = ['RSSAGA']
-    solvers = ['SGD', 'SVRG']
+    #solvers = ['SGD', 'SVRG']
     for solver in solvers:
         # fit model
         print("\nFitting data with %s algorithm..." % solver)
