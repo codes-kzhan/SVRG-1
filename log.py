@@ -6,6 +6,8 @@ from numpy import linalg as LA
 from sklearn.metrics import explained_variance_score
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.linear_model import Ridge
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import random
 import pickle
@@ -44,13 +46,14 @@ class Model:
 
     def PrintCost(self, W, X, y, numEpoch):
         currentCost = self.CostFunc(W, X, y)
-        print("epoch: %2d, cost: %.50f" % (numEpoch, currentCost))
         # we need to store the cost functions so that we can plot them
         if currentCost < self.optSolution:
             print('\nOops, the new opt solution is: %.50f' % currentCost)
             pickle.dump(W, open('../data/logistic_cov.p', 'wb'))
             sys.exit(1)
-        self.results.append([numEpoch, math.log(currentCost - self.optSolution, 10)])
+        logSuboptimality = math.log(currentCost - self.optSolution, 10)
+        self.results.append([numEpoch, logSuboptimality])
+        print("epoch: %2d, cost: %f" % (numEpoch, logSuboptimality))
 
     def Fit(self, X, y, solver='SVRG'):
 
@@ -127,7 +130,7 @@ class Model:
 
         return w_tilde
 
-    def WOSVRG(self, X_train, y_train, iterNum, epoch, eta=5.875e-4):
+    def WOSVRG(self, X_train, y_train, iterNum, epoch, eta=1e-2):
         # Without-Replacement SVRG algorithm
 
         m, n = X_train.shape # m: sample size, n: feature size
@@ -152,7 +155,7 @@ class Model:
 
         return w_tilde
 
-    def SAGA(self, X_train, y_train, gamma=2e-3):
+    def SAGA(self, X_train, y_train, gamma=2e-2):
         W = self.W
         m, n = X_train.shape # m: sample size, n: feature size
 
@@ -203,7 +206,7 @@ class Model:
 
         return W
 
-    def RSSAGA(self, X_train, y_train, gamma=1.625e-3):
+    def RSSAGA(self, X_train, y_train, gamma=1e-3):
         W = self.W
         m, n = X_train.shape # m: sample size, n: feature size
 
@@ -211,10 +214,6 @@ class Model:
         tmpExp = np.exp(np.multiply(np.dot(X_train, W), -y_train))
         gradients = np.divide(-(y_train*tmpExp).reshape([m, 1]) * X_train, 1 + tmpExp.reshape([m, 1])) + self.C * W
         sum_gradients = np.sum(gradients, axis=0)
-        perm = np.random.permutation(m)
-        # shuffle data
-        X_train = X_train[perm]
-        y_train = y_train[perm]
         for t in range(self.iterNum):
             idx = t % m
             if idx ==0:
@@ -231,7 +230,7 @@ class Model:
             gradients[index_scalar] = new_grad
 
             # print and plot
-            if 0 == t % m:
+            if 0 == idx:
                 self.PrintCost(W, X_train, y_train, int(t/m))
 
         return W
@@ -250,7 +249,7 @@ class Model:
 if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadCovtypeData(test_size=0.05)
-    model = Model(tol=1e-4, C=1e-4, iterNum=X_train.shape[0] * 100 + 1)
+    model = Model(tol=1e-4, C=1e-4, iterNum=X_train.shape[0] * 20 + 1)
 
     # a new figure
     plt.figure("logistic regression with l2-norm")
@@ -262,7 +261,7 @@ if __name__ == '__main__':
     #solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
     #solvers = ['WOSVRG', 'SAGA']
     #solvers = ['RSSAGA', 'WOSVRG', 'SAGA', 'SVRG']
-    solvers = ['SVRG']
+    solvers = ['RSSAGA']
     #solvers = ['RSSAGA']
     #solvers = ['SGD', 'SVRG']
     for solver in solvers:
