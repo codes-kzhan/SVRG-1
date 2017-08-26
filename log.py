@@ -7,7 +7,7 @@ from sklearn.metrics import explained_variance_score
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.linear_model import Ridge
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import random
 import pickle
@@ -47,10 +47,10 @@ class Model:
     def PrintCost(self, W, X, y, numEpoch):
         currentCost = self.CostFunc(W, X, y)
         # we need to store the cost functions so that we can plot them
-        if currentCost < self.optSolution:
+        if currentCost <= self.optSolution:
             print('\nOops, the new opt solution is: %.50f' % currentCost)
             pickle.dump(W, open('../data/logistic_rcv1.p', 'wb'))
-            sys.exit(1)
+            return
         logSuboptimality = math.log(currentCost - self.optSolution, 10)
         self.results.append([numEpoch, logSuboptimality])
         print("epoch: %2d, cost: %f" % (numEpoch, logSuboptimality))
@@ -183,7 +183,7 @@ class Model:
 
         return W
 
-    def RSSAGA(self, X_train, y_train, gamma=9e-4):
+    def RSSAGA(self, X_train, y_train, gamma=9.25e-2):
         W = self.W
         m, n = X_train.shape # m: sample size, n: feature size
 
@@ -235,12 +235,12 @@ if __name__ == '__main__':
     y_min = math.inf
     y_max = -math.inf
 
+    #solvers = ['RSSAGA']
     #solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
     #solvers = ['WOSVRG', 'SAGA']
-    #solvers = ['RSSAGA', 'WOSVRG', 'SAGA', 'SVRG']
+    solvers = ['RSSAGA', 'WOSVRG', 'SAGA', 'SVRG']
     #solvers = ['RSSAGA']
     #solvers = ['SVRG']
-    solvers = ['SAGA']
     for solver in solvers:
         # fit model
         print("\nFitting data with %s algorithm..." % solver)
@@ -249,18 +249,18 @@ if __name__ == '__main__':
         print("training accuracy:", model.Score(X_train, y_train))
         print("test accuracy:", model.Score(X_test, y_test))
 
-    #     results = np.array(model.results)
-    #     plt.plot(results[:, 0], results[:, 1], label=solver)
-    #
-    #     x_min = min(results[:, 0].min(), x_min)
-    #     x_max = max(results[:, 0].max(), x_max)
-    #     y_min = min(results[:, 1].min(), y_min)
-    #     y_max = max(results[:, 1].max(), y_max)
-    #
-    # plt.legend()
-    # plt.xlabel('effective pass')
-    # plt.ylabel('log-suboptimality')
-    # plt.xlim(x_min, x_max)
-    # plt.ylim(y_min, y_max)
-    # plt.savefig('log.png', dpi=96)
+        results = np.array(model.results)
+        plt.plot(results[:, 0], results[:, 1], label=solver)
+
+        x_min = min(results[:, 0].min(), x_min)
+        x_max = max(results[:, 0].max(), x_max)
+        y_min = min(results[:, 1].min(), y_min)
+        y_max = max(results[:, 1].max(), y_max)
+
+    plt.legend()
+    plt.xlabel('effective pass')
+    plt.ylabel('log-suboptimality')
+    plt.xlim(x_min, x_max)
+    plt.ylim(y_min, y_max)
+    plt.savefig('log_rcv1.png', dpi=96)
     # plt.show()
