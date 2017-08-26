@@ -49,7 +49,7 @@ class Model:
         # we need to store the cost functions so that we can plot them
         if currentCost < self.optSolution:
             print('\nOops, the new opt solution is: %.50f' % currentCost)
-            pickle.dump(W, open('../data/logistic_cov.p', 'wb'))
+            pickle.dump(W, open('../data/logistic_rcv1.p', 'wb'))
             sys.exit(1)
         logSuboptimality = math.log(currentCost - self.optSolution, 10)
         self.results.append([numEpoch, logSuboptimality])
@@ -62,7 +62,7 @@ class Model:
         m, n = X_train.shape # m: sample size, n: feature size
 
         # first, we compute the optimal solution
-        self.optW = pickle.load(open('../data/logistic_cov.p', 'rb'))
+        self.optW = pickle.load(open('../data/logistic_rcv1.p', 'rb'))
         self.optSolution = self.CostFunc(self.optW, X_train, y)
 
         self.results.clear() # we need to store each epoch's cost so that we can plot them
@@ -73,7 +73,7 @@ class Model:
         # find optimal W
         if solver == 'SVRG':
             self.W = self.SVRG(X_train, y, m, int(self.iterNum/m))
-            #pickle.dump(self.W, open('../data/logistic_cov.p', 'wb'))
+            pickle.dump(self.W, open('../data/logistic_rcv1.p', 'wb'))
         elif solver == 'SGD':
             self.W = self.SGD(X_train, y)
         elif solver == 'SAGA':
@@ -105,7 +105,7 @@ class Model:
 
         return optW
 
-    def SVRG(self, X_train, y_train, iterNum, epoch, eta=1e-2):
+    def SVRG(self, X_train, y_train, iterNum, epoch, eta=4.95e-1):
         # SVRG algorithm
 
         m, n = X_train.shape # m: sample size, n: feature size
@@ -226,8 +226,8 @@ class Model:
 
 if __name__ == '__main__':
     # load data
-    X_train, X_test, y_train, y_test = comm.LoadCovtypeData(test_size=0.05)
-    model = Model(tol=1e-4, C=1e-4, iterNum=X_train.shape[0] * 20 + 1)
+    X_train, X_test, y_train, y_test = comm.LoadRCV1BinaryData()
+    model = Model(tol=1e-4, C=1e-4, iterNum=X_train.shape[0] * 40 + 1)
 
     # a new figure
     plt.figure('logistic regression with l2-norm')
@@ -239,9 +239,9 @@ if __name__ == '__main__':
 
     #solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
     #solvers = ['WOSVRG', 'SAGA']
-    solvers = ['RSSAGA', 'WOSVRG', 'SAGA', 'SVRG']
+    #solvers = ['RSSAGA', 'WOSVRG', 'SAGA', 'SVRG']
     #solvers = ['RSSAGA']
-    #solvers = ['SGD', 'SVRG']
+    solvers = ['SVRG']
     for solver in solvers:
         # fit model
         print("\nFitting data with %s algorithm..." % solver)
@@ -250,18 +250,18 @@ if __name__ == '__main__':
         print("training accuracy:", model.Score(X_train, y_train))
         print("test accuracy:", model.Score(X_test, y_test))
 
-        results = np.array(model.results)
-        plt.plot(results[:, 0], results[:, 1], label=solver)
-
-        x_min = min(results[:, 0].min(), x_min)
-        x_max = max(results[:, 0].max(), x_max)
-        y_min = min(results[:, 1].min(), y_min)
-        y_max = max(results[:, 1].max(), y_max)
-
-    plt.legend()
-    plt.xlabel('effective pass')
-    plt.ylabel('log-suboptimality')
-    plt.xlim(x_min, x_max)
-    plt.ylim(y_min, y_max)
-    plt.savefig('log.png', dpi=96)
-    plt.show()
+    #     results = np.array(model.results)
+    #     plt.plot(results[:, 0], results[:, 1], label=solver)
+    #
+    #     x_min = min(results[:, 0].min(), x_min)
+    #     x_max = max(results[:, 0].max(), x_max)
+    #     y_min = min(results[:, 1].min(), y_min)
+    #     y_max = max(results[:, 1].max(), y_max)
+    #
+    # plt.legend()
+    # plt.xlabel('effective pass')
+    # plt.ylabel('log-suboptimality')
+    # plt.xlim(x_min, x_max)
+    # plt.ylim(y_min, y_max)
+    # plt.savefig('log.png', dpi=96)
+    # plt.show()
