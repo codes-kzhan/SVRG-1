@@ -119,7 +119,7 @@ class Model:
             n_tilde = self.Gradient(W, X_train, y_train)
 
             for t in range(iterNum):
-                index = np.random.choice(X_train.shape[0], 1)
+                index = np.random.choice(m, 1)
                 deltaW = self.Gradient(W, X_train[index],y_train[index]) - self.Gradient(w_tilde, X_train[index], y_train[index])+ self.C * W + n_tilde
                 W = W - eta * deltaW
 
@@ -155,7 +155,7 @@ class Model:
 
         return w_tilde
 
-    def SAGA(self, X_train, y_train, gamma=1.5e-2):
+    def SAGA(self, X_train, y_train, gamma=1e-2):
         W = self.W
         m, n = X_train.shape # m: sample size, n: feature size
 
@@ -185,7 +185,7 @@ class Model:
 
         return W
 
-    def RSSAGA(self, X_train, y_train, gamma=9.9e-4):
+    def RSSAGA(self, X_train, y_train, gamma=9e-4):
         W = self.W
         m, n = X_train.shape # m: sample size, n: feature size
 
@@ -210,7 +210,6 @@ class Model:
             W = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/m)
             sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
             gradients[index_scalar] = new_grad
-
 
         return W
 
