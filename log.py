@@ -80,8 +80,6 @@ class Model:
             self.W = self.SAGA(X_train, y)
         elif solver == 'WOSVRG':
             self.W = self.WOSVRG(X_train, y, m, int(self.iterNum/m))
-        elif solver == 'WOSAGA':
-            self.W = self.WOSAGA(X_train, y)
         elif solver == 'RSSAGA':
             self.W = self.RSSAGA(X_train, y)
 
@@ -130,7 +128,7 @@ class Model:
 
         return w_tilde
 
-    def WOSVRG(self, X_train, y_train, iterNum, epoch, eta=1e-2):
+    def WOSVRG(self, X_train, y_train, iterNum, epoch, eta=4.95e-1):
         # Without-Replacement SVRG algorithm
 
         m, n = X_train.shape # m: sample size, n: feature size
@@ -155,7 +153,7 @@ class Model:
 
         return w_tilde
 
-    def SAGA(self, X_train, y_train, gamma=1e-2):
+    def SAGA(self, X_train, y_train, gamma=4.25e-1):
         W = self.W
         m, n = X_train.shape # m: sample size, n: feature size
 
@@ -227,11 +225,11 @@ class Model:
 if __name__ == '__main__':
     # load data
     X_train, X_test, y_train, y_test = comm.LoadRCV1BinaryData()
-    model = Model(tol=1e-4, C=1e-4, iterNum=X_train.shape[0] * 40 + 1)
+    model = Model(tol=1e-4, C=1e-4, iterNum=X_train.shape[0] * 20 + 1)
 
     # a new figure
     plt.figure('logistic regression with l2-norm')
-    plt.title('covtype')
+    plt.title('rcv1')
     x_min = math.inf
     x_max = -math.inf
     y_min = math.inf
@@ -241,7 +239,8 @@ if __name__ == '__main__':
     #solvers = ['WOSVRG', 'SAGA']
     #solvers = ['RSSAGA', 'WOSVRG', 'SAGA', 'SVRG']
     #solvers = ['RSSAGA']
-    solvers = ['SVRG']
+    #solvers = ['SVRG']
+    solvers = ['SAGA']
     for solver in solvers:
         # fit model
         print("\nFitting data with %s algorithm..." % solver)
