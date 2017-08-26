@@ -110,6 +110,6 @@ def LoadLibsvmData(datapath='../data/RCV1/'):
     y_train = data[1]
 
     data = load_svmlight_file(datapath + 'rcv1_test.binary')
-    X_test = data[0].toarray()
-    y_test = data[1]
+    X_test = data[0][0:1000].toarray()
+    y_test = data[1][0:1000]
     return X_train, X_test, y_train, y_test
