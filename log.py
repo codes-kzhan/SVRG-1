@@ -7,7 +7,7 @@ from sklearn.metrics import explained_variance_score
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.linear_model import Ridge
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import random
 import pickle
@@ -155,7 +155,7 @@ class Model:
 
         return w_tilde
 
-    def SAGA(self, X_train, y_train, gamma=2e-2):
+    def SAGA(self, X_train, y_train, gamma=1.5e-2):
         W = self.W
         m, n = X_train.shape # m: sample size, n: feature size
 
@@ -163,36 +163,47 @@ class Model:
         tmpExp = np.exp(np.multiply(np.dot(X_train, W), -y_train))
         gradients = np.divide(-(y_train*tmpExp).reshape([m, 1]) * X_train, 1 + tmpExp.reshape([m, 1])) + self.C * W
         sum_gradients = np.sum(gradients, axis=0)
+        # gradients = np.zeros([m, n])
+        # sum_gradients = np.zeros(n)
+
+        # stochastic iteration
         for t in range(self.iterNum):
+            # print and plot
+            if 0 == t % m:
+                self.PrintCost(W, X_train, y_train, int(t/m))
+
             # pick an index uniformly at random
             index = np.random.choice(X_train.shape[0], 1)
             index_scalar = index[0]
+
             # update W
             new_grad = self.Gradient(W, X_train[index], y_train[index]) + self.C * W
             W = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/m)
             sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
             gradients[index_scalar] = new_grad
 
-            # print and plot
-            if 0 == t % m:
-                self.PrintCost(W, X_train, y_train, int(t/m))
 
         return W
 
-    def WOSAGA(self, X_train, y_train, gamma=1.625e-3):
+    def RSSAGA(self, X_train, y_train, gamma=9.9e-4):
         W = self.W
         m, n = X_train.shape # m: sample size, n: feature size
 
         # initialize gradients
-        tmpExp = np.exp(np.multiply(np.dot(X_train, W), -y_train))
-        gradients = np.divide(-(y_train*tmpExp).reshape([m, 1]) * X_train, 1 + tmpExp.reshape([m, 1])) + self.C * W
-        sum_gradients = np.sum(gradients, axis=0)
-        perm = np.random.permutation(m)
-        # shuffle data
-        X_train = X_train[perm]
-        y_train = y_train[perm]
+        gradients = np.zeros([m, n])
+        sum_gradients = np.zeros(n)
+
         for t in range(self.iterNum):
             index_scalar = t % m
+
+            if index_scalar == 0:
+                # print and plot
+                self.PrintCost(W, X_train, y_train, int(t/m))
+                # reshuffle data
+                perm = np.random.permutation(m)
+                X_train = X_train[perm]
+                y_train = y_train[perm]
+
             index = np.array([index_scalar])
             # update W
             new_grad = self.Gradient(W, X_train[index], y_train[index]) + self.C * W
@@ -200,38 +211,6 @@ class Model:
             sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
             gradients[index_scalar] = new_grad
 
-            # print and plot
-            if 0 == t % m:
-                self.PrintCost(W, X_train, y_train, int(t/m))
-
-        return W
-
-    def RSSAGA(self, X_train, y_train, gamma=1e-3):
-        W = self.W
-        m, n = X_train.shape # m: sample size, n: feature size
-
-        # initialize gradients
-        tmpExp = np.exp(np.multiply(np.dot(X_train, W), -y_train))
-        gradients = np.divide(-(y_train*tmpExp).reshape([m, 1]) * X_train, 1 + tmpExp.reshape([m, 1])) + self.C * W
-        sum_gradients = np.sum(gradients, axis=0)
-        for t in range(self.iterNum):
-            idx = t % m
-            if idx ==0:
-            # reshuffle data
-                perm = np.random.permutation(m)
-                X_train = X_train[perm]
-                y_train = y_train[perm]
-            index = np.array([idx])
-            index_scalar = idx
-            # update W
-            new_grad = self.Gradient(W, X_train[index], y_train[index]) + self.C * W
-            W = W - gamma * (new_grad - gradients[index_scalar] + sum_gradients/m)
-            sum_gradients = sum_gradients - gradients[index_scalar] + new_grad
-            gradients[index_scalar] = new_grad
-
-            # print and plot
-            if 0 == idx:
-                self.PrintCost(W, X_train, y_train, int(t/m))
 
         return W
 
@@ -252,7 +231,8 @@ if __name__ == '__main__':
     model = Model(tol=1e-4, C=1e-4, iterNum=X_train.shape[0] * 20 + 1)
 
     # a new figure
-    plt.figure("logistic regression with l2-norm")
+    plt.figure('logistic regression with l2-norm')
+    plt.title('covtype')
     x_min = math.inf
     x_max = -math.inf
     y_min = math.inf
@@ -260,8 +240,7 @@ if __name__ == '__main__':
 
     #solvers = ['SGD', 'SVRG', 'SAGA', 'WOSVRG']
     #solvers = ['WOSVRG', 'SAGA']
-    #solvers = ['RSSAGA', 'WOSVRG', 'SAGA', 'SVRG']
-    solvers = ['RSSAGA']
+    solvers = ['RSSAGA', 'WOSVRG', 'SAGA', 'SVRG']
     #solvers = ['RSSAGA']
     #solvers = ['SGD', 'SVRG']
     for solver in solvers:
@@ -273,17 +252,17 @@ if __name__ == '__main__':
         print("test accuracy:", model.Score(X_test, y_test))
 
         results = np.array(model.results)
-        #plt.plot(results[:, 0], results[:, 1], label=solver)
+        plt.plot(results[:, 0], results[:, 1], label=solver)
 
-    #     x_min = min(results[:, 0].min(), x_min)
-    #     x_max = max(results[:, 0].max(), x_max)
-    #     y_min = min(results[:, 1].min(), y_min)
-    #     y_max = max(results[:, 1].max(), y_max)
-    #
-    # plt.legend()
-    # plt.xlabel('effective pass')
-    # plt.ylabel('log-suboptimality')
-    # plt.xlim(x_min, x_max)
-    # plt.ylim(y_min, y_max)
-    # plt.show()
-    # plt.savefig('ridge.png', dpi=96)
+        x_min = min(results[:, 0].min(), x_min)
+        x_max = max(results[:, 0].max(), x_max)
+        y_min = min(results[:, 1].min(), y_min)
+        y_max = max(results[:, 1].max(), y_max)
+
+    plt.legend()
+    plt.xlabel('effective pass')
+    plt.ylabel('log-suboptimality')
+    plt.xlim(x_min, x_max)
+    plt.ylim(y_min, y_max)
+    plt.savefig('log.png', dpi=96)
+    plt.show()
