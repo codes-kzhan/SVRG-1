@@ -103,3 +103,13 @@ def LoadCovtypeData(datapath='../data/covtype.libsvm.binary.scale', test_size=0.
     y = data[1]
     y[np.argwhere(y == 2)] = -1
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
+
+def LoadLibsvmData(datapath='../data/RCV1/'):
+    data = load_svmlight_file(datapath + 'rcv1_train.binary')
+    X_train = data[0]
+    y_train = data[1]
+
+    data = load_svmlight_file(datapath + 'rcv1_test.binary')
+    X_test = data[0].toarray()
+    y_test = data[1]
+    return X_train, X_test, y_train, y_test
