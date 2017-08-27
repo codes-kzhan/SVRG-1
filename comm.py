@@ -9,6 +9,7 @@ from sklearn.datasets import load_svmlight_file
 from sklearn import preprocessing
 from sklearn.datasets import fetch_rcv1
 import numpy as np
+from scipy.sparse import coo_matrix, vstack
 import pickle
 
 def LoadOpenMLData(dataset_id=150, test_size=0.33, random_state=42):
@@ -112,4 +113,18 @@ def LoadRCV1BinaryData(datapath='../data/RCV1/'):
     data = load_svmlight_file(datapath + 'rcv1_test.binary')
     X_test = data[0][0:1000].toarray()
     y_test = data[1][0:1000]
+    return X_train, X_test, y_train, y_test
+
+def LoadAvazuData(datapath='../data/avazu/'):
+    files = ['avazu-app', 'avazu-app.t']
+    # files = ['avazu-site', 'avazu-site.t']
+
+    # training data
+    data = load_svmlight_file( datapath + files[0])
+    X_train = data[0]
+    y_train = data[1]
+    # test data
+    data = load_svmlight_file(datapath + files[1])
+    X_test = data[0]
+    y_test = data[1]
     return X_train, X_test, y_train, y_test

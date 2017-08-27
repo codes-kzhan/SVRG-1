@@ -7,10 +7,11 @@ from sklearn.metrics import explained_variance_score
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.linear_model import Ridge
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import random
 import pickle
+import timeit
 
 class Model:
     """ ridge regression model
@@ -71,6 +72,8 @@ class Model:
         self.W = np.zeros(n)
 
         # find optimal W
+
+        start = timeit.default_timer()
         if solver == 'SVRG':
             self.W = self.SVRG(X_train, y, m, int(self.iterNum/m))
             pickle.dump(self.W, open('../data/logistic_rcv1.p', 'wb'))
@@ -82,8 +85,9 @@ class Model:
             self.W = self.WOSVRG(X_train, y, m, int(self.iterNum/m))
         elif solver == 'RSSAGA':
             self.W = self.RSSAGA(X_train, y)
+        stop = timeit.default_timer()
 
-        print("total cost: %.16f" % (self.CostFunc(self.W, X_train, y)))
+        print("total cost: %.16f, time elapsed: %f" % (self.CostFunc(self.W, X_train, y), stop - start))
 
     def SGD(self, X_train, y_train):
         # iteration: SGD algorithm
