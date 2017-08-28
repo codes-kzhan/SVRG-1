@@ -8,9 +8,9 @@ if strcmp(name, 'sido')
     test_size = 0.33;
     load('../data/sido2_matlab/sido2_train.mat');
     load('../data/sido2_matlab/sido2_train.targets');
-    [n, d] = size(X);
+    [n, ~] = size(X);
     y = sido2_train;
-    [trainInd, valInd, testInd] = dividerand(n, 1-test_size, 0, test_size);
+    [trainInd, ~, testInd] = dividerand(n, 1-test_size, 0, test_size);
     Xtrain = X(trainInd, :);
     Xtest = X(testInd, :);
     ytrain = y(trainInd, :);
@@ -29,14 +29,14 @@ elseif strcmp(name, 'avazu')
     [ytest, Xtest] = libsvmread('../data/RCV1/avazu-app.t');
 % rcv1 dataset is ready
 
-else
+elseif strcmp(name, 'newtoy')
 %prepare synthetic data set
     n = 500;
     d = 300;
     X = randn(n,d);
 
     % planting eigenvalues
-    [u,s,v] = svd(X,'econ');
+    [u,~,v] = svd(X,'econ');
     s =  1./(1:min(n,d));
     s = s / sqrt(sum(s.^2)) * sqrt(2*n); % planting ||K||_F^2 / lambda / gamma = n
     X = u * diag(s) * v';
@@ -50,5 +50,10 @@ else
     ytest = y(n/2+1:end);
     Xtrain = X(1:n/2,:);
     Xtest = X(n/2+1:end,:);
+    save('../data/toy_dataset.mat', 'Xtrain', 'Xtest', 'ytrain', 'ytest');
 %end data set creation
+
+elseif strcmp(name, 'toy')
+    load('../data/toy_dataset.mat');
+
 end
