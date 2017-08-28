@@ -3,6 +3,8 @@ classdef ObjFunc
         lambda = 0;
         L = 0;
         mu = 0;
+        optSolution;
+        optCost;
     end
     methods
         % constructor
@@ -22,7 +24,7 @@ classdef ObjFunc
         % compute gradient without regularizer
         function gradient = Gradient(~, w, X, y)
             tmpExp = exp(-y .* (X*w));
-            gradient = mean((-y .* tmpExp .* X ) ./ (1 + tmpExp))';
+            gradient = mean((-y .* tmpExp .* X ) ./ (1 + tmpExp), 1)';
         end
 
         % compute hypothesis
@@ -33,9 +35,9 @@ classdef ObjFunc
         end
 
         % print cost
-        function PrintCost(obj, w, X, y, stage)
-            currentCost = obj.Cost(w, X, y);
-            fprintf('epoch: %4d, cost: %.50f\n', stage, currentCost);
+        function cost = PrintCost(obj, w, X, y, stage)
+            cost = obj.Cost(w, X, y);
+            fprintf('epoch: %4d, cost: %.50f\n', stage, cost);
         end
 
         % predict

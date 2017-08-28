@@ -17,6 +17,21 @@ if strcmp(name, 'sido')
     ytest = y(testInd, :);
 % sido dataset is ready
 
+elseif strcmp(name, 'covtype')
+% covtype dataset
+    test_size = 0.33;
+    [y, X] = libsvmread('../data/covtype.libsvm.binary.scale');
+    [n, ~] = size(X);
+    ordering = randperm(n);
+    y = y(ordering, :);
+    X = X(ordering, :);
+    split = round(n * 1 - (test_size));
+    Xtrain = X(1:split, :);
+    Xtest = y(split+1:end, :);
+    ytrain = y(1:split, :);
+    ytest = y(split+1:end, :);
+% covtype dataset is ready
+
 elseif strcmp(name, 'rcv1')
 % rcv1 dataset
     [ytrain, Xtrain] = libsvmread('../data/RCV1/rcv1_train.binary');
