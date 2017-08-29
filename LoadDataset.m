@@ -3,6 +3,7 @@ function [Xtrain, Xtest, ytrain, ytest] = LoadDataset(name)
 % @param
 % name: 'rcv1', 'sido', 'toy'
 
+seed = RandStream.create('mcg16807', 'seed', 5);
 
 if strcmp(name, 'sido')
 %sido dataset
@@ -11,17 +12,21 @@ if strcmp(name, 'sido')
     load('../data/sido2_matlab/sido2_train.targets');
     [n, ~] = size(X);
     y = sido2_train;
-    [trainInd, ~, testInd] = dividerand(n, 1-test_size, 0, test_size);
-    Xtrain = X(trainInd, :);
-    Xtest = X(testInd, :);
-    ytrain = y(trainInd, :);
-    ytest = y(testInd, :);
+
+    ordering = randperm(seed, n);
+    y = y(ordering, :);
+    X = X(ordering, :);
+    split = round(n * (1 - test_size));
+    Xtrain = X(1:split, :);
+    Xtest = X(split+1:end, :);
+    ytrain = y(1:split);
+    ytest = y(split+1:end);
+
 % sido dataset is ready
 
 elseif strcmp(name, 'covtype')
 % covtype dataset
 
-    seed = RandStream.create('mcg16807', 'seed', 5);
     test_size = 0.33;
     [y, X] = libsvmread('../data/covtype.libsvm.binary.scale');
     y(y == 2) = -1;
