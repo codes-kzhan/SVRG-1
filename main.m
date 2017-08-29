@@ -1,7 +1,7 @@
 % dataset : toy, covtype, rcv1, avazu, etc.
-dataset = 'covtype';
+dataset = 'rcv1';
 passes = 20;
-factor = 1/2;
+factor = 3/8;
 lambda = 1e-5;
 
 %% preliminaries
@@ -23,14 +23,14 @@ else
     load(filename, 'wOpt');
 end
 logCost.optSolution = wOpt;
-logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain);
+logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
+SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-SVRGNRM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+% SVRGNRM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 
-% SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SVRGM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
