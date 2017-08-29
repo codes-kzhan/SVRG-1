@@ -45,7 +45,9 @@ elseif strcmp(name, 'rcv1')
 elseif strcmp(name, 'avazu')
 % rcv1 dataset
     [ytrain, Xtrain] = libsvmread('../data/avazu/avazu-app');
-    [ytest, Xtest] = libsvmread('../data/RCV1/avazu-app.t');
+    ytrain(ytrain == 0) = -1;
+    [ytest, Xtest] = libsvmread('../data/avazu/avazu-app.t');
+    ytest(ytest == 0) = -1;
 % rcv1 dataset is ready
 
 elseif strcmp(name, 'newtoy')
