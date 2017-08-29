@@ -1,7 +1,7 @@
 % dataset : toy, covtype, rcv1, avazu, etc.
-dataset = 'avazu';
+dataset = 'sido';
 passes = 20;
-factor = 1/2;
+factor = 3/4;
 lambda = 1e-5;
 
 %% preliminaries
