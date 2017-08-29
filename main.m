@@ -27,15 +27,16 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain);
 
 %% have fun
 
-% SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+SVRGNRM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 
 % SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-
+% SVRGM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-
 %% save figure and exit
+box on
+grid on
 figname = strcat('./', dataset, objFuncType, '.png');
 saveas(fig, figname);
 close(fig);

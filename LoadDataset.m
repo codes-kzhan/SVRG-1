@@ -3,8 +3,6 @@ function [Xtrain, Xtest, ytrain, ytest] = LoadDataset(name)
 % @param
 % name: 'rcv1', 'sido', 'toy'
 
-seed = RandStream('mcg16807', 'seed', 5);
-RandStream.setGlobalStream(seed);
 
 if strcmp(name, 'sido')
 %sido dataset
@@ -22,11 +20,13 @@ if strcmp(name, 'sido')
 
 elseif strcmp(name, 'covtype')
 % covtype dataset
+
+    seed = RandStream.create('mcg16807', 'seed', 5);
     test_size = 0.33;
     [y, X] = libsvmread('../data/covtype.libsvm.binary.scale');
     y(y == 2) = -1;
     [n, ~] = size(X);
-    ordering = randperm(n);
+    ordering = randperm(seed, n);
     y = y(ordering, :);
     X = X(ordering, :);
     split = round(n * (1 - test_size));
