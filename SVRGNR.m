@@ -1,7 +1,7 @@
-function wOpt = SVRG(objFunc, X, y, Xtest, ytest, passes, factor)
+function wOpt = SVRGNR(objFunc, X, y, Xtest, ytest, passes, factor)
 
 tstart = tic;
-fprintf('Fitting data with SVRG ...\n');
+fprintf('Fitting data with SVRG-NR ...\n');
 
 % initialization
 [n ,d] = size(X);
@@ -23,8 +23,7 @@ for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
 
     for i = 1:iterNum
-        idx = randperm(n, 1);
-        wDelta = objFunc.Gradient(w, X(idx, :), y(idx)) - objFunc.Gradient(wtilde, X(idx, :), y(idx)) + objFunc.lambda * w + ntilde;
+        wDelta = objFunc.Gradient(w, X(i, :), y(i)) - objFunc.Gradient(wtilde, X(i, :), y(i)) + objFunc.lambda * w + ntilde;
         w = w - eta * wDelta;
     end
     wtilde = w;
@@ -47,8 +46,8 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 
-label = 'SVRG';
-curve_style = 'm-';
+label = 'SVRG-NR';
+curve_style = 'r-';
 PlotCurve(0:validPoints-1, subOptimality(1:validPoints), curve_style, label);
 
 end  % function

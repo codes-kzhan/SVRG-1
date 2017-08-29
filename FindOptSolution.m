@@ -1,7 +1,7 @@
 function wOpt = FindOptSolution(objFunc, X, y, Xtest, ytest, passes, factor)
 
 tstart = tic;
-fprintf('Fitting data with SVRG ...\n');
+fprintf('Computing optimal solution ...\n');
 
 % initialization
 [n ,d] = size(X);
@@ -12,10 +12,14 @@ eta = factor / objFunc.L
 
 wtilde = zeros(d, 1);
 w = wtilde;
+wOpt = wtilde;
+optCost = objFunc.PrintCost(wtilde, X, y, 0);;
+preCost = optCost;
+reward = 0;
+
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
-    objFunc.PrintCost(wtilde, X, y, s - 1);
 
     for i = 1:iterNum
         idx = randperm(n, 1);
@@ -23,10 +27,22 @@ for s = 1:passes % for each epoch
         w = w - eta * wDelta;
     end
     wtilde = w;
-end % epoch
+    currentCost = objFunc.PrintCost(wtilde, X, y, s);
+    if currentCost <= optCost
+        optCost = currentCost;
+        wOpt = w;
+    end
+    if currentCost == preCost
+        reward = reward + 1;
+        if reward >= 10
+            break;
+        end
+    else
+        reward = 0;
+    end
+    preCost = currentCost;
 
-objFunc.PrintCost(wtilde, X, y, s);
-wOpt = wtilde;
+end % epoch
 
 telapsed = toc(tstart);
 fprintf('training accuracy: %f\n', objFunc.Score(wOpt, X, y));

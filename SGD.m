@@ -27,10 +27,10 @@ for t = 1:iterNum % for each iteration
     if mod(t, n) == 0
         cost = objFunc.PrintCost(w, X, y, round((t - 1)/n));
         if cost <= objFunc.optCost
-            fprintf('Oops, we attain the optimal solution ...');
+            fprintf('Oops, we attain the optimal solution ...\n');
         else
             validPoints = validPoints + 1;
-            subOptimality(validPoints) = log((cost - objFunc.optCost)/(initCost - objFunc.optCost));
+            subOptimality(validPoints) = log10((cost - objFunc.optCost)/(initCost - objFunc.optCost));
         end
 
     end

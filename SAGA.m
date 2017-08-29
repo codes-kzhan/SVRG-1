@@ -37,10 +37,10 @@ for t = 1:iterNum % for each iteration
     if mod(t, n) == 0
         cost = objFunc.PrintCost(w, X, y, round((t - 1)/n));
         if cost <= objFunc.optCost
-            fprintf('Oops, we attain the optimal solution ...');
+            fprintf('Oops, we attain the optimal solution ...\n');
         else
             validPoints = validPoints + 1;
-            subOptimality(validPoints) = log((cost - objFunc.optCost)/(initCost - objFunc.optCost));
+            subOptimality(validPoints) = log10((cost - objFunc.optCost)/(initCost - objFunc.optCost));
         end
 
     end
@@ -54,7 +54,7 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 label = 'SAGA';
-curve_style = 'r-';
+curve_style = 'g-';
 PlotCurve(0:validPoints-1, subOptimality(1:validPoints), curve_style, label);
 
 end  % function
