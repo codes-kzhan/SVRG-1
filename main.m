@@ -32,7 +32,7 @@ SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SVRGNRM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 
 % SVRGM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-% SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 %% save figure and exit
 box on
