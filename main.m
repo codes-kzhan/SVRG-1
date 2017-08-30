@@ -1,7 +1,7 @@
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 dataset = 'covtype';
 passes = 20;
-factor = 0.01;
+factor = 0.1;
 lambda2 = 1e-5;
 lambda1 = 1e-4;
 
@@ -34,6 +34,7 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 % SVRGNRM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 
 SVRGP(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+SVRGNRP(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SVRGM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
