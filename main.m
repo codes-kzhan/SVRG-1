@@ -8,7 +8,7 @@
 
 dataset = 'rcv1';
 passes = 20;
-factor = 1/4;
+factor = 1;
 lambda2 = 1e-5;
 lambda1 = 1e-4;
 
