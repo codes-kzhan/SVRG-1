@@ -1,7 +1,7 @@
-function wOpt = Katyusha(objFunc, X, y, Xtest, ytest, passes, factor)
+function wOpt = KatyushaNR(objFunc, X, y, Xtest, ytest, passes, factor)
 
 tstart = tic;
-fprintf('Fitting data with Katyusha...\n');
+fprintf('Fitting data with KatyushaNR...\n');
 
 % initialization
 [n ,d] = size(X);
@@ -29,8 +29,8 @@ for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
 
     for i = 1:iterNum
-        % idx = mod(i-1, n) + 1;
-        idx = randperm(n, 1);
+        idx = mod(i-1, n) + 1;
+        % idx = randperm(n, 1);
         w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;
         wDelta = objFunc.Gradient(w, X(idx, :), y(idx)) - objFunc.Gradient(wtilde, X(idx, :), y(idx)) + objFunc.lambda * w + ntilde;
         znew = z - alpha * wDelta;
@@ -57,7 +57,7 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 
-label = 'Katyusha';
+label = 'KatyushaNR';
 curve_style = '-.';
 PlotCurve(0:validPoints-1, subOptimality(1:validPoints), curve_style, label);
 
