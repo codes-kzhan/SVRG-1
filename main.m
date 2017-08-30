@@ -41,7 +41,9 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 % SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SVRGNRM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 
+factor = 1/2;
 SVRGNRP(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+factor = 1;
 SVRGP(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 
 % SVRGM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
