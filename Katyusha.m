@@ -21,8 +21,8 @@ subOptimality(1) = 0;
 
 tau2 = 1/2;
 tau1 = min(sqrt(iterNum * objFunc.mu / 3 / objFunc.L), 1/2);
-% alpha = 3/(3 * tau1 * objFunc.L);
-y = wtilde;
+alpha = 1/(3 * tau1 * objFunc.L);
+u = wtilde;
 z = wtilde;
 
 for s = 1:passes % for each epoch
@@ -31,12 +31,13 @@ for s = 1:passes % for each epoch
     for i = 1:iterNum
         idx = mod(i-1, n) + 1;
         % idx = perm(n, 1);
-        w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * y;
-        znew = objFunc.Gradient(w, X(idx, :), y(idx)) - objFunc.Gradient(wtilde, X(idx, :), y(idx)) + objFunc.lambda * w + ntilde;
-        y = x + tau1 * (znew - z);
+        w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;
+        wDelta = objFunc.Gradient(w, X(idx, :), y(idx)) - objFunc.Gradient(wtilde, X(idx, :), y(idx)) + objFunc.lambda * w + ntilde;
+        znew = z - alpha * wDelta;
+        u = w + tau1 * (znew - z);
         z = znew;
     end
-    wtilde = y;
+    wtilde = u;
 
     % print and plot
     cost = objFunc.PrintCost(wtilde, X, y, s);
