@@ -1,11 +1,12 @@
-% dataset : toy, covtype, rcv1, avazu, etc.
-dataset = 'sido';
+% dataset : toy, covtype, rcv1, avazu, MNIST.
+dataset = 'MNIST';
 passes = 20;
-factor = 3/4;
+factor = 0.2;
 lambda = 1e-5;
 
 %% preliminaries
 [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
+[n, d] = size(Xtrain);
 
 L = max(sum(Xtrain.^2, 2)) / 4 + lambda;
 mu = lambda;
@@ -34,6 +35,7 @@ SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SVRGM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+% GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 %% save figure and exit
 box on
 grid on
