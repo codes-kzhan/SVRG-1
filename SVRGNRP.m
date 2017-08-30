@@ -6,9 +6,6 @@ fprintf('Fitting data with SVRGNR-Prox ...\n');
 
 % initialization
 [n ,d] = size(X);
-ordering = randperm(n);
-X = X(ordering, :);
-y = y(ordering);
 iterNum = n;
 subOptimality = zeros(passes, 1);
 validPoints = 0;
