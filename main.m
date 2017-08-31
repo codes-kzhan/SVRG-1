@@ -6,12 +6,17 @@
 % lambda2 = 1e-5;
 % lambda1 = 1e-4;
 
-dataset = 'rcv1';
-passes = 20;
-factor = 1;
-lambda2 = 1e-5;
-lambda1 = 1e-4;
+% dataset = 'rcv1';
+% passes = 20;
+% factor = 1;
+% lambda2 = 1e-5;
+% lambda1 = 1e-4;
 
+dataset = 'MNIST';
+passes = 50;
+factor = 1/4;
+lambda2 = 1e-4;
+lambda1 = 1e-4;
 
 %% preliminaries
 [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
