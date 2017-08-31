@@ -1,8 +1,8 @@
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 dataset = 'MNIST';
-passes = 20;
-factor = 0.2;
-lambda = 1e-5;
+passes = 50;
+factor = 5;
+lambda = 1e-4;
 
 %% preliminaries
 [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
@@ -28,11 +28,13 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
-SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SVRGNRM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 
 % SVRGM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+factor = 5;
 SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);

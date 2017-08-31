@@ -66,6 +66,11 @@ elseif strcmp(name, 'MNIST')
     ytrain = ytrain(trainValid);
     ytrain(ytrain == 0) = -1;
 
+    [n, ~] = size(Xtrain);
+    ordering = randperm(seed, n);
+    Xtrain = Xtrain(ordering, :);
+    ytrain = ytrain(ordering);
+
     testValid = (ytest <= 1);
     Xtest = Xtest(testValid, :);
     ytest = ytest(testValid, :);
