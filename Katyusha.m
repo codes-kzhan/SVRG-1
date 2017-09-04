@@ -1,7 +1,7 @@
-function wOpt = SVRG(objFunc, X, y, Xtest, ytest, passes, factor)
+function wOpt = Katyusha(objFunc, X, y, Xtest, ytest, passes, factor)
 
 tstart = tic;
-fprintf('Fitting data with SVRG ...\n');
+fprintf('Fitting data with Katyusha...\n');
 
 % initialization
 [n ,d] = size(X);
@@ -13,21 +13,35 @@ eta = factor / objFunc.L
 % eta = 5e-1
 
 wtilde = zeros(d, 1);
-w = wtilde;
+
 
 initCost = objFunc.PrintCost(wtilde, X, y, 0);
 validPoints = validPoints + 1;
 subOptimality(1) = 0;
 
+tau2 = 1/2;
+% tau1 = min(sqrt(iterNum * objFunc.mu / 3 / objFunc.L), 1/2);
+% tau1 = 1/4;
+% alpha = 1/(3 * tau1 * objFunc.L);
+u = wtilde;
+z = wtilde;
+
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
+    tau1 = 2/(s+4);
+    alpha = 1/(3 * tau1 * objFunc.L);
 
     for i = 1:iterNum
+        % idx = mod(i-1, n) + 1;
         idx = randperm(n, 1);
+        % idx = randperm(n, 1);
+        w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;
         wDelta = objFunc.Gradient(w, X(idx, :), y(idx)) - objFunc.Gradient(wtilde, X(idx, :), y(idx)) + objFunc.lambda * w + ntilde;
-        w = w - eta * wDelta;
+        znew = z - alpha * wDelta;
+        u = w + tau1 * (znew - z);
+        z = znew;
     end
-    wtilde = w;
+    wtilde = u;
 
     % print and plot
     cost = objFunc.PrintCost(wtilde, X, y, s);
@@ -47,8 +61,8 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 
-label = 'SVRG';
-curve_style = 'm-';
+label = 'Katyusha';
+curve_style = 'm-.';
 PlotCurve(0:validPoints-1, subOptimality(1:validPoints), curve_style, label);
 
 end  % function

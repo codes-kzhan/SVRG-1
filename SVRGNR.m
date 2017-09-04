@@ -5,7 +5,7 @@ fprintf('Fitting data with SVRG-NR ...\n');
 
 % initialization
 [n ,d] = size(X);
-iterNum = n * 2;
+iterNum = n;
 subOptimality = zeros(passes, 1);
 validPoints = 0;
 
