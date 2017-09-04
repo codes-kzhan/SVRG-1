@@ -5,7 +5,7 @@ fprintf('Fitting data with KatyushaNR...\n');
 
 % initialization
 [n ,d] = size(X);
-iterNum = n;
+iterNum = n * 2;
 subOptimality = zeros(passes, 1);
 validPoints = 0;
 

@@ -1,6 +1,6 @@
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 dataset = 'MNIST';
-passes = 50;
+passes = 25;
 factor = 5;
 lambda = 1e-4;
 
