@@ -8,7 +8,7 @@ lambda = 1e-4;
 [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
 [n, d] = size(Xtrain);
 
-L = max(sum(Xtrain.^2, 2)) / 4 + lambda;
+L = max(sum(Xtrain.^2, 1)) / 4 + lambda;
 mu = lambda;
 logCost = ObjFunc(lambda, L, mu);
 
