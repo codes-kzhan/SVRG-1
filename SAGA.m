@@ -4,7 +4,7 @@ tstart = tic;
 fprintf('Fitting data with SAGA ...\n');
 
 % initialization
-[n ,d] = size(X);
+[d ,n] = size(X);
 iterNum = n * passes;
 w = zeros(d, 1);
 
@@ -17,15 +17,15 @@ initCost = objFunc.PrintCost(w, X, y, 0);
 validPoints = validPoints + 1;
 subOptimality(1) = 0;
 
-tmpExp = exp(-y .* (X*w));
-gradients = ((-y .* tmpExp) ./ (1 + tmpExp) .* X)' + objFunc.lambda * w;  % d-by-n matrix
+tmpExp = exp(-y .* (w' * X)')';
+gradients = ((-y' .* tmpExp) ./ (1 + tmpExp) .* X) + objFunc.lambda * w;  % d-by-n matrix
 
 sumIG = sum(gradients, 2);
 
 for t = 1:iterNum % for each iteration
     % update w
     idx = randperm(n, 1);
-    newGrad = objFunc.Gradient(w, X(idx, :), y(idx)) + objFunc.lambda * w;
+    newGrad = objFunc.Gradient(w, X(:, idx), y(idx)) + objFunc.lambda * w;
     oldGrad = gradients(:, idx);
     w = w - eta * (newGrad - oldGrad + sumIG/n);
 

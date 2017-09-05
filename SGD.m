@@ -4,7 +4,7 @@ tstart = tic;
 fprintf('Fitting data with SGD ...\n');
 
 % initialization
-[n ,d] = size(X);
+[d ,n] = size(X);
 iterNum = n * passes;
 batchSize = 64;
 w = zeros(d, 1);
@@ -20,7 +20,7 @@ subOptimality(1) = 0;
 for t = 1:iterNum % for each iteration
     idx = randperm(n, batchSize);
     eta = min(2/(objFunc.lambda * (t + 1)), 1e-2);
-    w = w - eta * (objFunc.Gradient(w, X(idx, :), y(idx)) + objFunc.lambda * w);
+    w = w - eta * (objFunc.Gradient(w, X(:, idx), y(idx)) + objFunc.lambda * w);
     % wOpt = wOpt + 2 * t * w / (iterNum * (iterNum + 1));
 
     % print and plot

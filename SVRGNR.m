@@ -4,7 +4,7 @@ tstart = tic;
 fprintf('Fitting data with SVRG-NR ...\n');
 
 % initialization
-[n ,d] = size(X);
+[d ,n] = size(X);
 iterNum = n;
 subOptimality = zeros(passes, 1);
 validPoints = 0;
@@ -23,7 +23,8 @@ for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
 
     for i = 1:iterNum
-        wDelta = objFunc.Gradient(w, X(i, :), y(i)) - objFunc.Gradient(wtilde, X(i, :), y(i)) + objFunc.lambda * w + ntilde;
+        idx = i;
+        wDelta = objFunc.Gradient(w, X(:, idx), y(idx)) - objFunc.Gradient(wtilde, X(:, idx), y(idx)) + objFunc.lambda * w + ntilde;
         w = w - eta * wDelta;
     end
     wtilde = w;
