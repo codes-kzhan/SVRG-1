@@ -4,7 +4,7 @@ tstart = tic;
 fprintf('Computing optimal solution ...\n');
 
 % initialization
-[n ,d] = size(X);
+[d ,n] = size(X);
 iterNum = n;
 
 eta = factor / objFunc.L
@@ -23,7 +23,7 @@ for s = 1:passes % for each epoch
 
     for i = 1:iterNum
         idx = randperm(n, 1);
-        wDelta = objFunc.Gradient(w, X(idx, :), y(idx)) - objFunc.Gradient(wtilde, X(idx, :), y(idx)) + objFunc.lambda * w + ntilde;
+        wDelta = objFunc.Gradient(w, X(:, idx), y(idx)) - objFunc.Gradient(wtilde, X(:, idx), y(idx)) + objFunc.lambda * w + ntilde;
         w = w - eta * wDelta;
     end
     wtilde = w;
