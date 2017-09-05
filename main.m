@@ -1,7 +1,7 @@
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
 dataset = 'avazu';
-passes = 8;
+passes = 1;
 factor = 1/2;
 lambda = 1e-5;
 %% preliminaries
@@ -17,7 +17,7 @@ fig = figure('units', 'normalized', 'outerposition', [0 0 1 1]);
 objFuncType = '_logistic';
 filename = strcat('../data/', dataset, objFuncType, '_opt.mat');
 if exist(filename, 'file') ~= 2
-    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes * 10, factor);
+    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes * 8, factor);
     save(filename, 'wOpt');
 else
     load(filename, 'wOpt');

@@ -47,11 +47,20 @@ elseif strcmp(name, 'rcv1')
     % rcv1 dataset is ready
 
 elseif strcmp(name, 'avazu')
+    test_size = 0.33;
     % avazu dataset
-    [ytrain, Xtrain] = libsvmread('../data/avazu/avazu-app');
-    ytrain(ytrain == 0) = -1;
-    [ytest, Xtest] = libsvmread('../data/avazu/avazu-app.t');
-    ytest(ytest == 0) = -1;
+    [y, X] = libsvmread('../data/avazu/avazu-app');
+    [n, ~] = size(X);
+    y(y == 0) = -1;
+
+    ordering = randperm(seed, n);
+    y = y(ordering, :);
+    X = X(ordering, :);
+    split = round(n * (1 - test_size));
+    Xtrain = X(1:split, :);
+    Xtest = X(split+1:end, :);
+    ytrain = y(1:split);
+    ytest = y(split+1:end);
     % avazu dataset is ready
 
 elseif strcmp(name, 'MNIST')
