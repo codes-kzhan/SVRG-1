@@ -1,7 +1,7 @@
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
 dataset = 'avazu';
-passes = 1;
+passes = 10;
 factor = 1/2;
 lambda = 1e-5;
 %% preliminaries
