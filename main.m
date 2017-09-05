@@ -1,9 +1,9 @@
 % dataset : toy, covtype, rcv1, avazu, MNIST.
-dataset = 'covtype';
+
+dataset = 'avazu';
 passes = 20;
 factor = 1/2;
 lambda = 1e-5;
-
 %% preliminaries
 [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
 
