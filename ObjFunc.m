@@ -16,7 +16,7 @@ classdef ObjFunc
 
         % compute cost
         function costValue = Cost(obj, w, X, y)
-            loss = mean(log(1 + exp(-y .* (w'*X)')));
+            loss = mean(log(1 + exp(-y .* ((w'*X)'))));
             regularizer = obj.lambda / 2 * sum(w.^2);
             costValue = loss + regularizer;
         end

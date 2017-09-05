@@ -103,8 +103,7 @@ elseif strcmp(name, 'newtoy')
 
 elseif strcmp(name, 'toy')
     load('../data/toy_dataset.mat');
+end
 
 Xtrain = Xtrain';
 Xtest = Xtest';
-
-end
