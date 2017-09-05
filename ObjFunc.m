@@ -50,7 +50,7 @@ classdef ObjFunc
 
         % score
         function score = Score(obj, w, X, y)
-            [~ , d] = size(X);
+            [~ , n] = size(X);
             labels = obj.Predict(w, X);
             score = sum(labels == y)/n;
         end
