@@ -4,7 +4,7 @@ tstart = tic;
 fprintf('Fitting data with KatyushaNR...\n');
 
 % initialization
-[n ,d] = size(X);
+[d ,n] = size(X);
 iterNum = n;
 subOptimality = zeros(passes, 1);
 validPoints = 0;
@@ -34,7 +34,7 @@ for s = 1:passes % for each epoch
         idx = mod(i-1, n) + 1;
         % idx = randperm(n, 1);
         w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;
-        wDelta = objFunc.Gradient(w, X(idx, :), y(idx)) - objFunc.Gradient(wtilde, X(idx, :), y(idx)) + objFunc.lambda * w + ntilde;
+        wDelta = objFunc.Gradient(w, X(:, idx), y(idx)) - objFunc.Gradient(wtilde, X(:, idx), y(idx)) + objFunc.lambda * w + ntilde;
         znew = z - alpha * wDelta;
         u = w + tau1 * (znew - z);
         z = znew;
