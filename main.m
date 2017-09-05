@@ -28,9 +28,9 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 %% have fun
 
 SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+% KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+% Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 
 factor = 5;
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
