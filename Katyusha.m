@@ -4,7 +4,7 @@ tstart = tic;
 fprintf('Fitting data with Katyusha...\n');
 
 % initialization
-[n ,d] = size(X);
+[d ,n] = size(X);
 iterNum = n;
 subOptimality = zeros(passes, 1);
 validPoints = 0;

@@ -4,7 +4,7 @@ tstart = tic;
 fprintf('Fitting data with SVRG ...\n');
 
 % initialization
-[n ,d] = size(X);
+[d, n] = size(X);
 iterNum = n;
 subOptimality = zeros(passes, 1);
 validPoints = 0;
@@ -24,7 +24,16 @@ for s = 1:passes % for each epoch
 
     for i = 1:iterNum
         idx = randperm(n, 1);
-        wDelta = objFunc.Gradient(w, X(idx, :), y(idx)) - objFunc.Gradient(wtilde, X(idx, :), y(idx)) + objFunc.lambda * w + ntilde;
+        Xtmp = X(:, idx);
+        ytmp = y(idx);
+        % new gradient
+        tmpExp = exp(-ytmp .* (w'*Xtmp)')'; % 1-by-n vector
+        newGradient = (-ytmp' .* tmpExp .* Xtmp ) ./ (1 + tmpExp);
+        % old gradient
+        tmpExp = exp(-ytmp .* (wtilde'*Xtmp)')'; % 1-by-n vector
+        oldGradient = (-ytmp' .* tmpExp .* Xtmp ) ./ (1 + tmpExp);
+
+        wDelta = newGradient - oldGradient + objFunc.lambda * w + ntilde;
         w = w - eta * wDelta;
     end
     wtilde = w;

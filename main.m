@@ -1,13 +1,13 @@
-% dataset : toy, covtype, rcv1, avazu, etc.
-dataset = 'covtype';
-passes = 20;
-factor = 1/2;
-lambda = 1e-5;
+% dataset : toy, covtype, rcv1, avazu, MNIST.
+dataset = 'MNIST';
+passes = 25;
+factor = 5;
+lambda = 1e-4;
 
 %% preliminaries
 [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
 
-L = max(sum(Xtrain.^2, 2)) / 4 + lambda;
+L = max(sum(Xtrain.^2, 1)) / 4 + lambda;
 mu = lambda;
 logCost = ObjFunc(lambda, L, mu);
 
@@ -23,18 +23,19 @@ else
     load(filename, 'wOpt');
 end
 logCost.optSolution = wOpt;
-logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain);
+logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
-% SVRGNRM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-
-KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+% KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-% SVRGM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+% Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+
+factor = 5;
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+% GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 %% save figure and exit
 box on
 grid on
