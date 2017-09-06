@@ -5,7 +5,7 @@ passes = 10;
 factor = 1/2;
 lambda = 1e-5;
 %% preliminaries
-[Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
+%[Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
 
 L = max(sum(Xtrain.^2, 1)) / 4 + lambda;
 mu = lambda;
@@ -27,7 +27,7 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
-SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+% SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);

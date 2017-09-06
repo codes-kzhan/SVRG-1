@@ -25,8 +25,11 @@ classdef ObjFunc
         function gradient = Gradient(~, w, X, y)
             [d, n] = size(X);
             tmpExp = exp(-y .* (w'*X)')'; % 1-by-n vector
-            tmpOnes = ones(n, 1);
-            gradient = (-y' .* tmpExp .* X ) ./ (1 + tmpExp) * tmpOnes / n;
+            % tmpOnes = ones(n, 1);
+            g1 = tmpExp./(1 + tmpExp);
+            g2 = -y' .* g1;
+            g3 = g2 .* X;
+            gradient = mean(g3, 2);
         end
 
         % compute hypothesis

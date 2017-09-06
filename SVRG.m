@@ -5,36 +5,35 @@ fprintf('Fitting data with SVRG ...\n');
 
 % initialization
 [d, n] = size(X);
-iterNum = n;
-subOptimality = zeros(passes, 1);
-validPoints = 0;
+batchSize = 64;
+iterNum = round(n/batchSize);
+lambda = objFunc.lambda;
 
 eta = factor / objFunc.L
 % eta = 5e-1
 
-wtilde = zeros(d, 1);
+wtilde = sparse(zeros(d, 1));
 w = wtilde;
 
 initCost = objFunc.PrintCost(wtilde, X, y, 0);
-validPoints = validPoints + 1;
-subOptimality(1) = 0;
+subOptimality = [0, 0];
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
 
     for i = 1:iterNum
-        idx = randperm(n, 1);
+        idx = randperm(n, batchSize);
         Xtmp = X(:, idx);
         ytmp = y(idx);
         % new gradient
         tmpExp = exp(-ytmp .* (w'*Xtmp)')'; % 1-by-n vector
-        newGradient = (-ytmp' .* tmpExp .* Xtmp ) ./ (1 + tmpExp);
         % old gradient
-        tmpExp = exp(-ytmp .* (wtilde'*Xtmp)')'; % 1-by-n vector
-        oldGradient = (-ytmp' .* tmpExp .* Xtmp ) ./ (1 + tmpExp);
+        tmpExpTilde = exp(-ytmp .* (wtilde'*Xtmp)')'; % 1-by-n vector
+        wDelta1 = mean(-ytmp' .* (tmpExp./(1 + tmpExp) - tmpExpTilde./(1 + tmpExpTilde)) .* Xtmp, 2);
 
-        wDelta = newGradient - oldGradient + objFunc.lambda * w + ntilde;
-        w = w - eta * wDelta;
+        wDelta2 = wDelta1 + lambda * w;
+        wDelta3 = wDelta2 + ntilde;
+        w = w - eta * wDelta3;
     end
     wtilde = w;
 
@@ -43,8 +42,8 @@ for s = 1:passes % for each epoch
     if cost <= objFunc.optCost
         fprintf('Oops, we attain the optimal solution ...\n');
     else
-        validPoints = validPoints + 1;
-        subOptimality(validPoints) = log10((cost - objFunc.optCost)/(initCost - objFunc.optCost));
+        logError = log10((cost - objFunc.optCost)/(initCost - objFunc.optCost));
+        subOptimality = [subOptimality; [s, logError]];
     end
 end % epoch
 
@@ -58,6 +57,6 @@ fprintf('time elapsed: %f\n', telapsed);
 
 label = 'SVRG';
 curve_style = 'm-';
-PlotCurve(0:validPoints-1, subOptimality(1:validPoints), curve_style, label);
+PlotCurve(subOptimality(:, 1), subOptimality(:, 2), curve_style, label);
 
 end  % function
