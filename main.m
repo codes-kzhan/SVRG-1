@@ -1,7 +1,7 @@
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
 dataset = 'avazu';
-passes = 10;
+passes = 1;
 factor = 1/2;
 lambda = 1e-5;
 %% preliminaries
@@ -27,7 +27,7 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
-% SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
