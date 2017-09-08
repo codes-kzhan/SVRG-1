@@ -15,7 +15,11 @@ validPoints = 0;
 eta = factor / objFunc.L
 % eta = 5e-1
 
-wtilde = sparse(zeros(d, 1));
+if issparse(X)
+    wtilde = sparse(d, 1);
+else
+    wtilde = zeros(d, 1);
+end
 w = wtilde;
 
 initCost = objFunc.PrintCost(wtilde, X, y, 0);
