@@ -1,23 +1,26 @@
+function main(dataset, gridNum)
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
-dataset = 'avazu';
-
 if strcmp(dataset, 'covtype')
-    passes = 1;
+    passes = 20;
     factor = 1/2;
     lambda = 1e-5;
+    batchSize = 1;
 elseif strcmp(dataset, 'rcv1')
-    passes = 1;
+    passes = 20;
     factor = 3/8;
     lambda = 1e-5;
+    batchSize = 1;
 elseif strcmp(dataset, 'MNIST')
-    passes = 1;
+    passes = 25;
     factor = 5;
     lambda = 1e-4;
+    batchSize = 1;
 elseif strcmp(dataset, 'avazu')
-    passes = 1;
+    passes = 20;
     factor = 1/2;
     lambda = 1e-5;
+    batchSize = 64;
 end
 %% preliminaries
 [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
@@ -42,9 +45,9 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
-SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);

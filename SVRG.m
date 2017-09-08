@@ -1,11 +1,10 @@
-function wOpt = SVRG(objFunc, X, y, Xtest, ytest, passes, factor)
+function wOpt = SVRG(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
 
 tstart = tic;
 fprintf('Fitting data with SVRG ...\n');
 
 % initialization
 [d, n] = size(X);
-batchSize = 64;
 iterNum = round(n/batchSize);
 lambda = objFunc.lambda;
 
@@ -61,6 +60,6 @@ fprintf('time elapsed: %f\n', telapsed);
 
 label = 'SVRG';
 curve_style = 'm-';
-PlotCurve(subOptimality(:, 1), subOptimality(:, 2), curve_style, label);
+PlotCurve(subOptimality(:, 1), subOptimality(:, 2), curve_style, label, dataset, gridNum);
 
 end  % function

@@ -1,16 +1,15 @@
-function wOpt = SVRG(objFunc, X, y, Xtest, ytest, passes, factor)
+function wOpt = SVRGNR(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
 
 tstart = tic;
 fprintf('Fitting data with SVRG-NR ...\n');
 
 % initialization
 [d, n] = size(X);
-batchSize = 64;
 iterNum = round(n/batchSize);
 done = iterNum*batchSize;  % this variable tells us whether we need to do the last iteration
 lambda = objFunc.lambda;
 % subOptimality = zeros(passes, 1);
-validPoints = 0;
+
 
 eta = factor / objFunc.L
 % eta = 5e-1
@@ -80,6 +79,6 @@ fprintf('time elapsed: %f\n', telapsed);
 
 label = 'SVRGNR';
 curve_style = 'r-';
-PlotCurve(subOptimality(:, 1), subOptimality(:, 2), curve_style, label);
+PlotCurve(subOptimality(:, 1), subOptimality(:, 2), curve_style, label, dataset, gridNum);
 
 end  % function
