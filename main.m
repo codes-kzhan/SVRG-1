@@ -1,9 +1,24 @@
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
 dataset = 'avazu';
-passes = 1;
-factor = 1/2;
-lambda = 1e-5;
+
+if strcmp(dataset, 'covtype')
+    passes = 20;
+    factor = 1/2;
+    lambda = 1e-5;
+elseif strcmp(dataset, 'rcv1')
+    passes = 1;
+    factor = 1/2;
+    lambda = 1e-5;
+elseif strcmp(dataset, 'MNIST')
+    passes = 1;
+    factor = 1/2;
+    lambda = 1e-5;
+elseif strcmp(dataset, 'avazu')
+    passes = 1;
+    factor = 1/2;
+    lambda = 1e-5;
+end
 %% preliminaries
 %[Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
 
