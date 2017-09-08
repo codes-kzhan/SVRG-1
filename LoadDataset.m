@@ -27,7 +27,7 @@ if strcmp(name, 'sido')
 elseif strcmp(name, 'covtype')
     % covtype dataset
     test_size = 0.33;
-    [y, X] = libsvmread('../data/covtype.libsvm.binary.scale');
+    [y, X] = libsvmread('../data/covtype/covtype.libsvm.binary.scale');
     y(y == 2) = -1;
     [n, ~] = size(X);
     ordering = randperm(seed, n);
@@ -111,7 +111,7 @@ elseif strcmp(name, 'newtoy')
     %end data set creation
 
 elseif strcmp(name, 'toy')
-    load('../data/toy_dataset.mat');
+    load('../data/toy/toy_dataset.mat');
 end
 
 Xtrain = Xtrain';
