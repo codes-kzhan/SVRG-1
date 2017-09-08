@@ -3,15 +3,15 @@
 dataset = 'avazu';
 
 if strcmp(dataset, 'covtype')
-    passes = 20;
+    passes = 1;
     factor = 1/2;
     lambda = 1e-5;
 elseif strcmp(dataset, 'rcv1')
-    passes = 20;
+    passes = 1;
     factor = 3/8;
     lambda = 1e-5;
 elseif strcmp(dataset, 'MNIST')
-    passes = 25;
+    passes = 1;
     factor = 5;
     lambda = 1e-4;
 elseif strcmp(dataset, 'avazu')
@@ -20,13 +20,13 @@ elseif strcmp(dataset, 'avazu')
     lambda = 1e-5;
 end
 %% preliminaries
-%[Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
+[Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
 
 L = max(sum(Xtrain.^2, 1)) / 4 + lambda;
 mu = lambda;
 logCost = ObjFunc(lambda, L, mu);
 
-fig = figure('units', 'normalized', 'outerposition', [0 0 1 1]);
+% fig = figure('units', 'normalized', 'outerposition', [0 0 1 1]);
 
 % find or load optimal solution
 objFuncType = '_logistic';
@@ -46,14 +46,12 @@ SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-
-factor = 5;
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 %% save figure and exit
 box on
 grid on
-figname = strcat('./', dataset, objFuncType, '.png');
-saveas(fig, figname);
-close(fig);
+% figname = strcat('./', dataset, objFuncType, '.png');
+% saveas(fig, figname);
+% close(fig);
