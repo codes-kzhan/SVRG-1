@@ -1,12 +1,10 @@
-function wOpt = FindOptSolution(objFunc, X, y, Xtest, ytest, passes, factor)
+function wOpt = FindOptSolution(objFunc, X, y, Xtest, ytest, passes, factor, batchSize)
 
 tstart = tic;
 fprintf('Computing optimal solution ...\n');
 
 % initialization
 [d ,n] = size(X);
-
-batchSize = 64;
 
 iterNum = round(n/batchSize);
 lambda = objFunc.lambda;
