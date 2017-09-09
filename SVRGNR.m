@@ -1,6 +1,5 @@
 function wOpt = SVRGNR(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
 
-tstart = tic;
 fprintf('Fitting data with SVRG-NR ...\n');
 
 % initialization
@@ -23,6 +22,7 @@ w = wtilde;
 
 initCost = objFunc.PrintCost(wtilde, X, y, 0);
 subOptimality = [0, 0];
+tstart = tic;
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
@@ -35,7 +35,7 @@ for s = 1:passes % for each epoch
         tmpExp = exp(-ytmp .* (w'*Xtmp)')'; % 1-by-n vector
         % old gradient
         tmpExpTilde = exp(-ytmp .* (wtilde'*Xtmp)')'; % 1-by-n vector
-        wDelta1 = mean(-ytmp' .* (tmpExp./(1 + tmpExp) - tmpExpTilde./(1 + tmpExpTilde)) .* Xtmp, 2);
+        wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
 
         wDelta2 = wDelta1 + lambda * w;
         wDelta3 = wDelta2 + ntilde;
@@ -65,7 +65,7 @@ for s = 1:passes % for each epoch
         fprintf('Oops, we attain the optimal solution ...\n');
     else
         logError = log10((cost - objFunc.optCost)/(initCost - objFunc.optCost));
-        subOptimality = [subOptimality; [s, logError]];
+        subOptimality = [subOptimality; [toc, logError]];
     end
 end % epoch
 
