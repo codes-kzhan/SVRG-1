@@ -22,9 +22,14 @@ classdef ObjFunc
         end
 
         % compute gradient without regularizer
-        function gradient = Gradient(~, w, X, y))
+        function gradient = Gradient(~, w, X, y)
+            [d, n] = size(X);
             tmpExp = exp(-y .* (w'*X)')'; % 1-by-n vector
-            gradient = mean((-y' .* tmpExp .* X ) ./ (1 + tmpExp), 2);
+            % tmpOnes = ones(n, 1);
+            g1 = tmpExp./(1 + tmpExp);
+            g2 = -y' .* g1;
+            g3 = g2 .* X;
+            gradient = mean(g3, 2);
         end
 
         % compute hypothesis

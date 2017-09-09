@@ -6,7 +6,12 @@ fprintf('Fitting data with SAGA ...\n');
 % initialization
 [d ,n] = size(X);
 iterNum = n * passes;
-w = zeros(d, 1);
+
+if issparse(X)
+    w = sparse(d, 1);
+else
+    w = zeros(d, 1);
+end
 
 eta = factor/objFunc.L
 
