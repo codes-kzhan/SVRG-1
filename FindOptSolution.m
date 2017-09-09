@@ -32,11 +32,11 @@ for s = 1:passes % for each epoch
         Xtmp = X(:, idx);
         ytmp = y(idx);
         % new gradient
-        tmpExp = exp(-ytmp .* (w'*Xtmp)')'; % 1-by-n vector
+        tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
         newGradient = mean((-ytmp' .* tmpExp .* Xtmp ) ./ (1 + tmpExp), 2);
         % old gradient
-        tmpExp = exp(-ytmp .* (wtilde'*Xtmp)')'; % 1-by-n vector
-        oldGradient = mean((-ytmp' .* tmpExp .* Xtmp ) ./ (1 + tmpExp), 2);
+        tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
+        wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
 
         wDelta = newGradient - oldGradient + lambda * w + ntilde;
         w = w - eta * wDelta;

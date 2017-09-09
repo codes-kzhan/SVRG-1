@@ -21,7 +21,7 @@ end
 w = wtilde;
 
 initCost = objFunc.PrintCost(wtilde, X, y, 0);
-subOptimality = [0, 0];
+subOptimality = [0, 0, 0];
 tstart = tic;
 
 for s = 1:passes % for each epoch
@@ -32,9 +32,9 @@ for s = 1:passes % for each epoch
         Xtmp = X(:, idx);
         ytmp = y(idx);
         % new gradient
-        tmpExp = exp(-ytmp .* (w'*Xtmp)')'; % 1-by-n vector
+        tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
         % old gradient
-        tmpExpTilde = exp(-ytmp .* (wtilde'*Xtmp)')'; % 1-by-n vector
+        tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
         wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
 
         wDelta2 = wDelta1 + lambda * w;
@@ -65,7 +65,7 @@ for s = 1:passes % for each epoch
         fprintf('Oops, we attain the optimal solution ...\n');
     else
         logError = log10((cost - objFunc.optCost)/(initCost - objFunc.optCost));
-        subOptimality = [subOptimality; [toc, logError]];
+        subOptimality = [subOptimality; [s, toc(tstart), logError]];
     end
 end % epoch
 
@@ -79,6 +79,7 @@ fprintf('time elapsed: %f\n', telapsed);
 
 label = 'SVRGNR';
 curve_style = 'r-';
-PlotCurve(subOptimality(:, 1), subOptimality(:, 2), curve_style, label, dataset, gridNum);
+
+PlotTime(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function
