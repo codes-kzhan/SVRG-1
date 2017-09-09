@@ -1,4 +1,6 @@
-function main(dataset, gridNum)
+%function main(dataset, gridNum)
+dataset = 'avazu';
+gridNum = 1;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
 if strcmp(dataset, 'covtype')
@@ -17,13 +19,13 @@ elseif strcmp(dataset, 'MNIST')
     lambda = 1e-4;
     batchSize = 1;
 elseif strcmp(dataset, 'avazu')
-    passes = 20;
-    factor = 1/2;
+    passes = 1;
+    factor = 1/4;
     lambda = 1e-5;
     batchSize = 64;
 end
 %% preliminaries
-[Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
+% [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
 
 L = max(sum(Xtrain.^2, 1)) / 4 + lambda;
 mu = lambda;
