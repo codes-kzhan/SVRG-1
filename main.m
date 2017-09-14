@@ -1,5 +1,5 @@
 %function main(dataset, gridNum)
-dataset = 'avazu';
+dataset = 'covtype';
 gridNum = 1;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
@@ -47,8 +47,8 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
+KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, dataset, gridNum);
 SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
-% KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);

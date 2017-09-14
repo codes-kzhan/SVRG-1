@@ -46,7 +46,7 @@ for s = 1:passes % for each epoch
         fprintf('Oops, we attain the optimal solution ...\n');
     else
         logError = log10((cost - objFunc.optCost)/(initCost - objFunc.optCost));
-        subOptimality = [subOptimality; [toc, logError]];
+        subOptimality = [subOptimality; [s, logError]];
     end
 end % epoch
 
