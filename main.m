@@ -1,5 +1,5 @@
 %function main(dataset, gridNum)
-dataset = 'avazu';
+dataset = 'criteo';
 gridNum = 1;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
@@ -23,6 +23,11 @@ elseif strcmp(dataset, 'avazu')
     factor = 1/4;
     lambda = 1e-5;
     batchSize = 64;
+elseif strcmp(dataset, 'criteo')
+    passes = 20;
+    factor = 1/2;
+    lambda = 1e-5;
+    batchSize = 64;
 end
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
@@ -37,7 +42,7 @@ logCost = ObjFunc(lambda, L, mu);
 objFuncType = '_logistic';
 filename = strcat('../data/', dataset, objFuncType, '_opt.mat');
 if exist(filename, 'file') ~= 2
-    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes * 8, factor);
+    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes * 8, factor, batchSize);
     save(filename, 'wOpt');
 else
     load(filename, 'wOpt');

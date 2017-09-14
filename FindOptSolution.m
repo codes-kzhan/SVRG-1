@@ -33,13 +33,13 @@ for s = 1:passes % for each epoch
         ytmp = y(idx);
         % new gradient
         tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
-        newGradient = mean((-ytmp' .* tmpExp .* Xtmp ) ./ (1 + tmpExp), 2);
         % old gradient
         tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
         wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
 
-        wDelta = newGradient - oldGradient + lambda * w + ntilde;
-        w = w - eta * wDelta;
+        wDelta2 = wDelta1 + lambda * w;
+        wDelta3 = wDelta2 + ntilde;
+        w = w - eta * wDelta3;
     end
     wtilde = w;
     currentCost = objFunc.PrintCost(wtilde, X, y, s);
