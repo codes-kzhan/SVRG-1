@@ -25,7 +25,7 @@ reward = 0;
 
 
 for s = 1:passes % for each epoch
-    ntilde = sparse(objFunc.Gradient(wtilde, X, y));
+    ntilde = objFunc.Gradient(wtilde, X, y);
 
     for i = 1:iterNum
         idx = randperm(n, batchSize);
@@ -46,6 +46,7 @@ for s = 1:passes % for each epoch
     if currentCost <= optCost
         optCost = currentCost;
         wOpt = w;
+        save('wOpt_tmp.mat', 'wOpt');
     end
     if currentCost == preCost
         reward = reward + 1;
