@@ -15,7 +15,7 @@ elseif strcmp(dataset, 'rcv1')
     batchSize = 1;
 elseif strcmp(dataset, 'MNIST')
     passes = 25;
-    factor = 1;
+    factor = 0.1;
     lambda = 1e-4;
     batchSize = 1;
 elseif strcmp(dataset, 'avazu')
@@ -31,36 +31,37 @@ elseif strcmp(dataset, 'criteo')
 end
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
+Z = -ytrain' .* Xtrain;
+ZT = Z';
 
-L = max(sum(Xtrain.^2, 1)) / 4 + lambda;
+% L = max(sum(Xtrain.^2, 1)) / 4 + lambda;
+L = 2 * max(svds(Z, 1)^2, svds(Z, 1, 'smallest')) + lambda;
 mu = lambda;
-logCost = ObjFunc(lambda, L, mu);
+svmCost = SVM(lambda, L, mu);
 
 % fig = figure('units', 'normalized', 'outerposition', [0 0 1 1]);
 
 % find or load optimal solution
-objFuncType = '_logistic_norm';
+objFuncType = '_svm';
 filename = strcat('../data/', dataset, objFuncType, '_opt.mat');
 if exist(filename, 'file') ~= 2
-    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes*20, factor, batchSize);
-    save(filename, 'wOpt');
+    wOpt = svm_FindOptSolution(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes*20, factor, batchSize);
+    % save(filename, 'wOpt'); %@TODO
 else
     load(filename, 'wOpt');
 end
-logCost.optSolution = wOpt;
-logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
+svmCost.optSolution = wOpt;
+svmCost.optCost = svmCost.Cost(wOpt, ZT)
 
 %% have fun
 
-factor = 0.4;
-SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
-% KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-factor = 0.5;
-SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
-% Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-% SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-% SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-% GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+% SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+% KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor);
+% svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+% Katyusha(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+% SAGA(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+% SGD(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+% GD(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 %% save figure and exit
 box on
 grid on
