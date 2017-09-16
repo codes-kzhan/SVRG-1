@@ -7,8 +7,6 @@ fprintf('Fitting data with SVRG-NR ...\n');
 iterNum = round(n/batchSize);
 done = iterNum*batchSize;  % this variable tells us whether we need to do the last iteration
 lambda = objFunc.lambda;
-% subOptimality = zeros(passes, 1);
-
 
 eta = factor / objFunc.L
 % eta = 5e-1

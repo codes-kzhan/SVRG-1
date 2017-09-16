@@ -32,8 +32,7 @@ for s = 1:passes % for each epoch
         Ztmp = Z(:, idx);
         ZTtmp = ZT(idx, :);
 
-        tmpDeltaG = Ztmp * (max(1 + ZTtmp * w, 0) - max(1 + ZTtmp * wtilde)) * 2/batchSize;
-        % new gradient
+        tmpDeltaG = Ztmp * (max(1 + ZTtmp * w, 0) - max(1 + ZTtmp * wtilde, 0)) * 2/batchSize;
 
         wDelta1 = tmpDeltaG + lambda * w;
         wDelta2 = wDelta1 + ntilde;
