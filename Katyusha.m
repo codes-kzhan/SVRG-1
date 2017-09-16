@@ -13,7 +13,7 @@ wtilde = zeros(d, 1);
 
 
 initCost = objFunc.PrintCost(wtilde, X, y, 0);
-subOptimality = [0, 0, 0, 0];
+subOptimality = [0, 0, 1, 1];
 objOptNorm = sum(objFunc.optSolution.^2);
 
 tstart = tic;
@@ -43,10 +43,9 @@ for s = 1:passes % for each epoch
     if cost <= objFunc.optCost
         fprintf('Oops, we attain the optimal solution ...\n');
     else
-        logError = log10((cost - objFunc.optCost)/(initCost - objFunc.optCost));
-        logDistance = log10(sum((wtilde - objFunc.optSolution).^2) / objOptNorm);
-        subOptimality = [subOptimality; [s, toc(tstart), logError, logDistance]];
-
+        error = (cost - objFunc.optCost)/(initCost - objFunc.optCost);
+        distance = sum((wtilde - objFunc.optSolution).^2) / objOptNorm;
+        subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
     end
 end % epoch
 

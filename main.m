@@ -14,8 +14,8 @@ elseif strcmp(dataset, 'rcv1')
     lambda = 1e-5;
     batchSize = 1;
 elseif strcmp(dataset, 'MNIST')
-    passes = 25;
-    factor = 1;
+    passes = 20;
+    factor = 0.1;
     lambda = 1e-4;
     batchSize = 1;
 elseif strcmp(dataset, 'avazu')
@@ -52,18 +52,16 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
-factor = 0.4;
+factor = 0.1;
 SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, dataset, gridNum);
-factor = 0.5;
+factor = 0.1;
 SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 %% save figure and exit
-box on
-grid on
 % figname = strcat('./', dataset, objFuncType, '.png');
 % saveas(fig, figname);
 % close(fig);
