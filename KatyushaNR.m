@@ -1,13 +1,10 @@
-function wOpt = KatyushaNR(objFunc, X, y, Xtest, ytest, passes, factor)
+function wOpt = KatyushaNR(objFunc, X, y, Xtest, ytest, passes, factor, dataset, gridNum)
 
-tstart = tic;
 fprintf('Fitting data with KatyushaNR...\n');
 
 % initialization
 [d ,n] = size(X);
 iterNum = n;
-subOptimality = zeros(passes, 1);
-validPoints = 0;
 
 eta = factor / objFunc.L
 % eta = 5e-1
@@ -16,8 +13,10 @@ wtilde = zeros(d, 1);
 
 
 initCost = objFunc.PrintCost(wtilde, X, y, 0);
-validPoints = validPoints + 1;
-subOptimality(1) = 0;
+subOptimality = [0, 0, 0, 0];
+objOptNorm = sum(objFunc.optSolution.^2);
+
+tstart = tic;
 
 tau2 = 1/2;
 tau1 = min(sqrt(iterNum * objFunc.mu / 3 / objFunc.L), 1/2);
@@ -44,8 +43,9 @@ for s = 1:passes % for each epoch
     if cost <= objFunc.optCost
         fprintf('Oops, we attain the optimal solution ...\n');
     else
-        validPoints = validPoints + 1;
-        subOptimality(validPoints) = log10((cost - objFunc.optCost)/(initCost - objFunc.optCost));
+        logError = log10((cost - objFunc.optCost)/(initCost - objFunc.optCost));
+        logDistance = log10(sum((wtilde - objFunc.optSolution).^2) / objOptNorm);
+        subOptimality = [subOptimality; [s, toc(tstart), logError, logDistance]];
     end
 end % epoch
 
@@ -59,6 +59,6 @@ fprintf('time elapsed: %f\n', telapsed);
 
 label = 'KatyushaNR';
 curve_style = '-.';
-PlotCurve(0:validPoints-1, subOptimality(1:validPoints), curve_style, label);
+PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function

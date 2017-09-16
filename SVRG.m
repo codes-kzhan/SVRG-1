@@ -18,7 +18,9 @@ end
 w = wtilde;
 
 initCost = objFunc.PrintCost(wtilde, X, y, 0);
-subOptimality = [0, 0, 0];
+subOptimality = [0, 0, 0, 0];
+objOptNorm = sum(objFunc.optSolution.^2);
+
 tstart = tic;
 
 for s = 1:passes % for each epoch
@@ -46,7 +48,8 @@ for s = 1:passes % for each epoch
         fprintf('Oops, we attain the optimal solution ...\n');
     else
         logError = log10((cost - objFunc.optCost)/(initCost - objFunc.optCost));
-        subOptimality = [subOptimality; [s, toc(tstart), logError]];
+        logDistance = log10(sum((wtilde - objFunc.optSolution).^2) / objOptNorm);
+        subOptimality = [subOptimality; [s, toc(tstart), logError, logDistance]];
     end
 end % epoch
 
@@ -60,6 +63,7 @@ fprintf('time elapsed: %f\n', telapsed);
 
 label = 'SVRG';
 curve_style = 'm-.';
-PlotTime(subOptimality, curve_style, label, dataset, gridNum);
+% PlotTime(subOptimality, curve_style, label, dataset, gridNum);
+PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function
