@@ -30,7 +30,7 @@ for s = 1:passes % for each epoch
     for i = 1:iterNum
         idx = (i-1)*batchSize + 1 : i*batchSize;
         Ztmp = Z(:, idx);
-        ZTtmp = ZT(idx, :);
+        ZTtmp = Ztmp';
 
         tmpDeltaG = Ztmp * (max(1 + ZTtmp * w, 0) - max(1 + ZTtmp * wtilde, 0)) * 2/batchSize;
 
@@ -72,7 +72,7 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 
-label = 'SVRGNR';
+label = 'DVRG';
 curve_style = 'r-';
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);
 PlotCurve(subOptimality, curve_style, label, dataset, gridNum);

@@ -1,31 +1,36 @@
 %function main(dataset, gridNum)
-dataset = 'MNIST';
-gridNum = 1;
+dataset = 'covtype';
+gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
 if strcmp(dataset, 'covtype')
     passes = 20;
     factor = 1/2;
+    alpha = 1;
     lambda = 1e-5;
     batchSize = 1;
 elseif strcmp(dataset, 'rcv1')
     passes = 20;
     factor = 3/8;
+    alpha = 1;
     lambda = 1e-5;
     batchSize = 1;
 elseif strcmp(dataset, 'MNIST')
     passes = 20;
-    factor = 0.1;
+    factor = 0.12;
+    alpha = 0.5;
     lambda = 1e-4;
     batchSize = 1;
 elseif strcmp(dataset, 'avazu')
     passes = 20;
     factor = 1/4;
+    alpha = 1;
     lambda = 1e-5;
     batchSize = 64;
 elseif strcmp(dataset, 'criteo')
     passes = 20;
     factor = 1/2;
+    alpha = 1;
     lambda = 1e-5;
     batchSize = 64;
 end
@@ -42,7 +47,7 @@ logCost = ObjFunc(lambda, L, mu);
 objFuncType = '_logistic_norm';
 filename = strcat('../data/', dataset, objFuncType, '_opt.mat');
 if exist(filename, 'file') ~= 2
-    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes*20, factor, batchSize);
+    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes*10, factor, batchSize);
     save(filename, 'wOpt');
 else
     load(filename, 'wOpt');
@@ -52,10 +57,8 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
-factor = 0.1;
 SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
-KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, dataset, gridNum);
-factor = 0.1;
+KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, dataset, gridNum);
 SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);

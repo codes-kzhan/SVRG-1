@@ -29,7 +29,7 @@ for s = 1:passes % for each epoch
     for i = 1:iterNum
         idx = randperm(n, batchSize);
         Ztmp = Z(:, idx);
-        ZTtmp = ZT(idx, :);
+        ZTtmp = Ztmp';
 
         tmpDeltaG = Ztmp * (max(1 + ZTtmp * w, 0) - max(1 + ZTtmp * wtilde, 0)) * 2/batchSize;
 

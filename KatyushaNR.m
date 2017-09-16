@@ -21,7 +21,7 @@ tstart = tic;
 
 tau2 = 1/2;
 tau1 = min(sqrt(iterNum * objFunc.mu / 3 / objFunc.L), 1/2);
-alpha = 0.5/(3 * tau1 * objFunc.L);
+alpha = factor/(3 * tau1 * objFunc.L);
 u = wtilde;
 z = wtilde;
 
@@ -70,7 +70,7 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 
-label = 'KatyushaNR';
+label = 'DVRG-K';
 curve_style = '-.';
 PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 

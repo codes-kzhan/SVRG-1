@@ -78,7 +78,7 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 
-label = 'SVRGNR';
+label = 'DVRG';
 curve_style = 'r-';
 
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);
