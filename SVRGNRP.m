@@ -1,4 +1,4 @@
-function wOpt = SVRGNR(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function wOpt = SVRGNRP(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
 
 fprintf('Fitting data with SVRG-NR ...\n');
 
@@ -6,7 +6,7 @@ fprintf('Fitting data with SVRG-NR ...\n');
 [d, n] = size(X);
 iterNum = round(n/batchSize);
 done = iterNum*batchSize;  % this variable tells us whether we need to do the last iteration
-lambda = objFunc.lambda;
+lambda2 = objFunc.lambda2;
 
 eta = factor / objFunc.L
 % eta = 5e-1
@@ -37,9 +37,9 @@ for s = 1:passes % for each epoch
         tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
         wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
 
-        wDelta2 = wDelta1 + lambda * w;
+        wDelta2 = wDelta1 + lambda2 * w;
         wDelta3 = wDelta2 + ntilde;
-        w = w - eta * wDelta3;
+        w = prox(w - eta*wDelta3, eta, 1, objFunc.lambda1);
     end
 
     if done < n
@@ -47,14 +47,14 @@ for s = 1:passes % for each epoch
         Xtmp = X(:, idx);
         ytmp = y(idx);
         % new gradient
-        tmpExp = exp(-ytmp .* (w'*Xtmp)')'; % 1-by-n vector
+        tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
         % old gradient
-        tmpExpTilde = exp(-ytmp .* (wtilde'*Xtmp)')'; % 1-by-n vector
-        wDelta1 = mean(-ytmp' .* (tmpExp./(1 + tmpExp) - tmpExpTilde./(1 + tmpExpTilde)) .* Xtmp, 2);
+        tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
+        wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
 
-        wDelta2 = wDelta1 + lambda * w;
+        wDelta2 = wDelta1 + lambda2 * w;
         wDelta3 = wDelta2 + ntilde;
-        w = w - eta * wDelta3;
+        w = prox(w - eta*wDelta3, eta, 1, objFunc.lambda1);
     end
 
     wtilde = w;
@@ -78,7 +78,7 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 
-label = 'DVRG';
+label = 'DVRG-Prox';
 curve_style = '-';
 
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);
