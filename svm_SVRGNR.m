@@ -1,10 +1,11 @@
-function wOpt = SVRG(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function wOpt = svm_SVRGNR(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
 
-fprintf('Fitting data with SVRG ...\n');
+fprintf('Fitting data with SVRGNR ...\n');
 
 % initialization
 [d, n] = size(X);
 iterNum = round(n/batchSize);
+done = iterNum*batchSize;  % this variable tells us whether we need to do the last iteration
 lambda = objFunc.lambda;
 
 eta = factor / objFunc.L
@@ -17,7 +18,7 @@ else
 end
 w = wtilde;
 
-initCost = objFunc.PrintCost(wtilde, X, y, 0);
+initCost = objFunc.PrintCost(wtilde, ZT, 0);
 subOptimality = [0, 0, 1, 1];
 
 initDistance = sum((wtilde - objFunc.optSolution).^2);
@@ -25,26 +26,35 @@ initDistance = sum((wtilde - objFunc.optSolution).^2);
 tstart = tic;
 
 for s = 1:passes % for each epoch
-    ntilde = objFunc.Gradient(wtilde, X, y);
-
+    ntilde = objFunc.Gradient(wtilde, Z, ZT);
     for i = 1:iterNum
-        idx = randperm(n, batchSize);
-        Xtmp = X(:, idx);
-        ytmp = y(idx);
-        % new gradient
-        tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
-        % old gradient
-        tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
-        wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
+        idx = (i-1)*batchSize + 1 : i*batchSize;
+        Ztmp = Z(:, idx);
+        ZTtmp = Ztmp';
 
-        wDelta2 = wDelta1 + lambda * w;
-        wDelta3 = wDelta2 + ntilde;
-        w = w - eta * wDelta3;
+        tmpDeltaG = Ztmp * (max(1 + ZTtmp * w, 0) - max(1 + ZTtmp * wtilde, 0)) * 2/batchSize;
+
+        wDelta1 = tmpDeltaG + lambda * w;
+        wDelta2 = wDelta1 + ntilde;
+        w = w - eta * wDelta2;
     end
+
+    if done < n
+        idx = done + 1 : n;
+        Ztmp = Z(:, idx);
+        ZTtmp = ZT(idx, :);
+
+        tmpDeltaG = Ztmp * (max(1 + ZTtmp * w, 0) - max(1 + ZTtmp * wtilde, 0)) * 2/batchSize;
+
+        wDelta1 = tmpDeltaG + lambda * w;
+        wDelta2 = wDelta1 + ntilde;
+        w = w - eta * wDelta2;
+    end
+
     wtilde = w;
 
     % print and plot
-    cost = objFunc.PrintCost(wtilde, X, y, s);
+    cost = objFunc.PrintCost(wtilde, ZT, s);
     if cost <= objFunc.optCost
         fprintf('Oops, we attain the optimal solution ...\n');
     else
@@ -62,8 +72,8 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 
-label = 'SVRG';
-curve_style = 'm-.';
+label = 'DVRG';
+curve_style = 'r-';
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);
 PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 

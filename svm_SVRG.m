@@ -1,4 +1,4 @@
-function wOpt = SVRG(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function wOpt = svm_SVRG(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
 
 fprintf('Fitting data with SVRG ...\n');
 
@@ -17,7 +17,7 @@ else
 end
 w = wtilde;
 
-initCost = objFunc.PrintCost(wtilde, X, y, 0);
+initCost = objFunc.PrintCost(wtilde, ZT, 0);
 subOptimality = [0, 0, 1, 1];
 
 initDistance = sum((wtilde - objFunc.optSolution).^2);
@@ -25,26 +25,22 @@ initDistance = sum((wtilde - objFunc.optSolution).^2);
 tstart = tic;
 
 for s = 1:passes % for each epoch
-    ntilde = objFunc.Gradient(wtilde, X, y);
-
+    ntilde = objFunc.Gradient(wtilde, Z, ZT);
     for i = 1:iterNum
         idx = randperm(n, batchSize);
-        Xtmp = X(:, idx);
-        ytmp = y(idx);
-        % new gradient
-        tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
-        % old gradient
-        tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
-        wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
+        Ztmp = Z(:, idx);
+        ZTtmp = Ztmp';
 
-        wDelta2 = wDelta1 + lambda * w;
-        wDelta3 = wDelta2 + ntilde;
-        w = w - eta * wDelta3;
+        tmpDeltaG = Ztmp * (max(1 + ZTtmp * w, 0) - max(1 + ZTtmp * wtilde, 0)) * 2/batchSize;
+
+        wDelta1 = tmpDeltaG + lambda * w;
+        wDelta2 = wDelta1 + ntilde;
+        w = w - eta * wDelta2;
     end
     wtilde = w;
 
     % print and plot
-    cost = objFunc.PrintCost(wtilde, X, y, s);
+    cost = objFunc.PrintCost(wtilde, ZT, s);
     if cost <= objFunc.optCost
         fprintf('Oops, we attain the optimal solution ...\n');
     else

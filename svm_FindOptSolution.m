@@ -1,4 +1,4 @@
-function wOpt = FindOptSolution(objFunc, X, y, Xtest, ytest, passes, factor, batchSize)
+function wOpt = FindOptSolution(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, batchSize)
 
 tstart = tic;
 fprintf('Computing optimal solution ...\n');
@@ -19,30 +19,27 @@ else
 end
 w = wtilde;
 wOpt = wtilde;
-optCost = objFunc.PrintCost(wtilde, X, y, 0);;
+optCost = objFunc.PrintCost(wtilde, ZT, 0);;
 preCost = optCost;
 reward = 0;
 
 
 for s = 1:passes % for each epoch
-    ntilde = objFunc.Gradient(wtilde, X, y);
+    ntilde = objFunc.Gradient(wtilde, Z, ZT);
 
     for i = 1:iterNum
         idx = randperm(n, batchSize);
-        Xtmp = X(:, idx);
-        ytmp = y(idx);
-        % new gradient
-        tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
-        % old gradient
-        tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
-        wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
+        Ztmp = Z(:, idx);
+        ZTtmp = Ztmp';
 
-        wDelta2 = wDelta1 + lambda * w;
-        wDelta3 = wDelta2 + ntilde;
-        w = w - eta * wDelta3;
+        tmpDeltaG = Ztmp * (max(1 + ZTtmp * w, 0) - max(1 + ZTtmp * wtilde, 0)) * 2/batchSize;
+
+        wDelta1 = tmpDeltaG + lambda * w;
+        wDelta2 = wDelta1 + ntilde;
+        w = w - eta * wDelta2;
     end
     wtilde = w;
-    currentCost = objFunc.PrintCost(wtilde, X, y, s);
+    currentCost = objFunc.PrintCost(wtilde, ZT, s);
     if currentCost <= optCost
         optCost = currentCost;
         wOpt = w;

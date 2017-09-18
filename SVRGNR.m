@@ -1,6 +1,5 @@
 function wOpt = SVRGNR(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
 
-tstart = tic;
 fprintf('Fitting data with SVRG-NR ...\n');
 
 % initialization
@@ -8,8 +7,6 @@ fprintf('Fitting data with SVRG-NR ...\n');
 iterNum = round(n/batchSize);
 done = iterNum*batchSize;  % this variable tells us whether we need to do the last iteration
 lambda = objFunc.lambda;
-% subOptimality = zeros(passes, 1);
-
 
 eta = factor / objFunc.L
 % eta = 5e-1
@@ -22,7 +19,10 @@ end
 w = wtilde;
 
 initCost = objFunc.PrintCost(wtilde, X, y, 0);
-subOptimality = [0, 0];
+subOptimality = [0, 0, 1, 1];
+objOptNorm = sum(objFunc.optSolution.^2);
+
+tstart = tic;
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
@@ -32,10 +32,10 @@ for s = 1:passes % for each epoch
         Xtmp = X(:, idx);
         ytmp = y(idx);
         % new gradient
-        tmpExp = exp(-ytmp .* (w'*Xtmp)')'; % 1-by-n vector
+        tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
         % old gradient
-        tmpExpTilde = exp(-ytmp .* (wtilde'*Xtmp)')'; % 1-by-n vector
-        wDelta1 = mean(-ytmp' .* (tmpExp./(1 + tmpExp) - tmpExpTilde./(1 + tmpExpTilde)) .* Xtmp, 2);
+        tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
+        wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
 
         wDelta2 = wDelta1 + lambda * w;
         wDelta3 = wDelta2 + ntilde;
@@ -64,8 +64,9 @@ for s = 1:passes % for each epoch
     if cost <= objFunc.optCost
         fprintf('Oops, we attain the optimal solution ...\n');
     else
-        logError = log10((cost - objFunc.optCost)/(initCost - objFunc.optCost));
-        subOptimality = [subOptimality; [s, logError]];
+        error = (cost - objFunc.optCost)/(initCost - objFunc.optCost);
+        distance = sum((wtilde - objFunc.optSolution).^2) / objOptNorm;
+        subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
     end
 end % epoch
 
@@ -77,8 +78,10 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 
-label = 'SVRGNR';
+label = 'DVRG';
 curve_style = 'r-';
-PlotCurve(subOptimality(:, 1), subOptimality(:, 2), curve_style, label, dataset, gridNum);
+
+% PlotTime(subOptimality, curve_style, label, dataset, gridNum);
+PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function
