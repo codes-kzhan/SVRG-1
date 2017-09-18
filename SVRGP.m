@@ -5,7 +5,7 @@ fprintf('Fitting data with SVRG-Prox ...\n');
 % initialization
 [d, n] = size(X);
 iterNum = round(n/batchSize);
-lambda = objFunc.lambda;
+lambda2 = objFunc.lambda2;
 
 eta = factor / objFunc.L
 % eta = 5e-1
