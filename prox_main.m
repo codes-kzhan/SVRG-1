@@ -1,35 +1,40 @@
-%function main(dataset, gridNum)
-dataset = 'covtype';
-gridNum = 3;
+function prox_main(dataset, gridNum)
+% dataset = 'MNIST';
+% gridNum = 1;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
 
 % dataset = 'covtype';
 if strcmp(dataset, 'covtype')
     passes = 20;
+    factorNR = 0.1;
     factor = 0.1;
     lambda2 = 1e-5;
     lambda1 = 1e-4;
     batchSize = 1;
 elseif strcmp(dataset, 'rcv1')
     passes = 20;
+    factorNR = 1/2;
     factor = 1;
     lambda2 = 1e-5;
     lambda1 = 1e-4;
     batchSize = 1;
 elseif strcmp(dataset, 'MNIST')
-    passes = 50;
-    factor = 10;
+    passes = 20;
+    factorNR = 0.1;
+    factor = 0.1;
     lambda2 = 1e-4;
     lambda1 = 1e-4;
     batchSize = 1;
 end
 
 %% preliminaries
+filename = strcat('../data/', dataset, '_dataset.mat');
+load(filename);
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
 [n, d] = size(Xtrain);
 
-L = max(sum(Xtrain.^2, 2)) / 4 + lambda2;
+L = max(sum(Xtrain.^2, 1)) / 4 + lambda2;
 mu = lambda2;
 logCost = LogL1(lambda2, lambda1, L, mu);
 
@@ -54,7 +59,7 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 % SVRGNRM(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 
 % factor = 1/2;
-% SVRGNRP(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+SVRGNRP(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
 % factor = 1;
 SVRGP(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 

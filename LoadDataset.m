@@ -44,6 +44,11 @@ elseif strcmp(name, 'rcv1')
     % rcv1 dataset
     [ytrain, Xtrain] = libsvmread('../data/RCV1/rcv1_train.binary');
     [ytest, Xtest] = libsvmread('../data/RCV1/rcv1_test.binary');
+
+    [n, ~] = size(Xtrain);
+    ordering = randperm(seed, n);
+    Xtrain = Xtrain(ordering, :);
+    ytrain = ytrain(ordering);
     % rcv1 dataset is ready
 
 elseif strcmp(name, 'avazu')

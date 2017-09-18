@@ -37,7 +37,7 @@ for s = 1:passes % for each epoch
         tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
         wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
 
-        wDelta2 = wDelta1 + lambda * w;
+        wDelta2 = wDelta1 + lambda2 * w;
         wDelta3 = wDelta2 + ntilde;
         w = prox(w - eta*wDelta3, eta, 1, objFunc.lambda1);
     end
@@ -63,7 +63,7 @@ fprintf('time elapsed: %f\n', telapsed);
 
 
 label = 'SVRG-Prox';
-curve_style = 'm-';
+curve_style = 'm-.';
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);
 PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
