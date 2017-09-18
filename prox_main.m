@@ -15,7 +15,7 @@ if strcmp(dataset, 'covtype')
 elseif strcmp(dataset, 'rcv1')
     passes = 20;
     factorNR = 1/2;
-    factor = 1;
+    factor = 1/2;
     lambda2 = 1e-5;
     lambda1 = 1e-4;
     batchSize = 1;
