@@ -1,5 +1,5 @@
 %function main(dataset, gridNum)
-dataset = 'rcv1';
+dataset = 'MNIST';
 gridNum = 1;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
@@ -19,7 +19,7 @@ elseif strcmp(dataset, 'rcv1')
 elseif strcmp(dataset, 'MNIST')
     passes = 50;
     factorNR = 0.055;
-    factor = 0.039;
+    factor = 0.02;
     alpha = 0.2;
     lambda = 1e-4;
     batchSize = 1;
@@ -62,10 +62,10 @@ svmCost.optCost = svmCost.Cost(wOpt, ZT)
 
 %% have fun
 
-svm_KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
-svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
+% svm_KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
+% svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
 % KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor);
-% svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % Katyusha(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
