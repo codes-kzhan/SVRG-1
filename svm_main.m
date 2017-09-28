@@ -41,8 +41,8 @@ end
 Z = -ytrain' .* Xtrain;
 ZT = Z';
 
-% L = max(sum(Xtrain.^2, 1)) / 4 + lambda;
-L = 2/n * svds(Xtrain, 1)^2 + lambda;
+% L = max(sum(Xtrain.^2, 1)) * 2 + lambda; % if we did not normalize
+L = 2 * sum(Xtrain(:, 1).^2) + lambda; % if we have normalized
 mu = lambda;
 svmCost = SVM(lambda, L, mu);
 
