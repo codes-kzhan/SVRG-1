@@ -1,7 +1,7 @@
 %function main(dataset, gridNum)
-dataset = 'avazu';
+dataset = 'HIGGS';
 gridNum = 3;
-% dataset : toy, covtype, rcv1, avazu, MNIST.
+% dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
 if strcmp(dataset, 'covtype')
     passes = 20;
@@ -33,6 +33,12 @@ elseif strcmp(dataset, 'criteo')
     alpha = 1;
     lambda = 1e-5;
     batchSize = 64;
+elseif strcmp(dataset, 'HIGGS')
+    passes = 20;
+    factor = 1;
+    alpha = 1;
+    lambda = 1e-5;
+    batchSize = 1;
 end
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
@@ -59,7 +65,7 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, dataset, gridNum);
-% subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);

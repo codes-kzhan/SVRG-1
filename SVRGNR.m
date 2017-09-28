@@ -81,7 +81,7 @@ fprintf('time elapsed: %f\n', telapsed);
 label = 'DVRG (16G Mem)';
 curve_style = '-';
 
-PlotTime(subOptimality, curve_style, label, dataset, gridNum);
-% PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
+% PlotTime(subOptimality, curve_style, label, dataset, gridNum);
+PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function
