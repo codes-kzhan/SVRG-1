@@ -1,5 +1,5 @@
 %function main(dataset, gridNum)
-dataset = 'covtype';
+dataset = 'avazu';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
@@ -22,7 +22,7 @@ elseif strcmp(dataset, 'MNIST')
     lambda = 1e-4;
     batchSize = 1;
 elseif strcmp(dataset, 'avazu')
-    passes = 20;
+    passes = 1;
     factor = 1/4;
     alpha = 1;
     lambda = 1e-5;
@@ -47,7 +47,7 @@ logCost = ObjFunc(lambda, L, mu);
 objFuncType = '_logistic_norm';
 filename = strcat('../data/', dataset, objFuncType, '_opt.mat');
 if exist(filename, 'file') ~= 2
-    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes*10, factor, batchSize);
+    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize);
     save(filename, 'wOpt');
 else
     load(filename, 'wOpt');
