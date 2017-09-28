@@ -1,4 +1,4 @@
-function wOpt = SVRG(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function subOptimality = SVRG(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
 
 fprintf('Fitting data with SVRG ...\n');
 
@@ -62,9 +62,9 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 
-label = 'SVRG';
-curve_style = 'm-.';
-% PlotTime(subOptimality, curve_style, label, dataset, gridNum);
-PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
+label = 'SVRG (16G Mem)';
+curve_style = '-.';
+PlotTime(subOptimality, curve_style, label, dataset, gridNum);
+% PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function

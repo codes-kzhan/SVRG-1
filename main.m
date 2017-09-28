@@ -1,5 +1,5 @@
 %function main(dataset, gridNum)
-dataset = 'covtype';
+dataset = 'criteo';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
@@ -28,7 +28,7 @@ elseif strcmp(dataset, 'avazu')
     lambda = 1e-5;
     batchSize = 64;
 elseif strcmp(dataset, 'criteo')
-    passes = 20;
+    passes = 6;
     factor = 1/2;
     alpha = 1;
     lambda = 1e-5;
@@ -57,9 +57,9 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
-SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
-KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, dataset, gridNum);
-SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+% KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, dataset, gridNum);
+subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
