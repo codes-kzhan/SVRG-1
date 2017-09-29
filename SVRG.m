@@ -63,7 +63,7 @@ fprintf('time elapsed: %f\n', telapsed);
 
 
 label = 'SVRG';
-curve_style = 'm-.';
+curve_style = 'r-.';
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);
 PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 

@@ -60,7 +60,7 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, dataset, gridNum);
 SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
-% Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
+Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, dataset, gridNum);
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
