@@ -35,7 +35,7 @@ elseif strcmp(dataset, 'criteo')
     batchSize = 64;
 elseif strcmp(dataset, 'HIGGS')
     passes = 20;
-    factor = 1;
+    factor = 1/4;
     alpha = 1;
     lambda = 1e-5;
     batchSize = 1;
