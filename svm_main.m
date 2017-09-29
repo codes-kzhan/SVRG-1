@@ -26,7 +26,8 @@ elseif strcmp(dataset, 'MNIST')
     batchSize = 1;
 elseif strcmp(dataset, 'avazu')
     passes = 20;
-    factor = 1/4;
+    factorNR = 1;
+    factor = 1;
     alpha = 1;
     lambda = 1e-5;
     batchSize = 64;
@@ -35,6 +36,12 @@ elseif strcmp(dataset, 'criteo')
     factor = 1/2;
     lambda = 1e-5;
     batchSize = 64;
+elseif strcmp(dataset, 'HIGGS')
+    passes = 20;
+    factor = 1/2;
+    factorNR = 1/2;
+    lambda = 1e-5;
+    batchSize = 1;
 end
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
@@ -64,9 +71,12 @@ svmCost.optCost = svmCost.Cost(wOpt, ZT)
 %% have fun
 
 % svm_KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
-% svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
-% KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor);
+
 svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+
+svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
+
+% KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor);
 % Katyusha(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
