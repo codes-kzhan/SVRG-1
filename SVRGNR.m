@@ -1,10 +1,10 @@
-function wOpt = SVRGNR(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function subOptimality = SVRGNR(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
 
 fprintf('Fitting data with SVRG-NR ...\n');
 
 % initialization
 [d, n] = size(X);
-iterNum = round(n/batchSize);
+iterNum = floor(n/batchSize);
 done = iterNum*batchSize;  % this variable tells us whether we need to do the last iteration
 lambda = objFunc.lambda;
 
@@ -78,7 +78,7 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 
-label = 'DVRG';
+label = 'DVRG (16G Mem)';
 curve_style = '-';
 
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);

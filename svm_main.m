@@ -1,26 +1,27 @@
 %function main(dataset, gridNum)
-dataset = 'MNIST';
+dataset = 'avazu';
 gridNum = 1;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
 if strcmp(dataset, 'covtype')
     passes = 20;
+    factorNR = 0.25;
     factor = 0.25;
     alpha = 0.5;
     lambda = 1e-5;
     batchSize = 1;
 elseif strcmp(dataset, 'rcv1')
-    passes = 20;
-    factorNR = 0.001;
-    factor = 0.005;
+    passes = 40;
+    factorNR = 1;
+    factor = 0.4;
     alpha = 0.01;
     lambda = 1e-5;
     batchSize = 1;
 elseif strcmp(dataset, 'MNIST')
     passes = 50;
-    factorNR = 0.055;
-    factor = 0.02;
-    alpha = 0.2;
+    factorNR = 0.5;
+    factor = 0.075;
+    alpha = 1;
     lambda = 1e-4;
     batchSize = 1;
 elseif strcmp(dataset, 'avazu')

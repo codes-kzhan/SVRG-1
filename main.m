@@ -1,7 +1,7 @@
 %function main(dataset, gridNum)
-dataset = 'covtype';
+dataset = 'HIGGS';
 gridNum = 3;
-% dataset : toy, covtype, rcv1, avazu, MNIST.
+% dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
 if strcmp(dataset, 'covtype')
     passes = 20;
@@ -28,11 +28,17 @@ elseif strcmp(dataset, 'avazu')
     lambda = 1e-5;
     batchSize = 64;
 elseif strcmp(dataset, 'criteo')
-    passes = 20;
+    passes = 6;
     factor = 1/2;
     alpha = 1;
     lambda = 1e-5;
     batchSize = 64;
+elseif strcmp(dataset, 'HIGGS')
+    passes = 20;
+    factor = 1;
+    alpha = 1;
+    lambda = 1e-5;
+    batchSize = 1;
 end
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
@@ -47,7 +53,7 @@ logCost = ObjFunc(lambda, L, mu);
 objFuncType = '_logistic_norm';
 filename = strcat('../data/', dataset, objFuncType, '_opt.mat');
 if exist(filename, 'file') ~= 2
-    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes*10, factor, batchSize);
+    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes*20, factor, batchSize);
     save(filename, 'wOpt');
 else
     load(filename, 'wOpt');
@@ -61,6 +67,9 @@ SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset
 KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, dataset, gridNum);
 SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, dataset, gridNum);
+
+% subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+% subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SGD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);

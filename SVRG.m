@@ -1,4 +1,4 @@
-function wOpt = SVRG(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function subOptimality = SVRG(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
 
 fprintf('Fitting data with SVRG ...\n');
 
