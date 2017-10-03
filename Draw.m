@@ -30,9 +30,9 @@ PlotTime(subOptNR, 'm-', 'SVRGNR-8G', 'HIGGS', 3);
 PlotTime(subOpt, 'm-.', 'SVRG-8G', 'HIGGS', 3);
 
 load('../data/HIGGS_4G.mat')
-PlotTime(subOptNR, 'm-', 'SVRGNR-4G', 'HIGGS', 3);
-PlotTime(subOpt, 'm-.', 'SVRG-4G', 'HIGGS', 3);
+PlotTime(subOptNR, 'r-', 'SVRGNR-4G', 'HIGGS', 3);
+PlotTime(subOpt, 'r-.', 'SVRG-4G', 'HIGGS', 3);
 
 load('../data/HIGGS_2G.mat')
-PlotTime(subOptNR, 'm-', 'SVRGNR-2G', 'HIGGS', 3);
-PlotTime(subOpt, 'm-.', 'SVRG-2G', 'HIGGS', 3);
+PlotTime(subOptNR, 'b-', 'SVRGNR-2G', 'HIGGS', 3);
+PlotTime(subOpt, 'b-.', 'SVRG-2G', 'HIGGS', 3);
