@@ -1,4 +1,4 @@
-function wOpt = svm_SVRGNR(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function subOptimality = svm_SVRGNR(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
 
 fprintf('Fitting data with SVRGNR ...\n');
 

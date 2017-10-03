@@ -38,8 +38,8 @@ elseif strcmp(dataset, 'criteo')
     batchSize = 64;
 elseif strcmp(dataset, 'HIGGS')
     passes = 20;
-    factor = 0.1;
-    factorNR = 0.1;
+    factor = 0.05;
+    factorNR = 0.05;
     lambda = 1e-5;
     batchSize = 1;
 end
@@ -72,9 +72,9 @@ svmCost.optCost = svmCost.Cost(wOpt, ZT)
 
 % svm_KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 
-svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+subOpt = svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
-svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
+subOptNR = svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
 
 % KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor);
 % Katyusha(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
