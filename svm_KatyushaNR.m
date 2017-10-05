@@ -69,7 +69,7 @@ fprintf('time elapsed: %f\n', telapsed);
 
 
 label = 'DVRK-K';
-curve_style = '-.';
+curve_style = 'b-';
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);
 PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
