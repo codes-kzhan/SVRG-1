@@ -42,6 +42,13 @@ elseif strcmp(dataset, 'HIGGS')
     factorNR = 0.05;
     lambda = 1e-5;
     batchSize = 1;
+elseif strcmp(dataset, 'ijcnn1')
+    passes = 20;
+    factor = 0.1;
+    factorNR = 0.05;
+    alpha = 0.09;
+    lambda = 1e-5;
+    batchSize = 1;
 end
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
@@ -74,9 +81,14 @@ svmCost.optCost = svmCost.Cost(wOpt, ZT)
 
 subOptK = svm_KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 
+% subOptK = svm_Katyusha(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
+
 subOpt = svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
 subOptNR = svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
+
+filename = strcat('../data/', dataset, 'result.mat');
+save(filename, 'subOpt', 'subOptNR', 'subOptK');
 
 % Katyusha(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
