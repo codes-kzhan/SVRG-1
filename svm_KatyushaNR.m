@@ -1,4 +1,4 @@
-function wOpt = svm_KatyushaNR(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function subOptimality = svm_KatyushaNR(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
 
 fprintf('Fitting data with KatyushaNR...\n');
 
