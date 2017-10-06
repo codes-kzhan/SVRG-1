@@ -14,7 +14,7 @@ else
     w = zeros(d, 1);
 end
 
-initCost = objFunc.PrintCost(w, X, y, 0);
+initCost = objFunc.PrintCost(w, ZT, 0);
 subOptimality = [0, 0, 1, 1];
 
 initDistance = sum((w- objFunc.optSolution).^2);
@@ -23,7 +23,7 @@ tstart = tic;
 
 % tmpExp = exp(-y .* (X' * w))';
 % gradients = ((-y' .* tmpExp) ./ (1 + tmpExp) .* X) + objFunc.lambda * w;  % d-by-n matrix
-gradients = Z * (2 .* (max(1 + ZT * w, 0))') + objFunc.lambda * w;  % d-by-n matrix
+gradients = Z .* (2 .* (max(1 + ZT * w, 0))') + objFunc.lambda * w;  % d-by-n matrix
 
 sumIG = sum(gradients, 2);
 
@@ -50,7 +50,7 @@ for t = 1:iterNum % for each iteration
         y = y(order); % random shuffle
 
         s = round(t/n);
-        cost = objFunc.PrintCost(w, X, y, s);
+        cost = objFunc.PrintCost(w, ZT, s);
         if cost <= objFunc.optCost
             fprintf('Oops, we attain the optimal solution ...\n');
         else
