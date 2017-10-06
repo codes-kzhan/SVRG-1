@@ -8,13 +8,14 @@ iterNum = n * passes;
 
 eta = factor/objFunc.L
 
-if issparse(X)
-    w = sparse(d, 1);
-else
-    w = zeros(d, 1);
-end
+% if issparse(X)
+%     w = sparse(d, 1);
+% else
+%     w = zeros(d, 1);
+% end
+w = zeros(d, 1);
 
-initCost = objFunc.PrintCost(w, X, y, 0);
+initCost = objFunc.PrintCost(w, ZT, 0);
 subOptimality = [0, 0, 1, 1];
 
 initDistance = sum((w- objFunc.optSolution).^2);
@@ -23,7 +24,7 @@ tstart = tic;
 
 % tmpExp = exp(-y .* (X' * w))';
 % gradients = ((-y' .* tmpExp) ./ (1 + tmpExp) .* X) + objFunc.lambda * w;  % d-by-n matrix
-gradients = Z * (2 .* (max(1 + ZT * w, 0))') + objFunc.lambda * w;  % d-by-n matrix
+gradients = Z .* (2 .* (max(1 + ZT * w, 0))') + objFunc.lambda * w;  % d-by-n matrix
 
 sumIG = sum(gradients, 2);
 
@@ -45,12 +46,11 @@ for t = 1:iterNum % for each iteration
     % print and plot
     if mod(t, n) == 0
         order = randperm(size(X, 2));
-        X = X(:, order); % random shuffle
+        Z = Z(:, order); % random shuffle
         gradients = gradients(:, order); % random shuffle
-        y = y(order); % random shuffle
 
         s = round(t/n);
-        cost = objFunc.PrintCost(w, X, y, s);
+        cost = objFunc.PrintCost(w, ZT, s);
         if cost <= objFunc.optCost
             fprintf('Oops, we attain the optimal solution ...\n');
         else

@@ -27,9 +27,6 @@ tstart = tic;
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, Z, ZT);
-    order = randperm(size(X, 2));
-    X = X(:, order); % random shuffle
-    y = y(order); % random shuffle
 
     for i = 1:iterNum
         idx = (i-1)*batchSize + 1 : i*batchSize;

@@ -27,6 +27,10 @@ tstart = tic;
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, Z, ZT);
+    order = randperm(size(X, 2));
+    Z = Z(:, order); % random shuffle
+    ZT = Z'; % random shuffle
+
     for i = 1:iterNum
         idx = (i-1)*batchSize + 1 : i*batchSize;
         Ztmp = Z(:, idx);
@@ -73,7 +77,7 @@ fprintf('time elapsed: %f\n', telapsed);
 
 
 label = 'SVRG-RR';
-curve_style = 'r-';
+curve_style = '-';
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);
 PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
