@@ -1,4 +1,4 @@
-function subOptimality = SAGARR(objFunc, X, y, Xtest, ytest, passes, factor, dataset, gridNum)
+function subOptimality = svm_SAGARR(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, dataset, gridNum)
 
 fprintf('Fitting data with SAGA ...\n');
 
@@ -21,8 +21,9 @@ initDistance = sum((w- objFunc.optSolution).^2);
 
 tstart = tic;
 
-tmpExp = exp(-y .* (X' * w))';
-gradients = ((-y' .* tmpExp) ./ (1 + tmpExp) .* X) + objFunc.lambda * w;  % d-by-n matrix
+% tmpExp = exp(-y .* (X' * w))';
+% gradients = ((-y' .* tmpExp) ./ (1 + tmpExp) .* X) + objFunc.lambda * w;  % d-by-n matrix
+gradients = Z * (2 .* (max(1 + ZT * w, 0))') + objFunc.lambda * w;  % d-by-n matrix
 
 sumIG = sum(gradients, 2);
 
@@ -30,10 +31,10 @@ for t = 1:iterNum % for each iteration
     % update w
     % idx = randperm(n, 1);
     idx = mod(t-1, n) + 1;
-    Xtmp = X(:, idx);
-    ytmp = y(idx);
-    tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
-    newGrad = ((-ytmp' .* tmpExp) ./ (1 + tmpExp) .* Xtmp) + objFunc.lambda * w;
+    Ztmp = Z(:, idx);
+    ZTtmp = Ztmp';
+
+    newGrad = Ztmp * (2 .* max(1 + ZTtmp * w, 0)) + objFunc.lambda * w;
     oldGrad = gradients(:, idx);
     w = w - eta * (newGrad - oldGrad + sumIG/n);
 

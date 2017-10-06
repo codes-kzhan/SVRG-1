@@ -1,6 +1,6 @@
-%function main(dataset, gridNum)
-dataset = 'covtype';
-gridNum = 3;
+function main(dataset, gridNum)
+% dataset = 'covtype';
+% gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
 if strcmp(dataset, 'covtype')
@@ -51,7 +51,7 @@ elseif strcmp(dataset, 'ijcnn1')
     batchSize = 1;
 end
 %% preliminaries
-% [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
+[Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
 [d, n] = size(Xtrain);
 Z = -ytrain' .* Xtrain;
 ZT = Z';
