@@ -8,11 +8,12 @@ iterNum = n * passes;
 
 eta = factor/objFunc.L
 
-if issparse(X)
-    w = sparse(d, 1);
-else
-    w = zeros(d, 1);
-end
+% if issparse(X)
+%     w = sparse(d, 1);
+% else
+%     w = zeros(d, 1);
+% end
+w = zeros(d, 1);
 
 initCost = objFunc.PrintCost(w, X, y, 0);
 subOptimality = [0, 0, 1, 1];
