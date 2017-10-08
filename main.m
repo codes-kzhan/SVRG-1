@@ -73,9 +73,9 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 filename = strcat('../data/', dataset, '_result_5.mat');
 load(filename);
 
-subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
+% subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
 % subOptA = SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
-subOptA = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
+% subOptA = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
 %
 % subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 %
