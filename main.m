@@ -14,6 +14,7 @@ elseif strcmp(dataset, 'rcv1')
     passes = 20;
     factor = 3/8;
     factorA = 3/8;
+    factorIAG = 0.05;
     factorNR = 3/8;
     alpha = 1;
     lambda = 1e-5;
@@ -22,7 +23,8 @@ elseif strcmp(dataset, 'MNIST')
     passes = 20;
     factor = 0.12;
     factorNR = 0.12;
-    factorA = 0.01;
+    factorA = 0.1;
+    factorIAG = 0.01;
     factorGD = 10;
     alpha = 0.6;
     lambda = 1e-4;
@@ -73,9 +75,9 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 filename = strcat('../data/', dataset, '_result_5.mat');
 load(filename);
 
-subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
+% subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
 % subOptA = SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
-subOptA = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
+subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 %
 % subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 %
@@ -84,7 +86,7 @@ subOptA = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, g
 %
 % subOptRR = SVRGRR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
-% save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptRR', 'subOptA', 'subOptGD');
+save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptRR', 'subOptA', 'subOptGD', 'subOptIAG');
 
 % Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
