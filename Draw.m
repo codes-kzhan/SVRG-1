@@ -1,26 +1,29 @@
 % MNIST dataset
 load('../data/MNIST_result_5.mat')
-PlotCurve(subOptNR, '-', 'DVRG', 'MNIST', 1);
+PlotCurve(subOptNR, '-', 'SIG', 'MNIST', 1);
 PlotCurve(subOpt, ':', 'SVRG', 'MNIST', 1);
-PlotCurve(subOptK, '-', 'DVRG-K', 'MNIST', 1);
+PlotCurve(subOptK, '-', 'SIG-K', 'MNIST', 1);
 PlotCurve(subOptRR, ':', 'SVRG-RR', 'MNIST', 1);
 PlotCurve(subOptA, ':', 'SAGA', 'MNIST', 1);
+PlotCurve(subOptGD, '-.', 'GD', 'MNIST', 1);
 
 % rcv1 dataset
 load('../data/rcv1_result_5.mat')
-PlotCurve(subOptNR, '-', 'DVRG', 'rcv1', 2);
+PlotCurve(subOptNR, '-', 'SIG', 'rcv1', 2);
 PlotCurve(subOpt, ':', 'SVRG', 'rcv1', 2);
-PlotCurve(subOptK, '-', 'DVRG-K', 'rcv1', 2);
+PlotCurve(subOptK, '-', 'SIG-K', 'rcv1', 2);
 PlotCurve(subOptRR, ':', 'SVRG-RR', 'rcv1', 2);
 PlotCurve(subOptA, ':', 'SAGA', 'rcv1', 2);
+PlotCurve(subOptGD, '-.', 'GD', 'rcv1', 2);
 
 % covtype dataset
 load('../data/covtype_result_5.mat')
-PlotCurve(subOptNR, '-', 'DVRG', 'covtype', 3);
+PlotCurve(subOptNR, '-', 'SIG', 'covtype', 3);
 PlotCurve(subOpt, ':', 'SVRG', 'covtype', 3);
-PlotCurve(subOptK, '-', 'DVRG-K', 'covtype', 3);
+PlotCurve(subOptK, '-', 'SIG-K', 'covtype', 3);
 PlotCurve(subOptRR, ':', 'SVRG-RR', 'covtype', 3);
 PlotCurve(subOptA, ':', 'SAGA', 'covtype', 3);
+PlotCurve(subOptGD, '-.', 'GD', 'covtype', 3);
 
 % % criteo dataset
 % load('../data/criteo_32G.mat')

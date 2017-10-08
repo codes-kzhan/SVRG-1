@@ -22,7 +22,6 @@ legend('show')
 hold on
 
 subplot(3, 3, gridNum+6)
-title(name)
 % semilogy(data_point(:, 2), data_point(:, 3), curve_style, 'linewidth', 2, 'DisplayName', label);
 semilogy(data_point(:, 2), data_point(:, 4), curve_style, 'linewidth', 2, 'DisplayName', label);
 hold on;

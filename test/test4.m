@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'covtype';
+dataset = 'HIGGS';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
@@ -38,7 +38,7 @@ elseif strcmp(dataset, 'criteo')
     lambda = 1e-5;
     batchSize = 64;
 elseif strcmp(dataset, 'HIGGS')
-    passes = 20;
+    passes = 6;
     factor = 0.05;
     factorNR = 0.05;
     lambda = 1e-5;
@@ -53,6 +53,8 @@ elseif strcmp(dataset, 'ijcnn1')
 end
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
+filename = strcat('../data/', dataset, '.mat');
+load(filename);
 [d, n] = size(Xtrain);
 Z = -ytrain' .* Xtrain;
 ZT = Z';
@@ -78,9 +80,6 @@ svmCost.optCost = svmCost.Cost(wOpt, ZT)
 
 %% have fun
 
-filename = strcat('../data/', dataset, '_result_5.mat');
-load(filename);
-
 % svm_KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 % subOptRR = svm_SVRGRR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
@@ -88,14 +87,15 @@ load(filename);
 
 % subOptK = svm_Katyusha(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 
-subOptA = svm_SAGA(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorA, dataset, gridNum);
+% subOptA = svm_SAGA(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorA, dataset, gridNum);
 
 
-% subOpt = svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
-subOptGD = svm_GD(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
-% subOptNR = svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
+subOpt = svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
-save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptRR', 'subOptA', 'subOptGD');
+subOptNR = svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
+
+filename = strcat('../data/', dataset, '_4G.mat');
+save(filename, 'subOpt', 'subOptNR');
 
 % Katyusha(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);

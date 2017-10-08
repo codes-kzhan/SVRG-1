@@ -4,7 +4,7 @@ fprintf('Fitting data with SAGA ...\n');
 
 % initialization
 [d ,n] = size(X);
-iterNum = n * passes;
+iterNum = 2 * n * passes;
 
 eta = factor/objFunc.L
 
@@ -49,14 +49,16 @@ for t = 1:iterNum % for each iteration
         gradients = gradients(:, order); % random shuffle
         y = y(order); % random shuffle
 
-        s = round(t/n);
-        cost = objFunc.PrintCost(w, X, y, s);
-        if cost <= objFunc.optCost
-            fprintf('Oops, we attain the optimal solution ...\n');
-        else
-            error = (cost - objFunc.optCost)/(initCost - objFunc.optCost);
-            distance = sum((w- objFunc.optSolution).^2) / initDistance;
-            subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
+        if mod(t, 2*n) == 0
+            s = round(t/n/2);
+            cost = objFunc.PrintCost(w, X, y, s);
+            if cost <= objFunc.optCost
+                fprintf('Oops, we attain the optimal solution ...\n');
+            else
+                error = (cost - objFunc.optCost)/(initCost - objFunc.optCost);
+                distance = sum((w- objFunc.optSolution).^2) / initDistance;
+                subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
+            end
         end
 
     end

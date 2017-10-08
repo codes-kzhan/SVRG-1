@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'MNIST';
+dataset = 'rcv1';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
@@ -11,7 +11,7 @@ if strcmp(dataset, 'covtype')
     lambda = 1e-5;
     batchSize = 1;
 elseif strcmp(dataset, 'rcv1')
-    passes = 1;
+    passes = 20;
     factor = 3/8;
     factorA = 3/8;
     factorNR = 3/8;
@@ -23,6 +23,7 @@ elseif strcmp(dataset, 'MNIST')
     factor = 0.12;
     factorNR = 0.12;
     factorA = 0.1;
+    factorGD = 10;
     alpha = 0.6;
     lambda = 1e-4;
     batchSize = 1;
@@ -68,17 +69,21 @@ logCost.optSolution = wOpt;
 logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
-subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
-subOptA = SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
-
-subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
-
-subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
-
-subOptRR = SVRGRR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
 filename = strcat('../data/', dataset, '_result_5.mat');
-save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptRR', 'subOptA');
+load(filename);
+
+% subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
+subOptA = SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
+%
+% subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
+%
+subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
+% subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+%
+% subOptRR = SVRGRR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+
+save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptRR', 'subOptA', 'subOptGD');
 
 % Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
