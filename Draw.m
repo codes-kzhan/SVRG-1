@@ -4,7 +4,7 @@ PlotCurve(subOptNR, '-', 'SIG', 'MNIST', 1);
 PlotCurve(subOpt, ':', 'SVRG', 'MNIST', 1);
 PlotCurve(subOptK, '-', 'SIG-K', 'MNIST', 1);
 PlotCurve(subOptRR, ':', 'SVRG-RR', 'MNIST', 1);
-% PlotCurve(subOptA, ':', 'SAGA-RR', 'MNIST', 1);
+PlotCurve(subOptA, ':', 'SAGA-RR', 'MNIST', 1);
 PlotCurve(subOptIAG, ':', 'IAG', 'MNIST', 1);
 PlotCurve(subOptGD, '-.', 'GD', 'MNIST', 1);
 
@@ -14,7 +14,7 @@ PlotCurve(subOptNR, '-', 'SIG', 'rcv1', 2);
 PlotCurve(subOpt, ':', 'SVRG', 'rcv1', 2);
 PlotCurve(subOptK, '-', 'SIG-K', 'rcv1', 2);
 PlotCurve(subOptRR, ':', 'SVRG-RR', 'rcv1', 2);
-% PlotCurve(subOptA, ':', 'SAGA-RR', 'rcv1', 2);
+PlotCurve(subOptA, ':', 'SAGA-RR', 'rcv1', 2);
 PlotCurve(subOptIAG, ':', 'IAG', 'rcv1', 2);
 PlotCurve(subOptGD, '-.', 'GD', 'rcv1', 2);
 
@@ -24,7 +24,7 @@ PlotCurve(subOptNR, '-', 'SIG', 'covtype', 3);
 PlotCurve(subOpt, ':', 'SVRG', 'covtype', 3);
 PlotCurve(subOptK, '-', 'SIG-K', 'covtype', 3);
 PlotCurve(subOptRR, ':', 'SVRG-RR', 'covtype', 3);
-% PlotCurve(subOptA, ':', 'SAGA-RR', 'covtype', 3);
+PlotCurve(subOptA, ':', 'SAGA-RR', 'covtype', 3);
 PlotCurve(subOptIAG, ':', 'IAG', 'covtype', 3);
 PlotCurve(subOptGD, '-.', 'GD', 'covtype', 3);
 
