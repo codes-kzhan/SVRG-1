@@ -25,14 +25,14 @@ objOptNorm = sum(objFunc.optSolution.^2);
 tstart = tic;
 
 tau2 = 1/2;
-tau1 = min(sqrt(iterNum * objFunc.mu / 3 / objFunc.L), 1/2);
-alpha = factor/(3 * tau1 * objFunc.L);
+% tau1 = min(sqrt(iterNum * objFunc.mu / 3 / objFunc.L), 1/2);
 u = wtilde;
 z = wtilde;
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
-
+    tau1 = 1/(s+2);
+    alpha = factor/(3 * tau1 * objFunc.L);
     for i = 1:iterNum
         idx = (i-1)*batchSize + 1 : i*batchSize;
 
