@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'HIGGS';
+dataset = 'covtype';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
@@ -91,7 +91,7 @@ svmCost.optCost = svmCost.Cost(wOpt, ZT)
 % subOptK = svm_Katyusha(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 
 % subOptA = svm_SAGA(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorA, dataset, gridNum);
-subOptIAG = svm_IAG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorIAG, dataset, gridNum);
+% subOptIAG = svm_IAG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 
 
 % subOpt = svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
