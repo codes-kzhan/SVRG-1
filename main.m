@@ -21,12 +21,11 @@ elseif strcmp(dataset, 'rcv1')
 
 % elseif strcmp(dataset, 'rcv1')
 %     passes = 20;
-%     factor = 1;
-%     factorA = 1;
-%     factorIAG = 0.05;
-%     factorNR = 3/8;
-%     alpha = 1;
-%     lambda = 1e-10;
+%     factor = 3/8;
+%     factorA = 1/2;
+%     factorNR = 0.6875;
+%     alpha = 1.5;
+%     lambda = 1e-5;
 %     batchSize = 1;
 
 % elseif strcmp(dataset, 'rcv1')
@@ -38,6 +37,16 @@ elseif strcmp(dataset, 'rcv1')
 %     alpha = 1;
 %     lambda = 1e-8;
 %     batchSize = 1;
+
+elseif strcmp(dataset, 'rcv1')
+    passes = 50;
+    factor = 1;
+    factorA = 0.5;
+    factorIAG = 1;
+    factorNR = 1;
+    alpha = 1;
+    lambda = 1e-8;
+    batchSize = 1;
 elseif strcmp(dataset, 'MNIST')
     passes = 20;
     factor = 0.2;
