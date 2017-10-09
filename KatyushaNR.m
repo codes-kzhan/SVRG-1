@@ -31,7 +31,7 @@ z = wtilde;
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
-    tau1 = 1/(s+2);
+    tau1 = 2/(s+4);
     alpha = factor/(3 * tau1 * objFunc.L);
     for i = 1:iterNum
         idx = (i-1)*batchSize + 1 : i*batchSize;
