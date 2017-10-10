@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'rcv1';
+dataset = 'MNIST';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
@@ -10,6 +10,15 @@ if strcmp(dataset, 'covtype')
     alpha = 1;
     lambda = 1e-5;
     batchSize = 1;
+elseif strcmp(dataset, 'rcv1')
+    passes = 20;
+    factor = 3/8;
+    factorA = 3/8;
+    factorNR = 3/8;
+    alpha = 1;
+    lambda = 1e-5;
+    batchSize = 1;
+
 % elseif strcmp(dataset, 'rcv1')
 %     passes = 20;
 %     factor = 3/8;
@@ -26,7 +35,7 @@ if strcmp(dataset, 'covtype')
 %     factorIAG = 0.05;
 %     factorNR = 3/8;
 %     alpha = 1;
-%     lambda = 1e-10;
+%     lambda = 1e-8;
 %     batchSize = 1;
 
 elseif strcmp(dataset, 'rcv1')
@@ -40,12 +49,12 @@ elseif strcmp(dataset, 'rcv1')
     batchSize = 1;
 elseif strcmp(dataset, 'MNIST')
     passes = 20;
-    factor = 0.12;
-    factorNR = 0.12;
+    factor = 0.2;
+    factorNR = 0.2;
     factorA = 0.1;
     factorIAG = 0.01;
     factorGD = 10;
-    alpha = 0.6;
+    alpha = 1;
     lambda = 1e-4;
     batchSize = 1;
 elseif strcmp(dataset, 'avazu')
@@ -102,10 +111,10 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 % subOptKatyusha = Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 %
-% subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
-% subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
+subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 %
-% subOptRR = SVRGRR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+subOptRR = SVRGRR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
 % save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptRR', 'subOptA', 'subOptGD', 'subOptIAG');
 

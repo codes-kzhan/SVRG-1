@@ -2,9 +2,10 @@
 load('../data/MNIST_result_5.mat')
 PlotCurve(subOptNR, '-', 'SIG', 'MNIST', 1);
 PlotCurve(subOpt, ':', 'SVRG', 'MNIST', 1);
+PlotCurve(subOptKatyusha, ':', 'SVRG-K', 'MNIST', 1);
 PlotCurve(subOptK, '-', 'SIG-K', 'MNIST', 1);
 PlotCurve(subOptRR, ':', 'SVRG-RR', 'MNIST', 1);
-% PlotCurve(subOptA, ':', 'SAGA-RR', 'MNIST', 1);
+PlotCurve(subOptA, ':', 'SAGA-RR', 'MNIST', 1);
 PlotCurve(subOptIAG, ':', 'IAG', 'MNIST', 1);
 PlotCurve(subOptGD, '-.', 'GD', 'MNIST', 1);
 
