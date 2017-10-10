@@ -29,14 +29,24 @@ if strcmp(dataset, 'covtype')
 %     lambda = 1e-10;
 %     batchSize = 1;
 
+% elseif strcmp(dataset, 'rcv1')
+%     passes = 20;
+%     factor = 1;
+%     factorA = 1;
+%     factorIAG = 0.05;
+%     factorNR = 3/8;
+%     alpha = 1;
+%     lambda = 1e-8;
+%     batchSize = 1;
+
 elseif strcmp(dataset, 'rcv1')
-    passes = 20;
+    passes = 50;
     factor = 1;
-    factorA = 1;
+    factorA = 0.5;
     factorIAG = 0.05;
-    factorNR = 3/8;
+    factorNR = 0.5;
     alpha = 1;
-    lambda = 1e-8;
+    lambda = 1e-6;
     batchSize = 1;
 elseif strcmp(dataset, 'MNIST')
     passes = 20;

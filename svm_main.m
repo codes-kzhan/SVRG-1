@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'HIGGS';
+dataset = 'ijcnn1';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
@@ -45,12 +45,29 @@ elseif strcmp(dataset, 'HIGGS')
     factorNR = 0.05;
     lambda = 1e-5;
     batchSize = 1;
+% elseif strcmp(dataset, 'ijcnn1')
+%     passes = 20;
+%     factor = 0.1;
+%     % factorNR = 0.05;
+%     factorNR = 0.025;
+%     alpha = 0.09;
+%     lambda = 1e-5;
+%     batchSize = 1;
+
+% elseif strcmp(dataset, 'ijcnn1')
+%     passes = 20;
+%     factor = 0.1;
+%     factorNR = 0.1;
+%     alpha = 0.1;
+%     lambda = 1e-7;
+%     batchSize = 1;
+
 elseif strcmp(dataset, 'ijcnn1')
     passes = 20;
     factor = 0.1;
-    factorNR = 0.05;
-    alpha = 0.09;
-    lambda = 1e-5;
+    factorNR = 0.1;
+    alpha = 0.75;
+    lambda = 1e-8;
     batchSize = 1;
 end
 %% preliminaries
@@ -88,10 +105,10 @@ svmCost.optCost = svmCost.Cost(wOpt, ZT)
 
 % subOptK = svm_KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 
-% subOptK = svm_Katyusha(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
+subOptK = svm_Katyusha(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 
 % subOptA = svm_SAGA(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorA, dataset, gridNum);
-subOptIAG = svm_IAG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorIAG, dataset, gridNum);
+% subOptIAG = svm_IAG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 
 
 % subOpt = svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
