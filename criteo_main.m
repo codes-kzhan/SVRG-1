@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'rcv1';
+dataset = 'criteo';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
@@ -33,7 +33,7 @@ elseif strcmp(dataset, 'rcv1')
     passes = 50;
     factor = 1;
     factorA = 0.5;
-    factorIAG = 0.1;
+    factorIAG = 1;
     factorNR = 1;
     alpha = 1;
     lambda = 1e-8;
@@ -55,12 +55,20 @@ elseif strcmp(dataset, 'avazu')
     alpha = 1;
     lambda = 1e-5;
     batchSize = 64;
+% elseif strcmp(dataset, 'criteo')
+%     passes = 6;
+%     factor = 1/2;
+%     alpha = 1;
+%     lambda = 1e-5;
+%     batchSize = 64;
+
 elseif strcmp(dataset, 'criteo')
-    passes = 6;
+    passes = 20;
     factor = 1/2;
     alpha = 1;
-    lambda = 1e-5;
+    lambda = 1e-9;
     batchSize = 64;
+
 elseif strcmp(dataset, 'HIGGS')
     passes = 20;
     factor = 0.1;
@@ -82,7 +90,7 @@ logCost = ObjFunc(lambda, L, mu);
 objFuncType = '_logistic_norm';
 filename = strcat('../data/', dataset, objFuncType, '_opt.mat');
 if exist(filename, 'file') ~= 2
-    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes*20, factor, batchSize);
+    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes*3, factor, batchSize);
     save(filename, 'wOpt');
 else
     load(filename, 'wOpt');
@@ -100,7 +108,7 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 % subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 %
 % subOptKatyusha = Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
-subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
+% subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 %
 % subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
 % subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
