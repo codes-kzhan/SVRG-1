@@ -31,7 +31,7 @@ z = wtilde;
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
-    tau1 = 2/(s+4);
+    tau1 = 1/(s+2);
     alpha = factor/(3 * tau1 * objFunc.L);
     for i = 1:iterNum
         idx = (i-1)*batchSize + 1 : i*batchSize;
@@ -96,7 +96,7 @@ fprintf('time elapsed: %f\n', telapsed);
 
 
 label = 'DVRG-K';
-curve_style = 'b-';
+curve_style = '-';
 
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);
 PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
