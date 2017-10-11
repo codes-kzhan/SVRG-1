@@ -7,7 +7,7 @@ fprintf('Fitting data with GD ...\n');
 iterNum = passes*2;
 lambda = objFunc.lambda;
 
-eta = 1 / objFunc.L
+eta = factor / objFunc.L
 
 if issparse(X)
     w = sparse(d, 1);
@@ -47,7 +47,7 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 label = 'GD';
-curve_style = 'b-.';
+curve_style = '-.';
 PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function

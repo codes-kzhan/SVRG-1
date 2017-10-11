@@ -25,13 +25,13 @@ initDistance = sum((wtilde - objFunc.optSolution).^2);
 tstart = tic;
 
 tau2 = 1/2;
-tau1 = min(sqrt(iterNum * objFunc.mu / 3 / objFunc.L), 1/2);
-alpha = factor/(3 * tau1 * objFunc.L);
 u = wtilde;
 z = wtilde;
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, Z, ZT);
+    tau1 = 1/(s+2);
+    alpha = factor/(3 * tau1 * objFunc.L);
     for i = 1:iterNum
         idx = mod(i-1, n) + 1;
         w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;

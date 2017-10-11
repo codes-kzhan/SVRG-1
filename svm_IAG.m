@@ -72,7 +72,7 @@ fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 label = 'IAG';
-curve_style = 'g-';
+curve_style = '-';
 PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function
