@@ -3,15 +3,16 @@ dataset = 'covtype';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
-if strcmp(dataset, 'covtype')
-    passes = 20;
-    factorNR = 0.3;
-    factor = 0.25;
-    factorA = 0.14;
-    factorIAG = 1e-5;
-    alpha = 1.0;
-    lambda = 1e-5;
-    batchSize = 1;
+% if strcmp(dataset, 'covtype')
+%     passes = 20;
+%     factorNR = 0.235;
+%     factor = 0.25;
+%     factorA = 0.14;
+%     factorIAG = 1e-5;
+%     alpha = 0.5;
+%     alphaNR =0.4;
+%     lambda = 1e-5;
+%     batchSize = 1;
 
 % if strcmp(dataset, 'covtype')
 %     passes = 20;
@@ -19,7 +20,7 @@ if strcmp(dataset, 'covtype')
 %     factor = 0.08;
 %     factorA = 0.25;
 %     factorIAG = 1e-5;
-%     alpha = 0.05;
+%     alpha = 0.5;
 %     lambda = 1e-8;
 %     batchSize = 1;
 
@@ -33,15 +34,15 @@ if strcmp(dataset, 'covtype')
 %     lambda = 1e-10;
 %     batchSize = 1;
 
-% if strcmp(dataset, 'covtype')
-%     passes = 20;
-%     factorNR = 0.2;
-%     factor = 0.2;
-%     factorA = 0.5;
-%     factorIAG = 1e-5;
-%     alpha = 0.01;
-%     lambda = 1e-6;
-%     batchSize = 1;
+if strcmp(dataset, 'covtype')
+    passes = 20;
+    factorNR = 0.2;
+    factor = 0.1;
+    factorA = 0.5;
+    factorIAG = 1e-5;
+    alpha = 0.01;
+    lambda = 1e-6;
+    batchSize = 1;
 
 elseif strcmp(dataset, 'rcv1')
     passes = 40;
@@ -114,27 +115,17 @@ svmCost.optCost = svmCost.Cost(wOpt, ZT)
 % filename = strcat('../data/', dataset, '_result_5.mat');
 % load(filename);
 
-% svm_KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
-% subOptRR = svm_SVRGRR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
-%
-% subOptK = svm_KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
-%
-subOptKatyusha = svm_Katyusha(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
-%
-% subOptA = svm_SAGA(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorA, dataset, gridNum);
-% subOptIAG = svm_IAG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorIAG, dataset, gridNum);
-%
-%
-% subOpt = svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
-% subOptGD = svm_GD(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+subOpt = svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % subOptNR = svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
+% subOptK = svm_KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alphaNR, batchSize, dataset, gridNum);
+% subOptKatyusha = svm_Katyusha(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
+% subOptA = svm_SAGA(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorA, dataset, gridNum);
+% subOptRR = svm_SVRGRR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+% subOptIAG = svm_IAG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorIAG, dataset, gridNum);
+% subOptGD = svm_GD(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
 % save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptRR', 'subOptA', 'subOptGD');
 
-% Katyusha(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-% SAGA(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-% SGD(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
-% GD(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 %% save figure and exit
 % figname = strcat('./', dataset, objFuncType, '.png');
 % saveas(fig, figname);

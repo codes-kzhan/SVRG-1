@@ -29,7 +29,7 @@ PlotCurve(subOptRR, ':', 'SVRG-RR', 'covtype', 3);
 PlotCurve(subOptA, ':', 'SAGA-RR', 'covtype', 3);
 PlotCurve(subOptIAG, ':', 'IAG', 'covtype', 3);
 PlotCurve(subOptGD, '-.', 'GD', 'covtype', 3);
-PlotCurve(subOptKatyusha, ':', 'Katyusha', 'rcv1', 3);
+PlotCurve(subOptKatyusha, ':', 'Katyusha', 'covtype', 3);
 
 % % criteo dataset
 % load('../data/criteo_32G.mat')

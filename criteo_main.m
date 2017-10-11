@@ -64,7 +64,7 @@ elseif strcmp(dataset, 'avazu')
 
 elseif strcmp(dataset, 'criteo')
     passes = 20;
-    factor = 1/2;
+    factor = 10;
     alpha = 1;
     lambda = 1e-9;
     batchSize = 64;

@@ -27,6 +27,7 @@ tstart = tic;
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
 
+
     for i = 1:iterNum
         idx = (i-1)*batchSize + 1 : i*batchSize;
         Xtmp = X(:, idx);
@@ -57,6 +58,7 @@ for s = 1:passes % for each epoch
         w = w - eta * wDelta3;
     end
 
+
     wtilde = w;
 
     % print and plot
@@ -82,6 +84,6 @@ label = 'DVRG';
 curve_style = '-';
 
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);
-PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
+% PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function

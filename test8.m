@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'avazu';
+dataset = 'criteo';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
@@ -59,27 +59,17 @@ elseif strcmp(dataset, 'MNIST')
     alpha = 1;
     lambda = 1e-4;
     batchSize = 1;
-
-% elseif strcmp(dataset, 'avazu')
-%     passes = 20;
-%     factor = 1/4;
-%     factorIAG = 0.05;
-%     alpha = 1;
-%     lambda = 1e-5;
-%     batchSize = 64;
-
 elseif strcmp(dataset, 'avazu')
-    passes = 10;
-    factor = 10;
-    factorNR = 10;
+    passes = 20;
+    factor = 1/4;
     factorIAG = 0.05;
-    alpha = 9;
-    lambda = 1e-8;
+    alpha = 1;
+    lambda = 1e-5;
     batchSize = 64;
-
 elseif strcmp(dataset, 'criteo')
-    passes = 6;
+    passes = 1;
     factor = 1/2;
+    factorNR = 1/2;
     alpha = 1;
     lambda = 1e-5;
     batchSize = 64;
@@ -93,7 +83,6 @@ elseif strcmp(dataset, 'HIGGS')
 end
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
-
 filename = strcat('../data/', dataset, '_dataset.mat');
 load(filename);
 
@@ -117,19 +106,24 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
-filename = strcat('../data/', dataset, '_result_4_1e-8.mat');
+dataset = strcat(dataset, '_8G');
+
+profile on;
+% filename = strcat('../data/', dataset, '_result_5.mat');
 % load(filename);
+subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
 subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
+
+profsave(profile('info'), dataset);
 % subOptA = SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
 % subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 % subOptKatyusha = Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
-subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alphaNR, batchSize, dataset, gridNum);
+% subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alphaNR, batchSize, dataset, gridNum);
 % subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
-subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % subOptRR = SVRGRR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
-save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptIAG');
+% save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptRR', 'subOptA', 'subOptGD', 'subOptIAG', 'subOptKatyusha');
 
 %% save figure and exit
 % figname = strcat('./', dataset, objFuncType, '.png');
