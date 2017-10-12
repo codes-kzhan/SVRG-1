@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'avazu';
+dataset = 'kddb';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
@@ -70,6 +70,16 @@ elseif strcmp(dataset, 'MNIST')
 elseif strcmp(dataset, 'avazu')
     passes = 10;
     factor = 10;
+    factorNR = 10;
+    factorIAG = 0.05;
+    % alpha = 8; % alpha = 8 is good
+    alpha = 9; % alpha = 9 is better than 8
+    lambda = 1e-8;
+    batchSize = 64;
+
+elseif strcmp(dataset, 'kddb')
+    passes = 6;
+    factor = 1;
     factorNR = 10;
     factorIAG = 0.05;
     % alpha = 8; % alpha = 8 is good

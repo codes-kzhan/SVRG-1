@@ -12,14 +12,15 @@ lambda = objFunc.lambda;
 eta = factor / objFunc.L
 % eta = 5e-1
 
-if issparse(X)
-    wtilde = sparse(d, 1);
-else
-    wtilde = zeros(d, 1);
-end
+% if issparse(X)
+%     wtilde = sparse(d, 1);
+% else
+%     wtilde = zeros(d, 1);
+% end
+wtilde = zeros(d, 1);
 w = wtilde;
 wOpt = wtilde;
-optCost = objFunc.PrintCost(wtilde, X, y, 0);;
+optCost = objFunc.PrintCost(wtilde, X, y, 0);
 preCost = optCost;
 reward = 0;
 
@@ -62,7 +63,7 @@ end % epoch
 
 telapsed = toc(tstart);
 fprintf('training accuracy: %f\n', objFunc.Score(wOpt, X, y));
-fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
+% fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 end  % function
