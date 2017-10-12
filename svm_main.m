@@ -1,10 +1,9 @@
 % function main(dataset, gridNum)
-dataset = 'HIGGS';
+dataset = 'a9a';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 
-if strcmp(dataset, 'covtype')
-    passes = 20;
+if strcmp(dataset, 'covtype') passes = 20;
     factorNR = 0.3;
     factor = 0.25;
     factorA = 0.14;
@@ -87,6 +86,15 @@ elseif strcmp(dataset, 'HIGGS')
     lambda = 1e-8;
     batchSize = 1;
 
+elseif strcmp(dataset, 'a9a')
+    passes = 20;
+    factor = 0.7;
+    factorNR = 0.01;
+    alpha = 0.01;
+    factorIAG = 1e-6;
+    factorDIG = 1e-2;
+    lambda = 1e-7;
+    batchSize = 1;
 % elseif strcmp(dataset, 'ijcnn1')
 %     passes = 20;
 %     factor = 0.1;

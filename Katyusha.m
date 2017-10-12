@@ -79,7 +79,7 @@ fprintf('time elapsed: %f\n', telapsed);
 
 
 label = 'Katyusha';
-curve_style = 'b-.';
+curve_style = '-.';
 PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function

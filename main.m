@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'kddb';
+dataset = 'ijcnn1';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
@@ -67,6 +67,19 @@ elseif strcmp(dataset, 'MNIST')
 %     lambda = 1e-5;
 %     batchSize = 64;
 
+elseif strcmp(dataset, 'ijcnn1')
+    passes = 20;
+    factor = 0.2;
+    factorNR = 0.125;
+    factorA = 0.2;
+    factorIAG = 0.001;
+    factorGD = 10;
+    factorDIG = 0.1;
+    alpha = 0.6;
+    alphaNR = 0.7;
+    lambda = 1e-8;
+    batchSize = 1;
+
 elseif strcmp(dataset, 'avazu')
     passes = 10;
     factor = 10;
@@ -80,7 +93,7 @@ elseif strcmp(dataset, 'avazu')
 elseif strcmp(dataset, 'kddb')
     passes = 6;
     factor = 1;
-    factorNR = 10;
+    factorNR = 1;
     factorIAG = 0.05;
     % alpha = 8; % alpha = 8 is good
     alpha = 9; % alpha = 9 is better than 8
@@ -114,7 +127,7 @@ logCost = ObjFunc(lambda, L, mu);
 objFuncType = '_logistic_norm';
 filename = strcat('../data/', dataset, objFuncType, '_opt.mat');
 if exist(filename, 'file') ~= 2
-    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes*3, factor, batchSize);
+    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes*10, factor, batchSize);
     save(filename, 'wOpt');
 else
     load(filename, 'wOpt');
@@ -131,11 +144,11 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 % subOptA = SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
 % subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 %
-% subOptKatyusha = Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
-% subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
+subOptKatyusha = Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
+% subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alphaNR, batchSize, dataset, gridNum);
 %
 % subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
-subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+% subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
 % subOptA = SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
 % subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
