@@ -118,7 +118,7 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
-filename = strcat('../data/', dataset, '_result_4_1e-8_8G.mat');
+filename = strcat('../data/', dataset, '_result_4_1e-8_2G.mat');
 % load(filename);
 profile on;
 
@@ -133,6 +133,7 @@ subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, 
 % subOptRR = SVRGRR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
 profsave(profile('info'), strcat(dataset, '2G'));
+
 save(filename, 'subOpt', 'subOptNR', 'subOptK');
 
 %% save figure and exit
