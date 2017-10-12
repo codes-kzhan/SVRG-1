@@ -80,10 +80,10 @@ elseif strcmp(dataset, 'avazu')
 elseif strcmp(dataset, 'kddb')
     passes = 6;
     factor = 1;
-    factorNR = 10;
-    factorIAG = 0.05;
+    factorNR = 1;
+    factorDIG = 1;
     % alpha = 8; % alpha = 8 is good
-    alpha = 9; % alpha = 9 is better than 8
+    alpha = 5; % alpha = 9 is better than 8
     lambda = 1e-8;
     batchSize = 64;
 
@@ -103,6 +103,8 @@ elseif strcmp(dataset, 'HIGGS')
 end
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
+filename = strcat('../data/', dataset, '_dataset.mat');
+load(filename);
 
 L = max(sum(Xtrain.^2, 1)) / 4 + lambda;
 mu = lambda;
@@ -127,12 +129,12 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 % filename = strcat('../data/', dataset, '_result_5.mat');
 % load(filename);
 
-% subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
+subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
 % subOptA = SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
 % subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 %
 % subOptKatyusha = Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
-% subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
+subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 %
 % subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
 subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
@@ -144,7 +146,7 @@ subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, 
 % subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 % subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
 
-% subOptDIG = DIG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorDIG, dataset, gridNum);
+% subOptDIG = DIG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorDIG, batchSize, dataset, gridNum);
 
 % save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptRR', 'subOptA', 'subOptGD', 'subOptIAG');
 
