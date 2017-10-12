@@ -38,13 +38,25 @@ elseif strcmp(dataset, 'criteo')
     factor = 1/2;
     lambda = 1e-5;
     batchSize = 64;
+
 elseif strcmp(dataset, 'HIGGS')
-    passes = 6;
-    factor = 0.05;
+    passes = 10;
+    factor = 0.01;
+    factorNR = 0.01;
+    alpha = 0.01;
     factorIAG = 1e-6;
-    factorNR = 0.05;
-    lambda = 1e-5;
+    factorDIG = 1e-2;
+    lambda = 1e-8;
     batchSize = 1;
+
+% elseif strcmp(dataset, 'HIGGS')
+%     passes = 6;
+%     factor = 0.05;
+%     factorIAG = 1e-6;
+%     factorNR = 0.05;
+%     lambda = 1e-5;
+%     batchSize = 1;
+
 elseif strcmp(dataset, 'ijcnn1')
     passes = 20;
     factor = 0.1;
@@ -85,6 +97,12 @@ svmCost.optCost = svmCost.Cost(wOpt, ZT)
 % filename = strcat('../data/', dataset, '_result_5.mat');
 % load(filename);
 
+subOptNR = svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
+subOptK = svm_KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
+subOptIAG = svm_IAG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorIAG, dataset, gridNum);
+subOpt = svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+subOptDIG = svm_DIG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorDIG, dataset, gridNum);
+
 % svm_KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 % subOptRR = svm_SVRGRR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
@@ -93,15 +111,15 @@ svmCost.optCost = svmCost.Cost(wOpt, ZT)
 % subOptK = svm_Katyusha(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 
 % subOptA = svm_SAGA(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorA, dataset, gridNum);
-subOptIAG = svm_IAG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorIAG, dataset, gridNum);
+% subOptIAG = svm_IAG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 
 
 % subOpt = svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % subOptGD = svm_GD(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % subOptNR = svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
 
-filename = strcat('../data/', dataset, '_IAG_8G.mat');
-save(filename, 'subOptIAG');
+filename = strcat('../data/', dataset, '_1e-8_8G.mat');
+save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptDIG' 'subOptIAG');
 
 % Katyusha(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
