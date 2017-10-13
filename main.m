@@ -83,7 +83,7 @@ elseif strcmp(dataset, 'kddb')
     factorNR = 1;
     factorDIG = 1;
     alphaNR = 5;
-    alpha = 1;
+    alpha = 2;
     lambda = 1e-8;
     batchSize = 64;
 
