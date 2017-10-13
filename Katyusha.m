@@ -1,4 +1,4 @@
-function subOptimality = Katyusha(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function subOptimality = Katyusha(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit)
 
 fprintf('Fitting data with Katyusha...\n');
 
@@ -39,7 +39,7 @@ for s = 1:passes % for each epoch
 
     for i = 1:iterNum
         % idx = mod(i-1, n) + 1;
-        idx = randperm(n, 1);
+        idx = randperm(n, batchSize);
         w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;
 
         Xtmp = X(:, idx);
@@ -68,6 +68,10 @@ for s = 1:passes % for each epoch
         error = (cost - objFunc.optCost)/(initCost - objFunc.optCost);
         distance = sum((wtilde - objFunc.optSolution).^2) / objOptNorm;
         subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
+    end
+    now = toc(tstart);
+    if now > ourlimit
+        break;
     end
 end % epoch
 

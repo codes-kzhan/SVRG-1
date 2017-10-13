@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'kddb';
+dataset = 'MNIST';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
@@ -58,7 +58,7 @@ elseif strcmp(dataset, 'MNIST')
     factorDIG = 0.1;
     alpha = 1;
     lambda = 1e-4;
-    batchSize = 1;
+    batchSize = 64;
 % elseif strcmp(dataset, 'avazu')
 %     passes = 20;
 %     factor = 1/4;
@@ -81,11 +81,12 @@ elseif strcmp(dataset, 'kddb')
     passes = 6;
     factor = 1;
     factorNR = 1;
-    factorDIG = 1;
+    factorDIG = 0.1;
     alphaNR = 5;
-    alpha = 2;
+    alpha = 5;
     lambda = 1e-8;
     batchSize = 64;
+    ourlimit = 10000;
 
 elseif strcmp(dataset, 'criteo')
     passes = 6;
@@ -133,7 +134,7 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 % subOptA = SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
 % subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 %
-subOptKatyusha = Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
+subOptKatyusha = Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum, ourlimit);
 % subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 %
 % subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
@@ -146,7 +147,7 @@ subOptKatyusha = Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, 
 % subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 % subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
 
-% subOptDIG = DIG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorDIG, batchSize, dataset, gridNum);
+subOptDIG = DIG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorDIG, batchSize, dataset, gridNum, ourlimit);
 
 % save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptRR', 'subOptA', 'subOptGD', 'subOptIAG');
 

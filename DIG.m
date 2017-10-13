@@ -1,4 +1,4 @@
-function subOptimality = DIG(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function subOptimality = DIG(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit)
 
 fprintf('Fitting data with DIG ...\n');
 
@@ -45,7 +45,7 @@ for t = 1:iterNum % for each iteration
 
     % if mod(t * batchSize, 2 * n) <= 2 * n && mod((t + 1) * batchSize, 2*n) >= 2 * n
     if mod(t * batchSize, 2 * n - mod(2 * n, batchSize)) == 0
-        s = floor(t*batchSize/n/2);
+        s = floor(t*batchSize/ (2 * n - mod(2 * n, batchSize)));
         cost = objFunc.PrintCost(w, X, y, s);
         if cost <= objFunc.optCost
             fprintf('Oops, we attain the optimal solution ...\n');
@@ -53,6 +53,10 @@ for t = 1:iterNum % for each iteration
             error = (cost - objFunc.optCost)/(initCost - objFunc.optCost);
             distance = sum((w- objFunc.optSolution).^2) / initDistance;
             subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
+        end
+        now = toc(tstart);
+        if now > ourlimit
+            break;
         end
     end
 
