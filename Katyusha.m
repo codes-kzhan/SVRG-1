@@ -11,11 +11,12 @@ lambda = objFunc.lambda;
 eta = factor / objFunc.L
 % eta = 5e-1
 
-if issparse(X)
-    wtilde = sparse(d, 1);
-else
-    wtilde = zeros(d, 1);
-end
+% if issparse(X)
+%     wtilde = sparse(d, 1);
+% else
+%     wtilde = zeros(d, 1);
+% end
+wtilde = zeros(d, 1);
 w = wtilde;
 
 
