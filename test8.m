@@ -132,7 +132,7 @@ subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, 
 % subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
 % subOptRR = SVRGRR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
-profsave(profile('info'), strcat(dataset, '2G'));
+profsave(profile('info'), strcat(dataset, '8G'));
 save(filename, 'subOpt', 'subOptNR', 'subOptK');
 
 %% save figure and exit

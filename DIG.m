@@ -1,4 +1,4 @@
-function subOptimality = DIG(objFunc, X, y, Xtest, ytest, passes, factor, dataset, gridNum)
+function subOptimality = DIG(objFunc, X, y, Xtest, ytest, passes, factor, dataset, gridNum, ourlimit)
 
 fprintf('Fitting data with DIG ...\n');
 
@@ -51,6 +51,10 @@ for t = 1:iterNum % for each iteration
                 error = (cost - objFunc.optCost)/(initCost - objFunc.optCost);
                 distance = sum((w- objFunc.optSolution).^2) / initDistance;
                 subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
+            end
+            now = toc(tstart);
+            if now > ourlimit
+                break;
             end
         end
 

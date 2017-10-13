@@ -131,7 +131,7 @@ subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, 
 % subOptKatyusha = Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum);
 % subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
 % subOptRR = SVRGRR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
-profsave(profile('info'), strcat(dataset, '2G'));
+profsave(profile('info'), strcat(dataset, '4G'));
 
 save(filename, 'subOpt', 'subOptNR', 'subOptK');
 
