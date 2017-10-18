@@ -38,7 +38,7 @@ for s = 1:passes % for each epoch
 
     for i = 1:iterNum
         % idx = mod(i-1, n) + 1;
-        idx = randperm(n, 1);
+        idx = randperm(n, batchSize);
         w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;
 
         Xtmp = X(:, idx);

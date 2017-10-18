@@ -7,11 +7,12 @@ fprintf('Fitting data with DIG ...\n');
 iterNum = floor(2 * n * passes / batchSize);
 
 
-if issparse(X)
-    w = sparse(d, 1);
-else
-    w = zeros(d, 1);
-end
+% if issparse(X)
+%     w = sparse(d, 1);
+% else
+%     w = zeros(d, 1);
+% end
+w = zeros(d, 1);
 % w = zeros(d, 1);
 
 initCost = objFunc.PrintCost(w, X, y, 0);
@@ -30,7 +31,7 @@ for t = 1:iterNum % for each iteration
     ytmp = y(idx);
 
     % eta = min(2/(objFunc.lambda * (t + 1)), 1e-2);
-    eta = factor/((floor(t * batchSize /2/n) + 1) + 1);
+    eta = factor/((floor(t * batchSize /2 * n) + 1) + 1);
 
     tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
     newGrad = mean(((-ytmp' .* tmpExp) ./ (1 + tmpExp) .* Xtmp) + objFunc.lambda * w, 2);
@@ -43,8 +44,8 @@ for t = 1:iterNum % for each iteration
         % y = y(order); % random shuffle
 
     % if mod(t * batchSize, 2 * n) <= 2 * n && mod((t + 1) * batchSize, 2*n) >= 2 * n
-    if mod(t * batchSize, 2 * n - mod(2 * n, batchSize)) == 0 || toc(tstart) >= ourlimit
-        s = floor(t*batchSize/ (2 * n - mod(2 * n, batchSize))) + 1;
+    if mod(t * batchSize, 2 * n - mod(2 * n, batchSize)) == 0
+        s = floor(t*batchSize/ (2 * n - mod(2 * n, batchSize)));
         cost = objFunc.PrintCost(w, X, y, s);
         if cost <= objFunc.optCost
             fprintf('Oops, we attain the optimal solution ...\n');
@@ -70,6 +71,6 @@ fprintf('time elapsed: %f\n', telapsed);
 
 label = 'DIG';
 curve_style = ':';
-% PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
+PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function
