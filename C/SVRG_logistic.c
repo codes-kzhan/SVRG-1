@@ -4,7 +4,6 @@
 #include "mex.h"
 #include "mkl.h"
 #define DEBUG 0
-#define DEBUGADDR 0
 #define USE_BLAS 1
 
 /*
@@ -23,7 +22,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     /* Variables */
     int nSamples, maxIter;
     int sparse = 0, useScaling = 1;
-    int i, idx, j, nVars;
+    long i, idx, j, nVars;
 
     mwIndex *jc, *ir;
 
@@ -47,10 +46,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     nVars = mxGetM(prhs[3]);
     nSamples = mxGetN(prhs[3]);
 
-#if DEBUGADDR
-    //printf("nVars: %d, nSamples: %d\n", nVars, nSamples);
-    printf("w: %ld, wtilde: %ld\n", w, wtilde);
-#endif
 
     if (nVars != mxGetM(prhs[0]))
         mexErrMsgTxt("w and Xt must have the same number of rows");
@@ -58,6 +53,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         mexErrMsgTxt("number of columns of Xt must be the same as the number of rows in y");
 
     srand(time(NULL));
+    //printf("size of index: %d, size of int: %d\n", sizeof(mwIndex), sizeof(int));
 
     // sparse matrix uses scaling and lazy stuff
     if (mxIsSparse(prhs[3]))
@@ -128,11 +124,16 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         }
         else
         {
+#if USE_BLAS
+            cblas_daxpby(nVars, -eta, G, 1, 1 - eta * lambda, w, 1);
+#else
+            tmpFactor = 1 - eta * lambda;
             for(j = 0; j < nVars; j++)
             {
-                w[j] *= 1 - eta * lambda;
+                w[j] *= tmpFactor;
                 w[j] -= eta * G[j];
             }
+#endif
             tmpFactor = eta * tmpDelta;
         }
 #if DEBUG
@@ -141,17 +142,26 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
         if (sparse)
         {
+#if USE_BLAS
+            //printf("nz: %d, Xt: %ld, indx: %ld\n", jc[idx+1] - jc[idx], Xt + jc[idx], (int *)ir + jc[idx]);
+            cblas_daxpyi(jc[idx+1] - jc[idx], -tmpFactor, Xt + jc[idx], ir + jc[idx], w);
+#else
             for(j = jc[idx]; j < jc[idx+1]; j++)
             {
                 w[ir[j]] -= tmpFactor * Xt[j];
             }
+#endif
         }
         else
         {
+#if USE_BLAS
+            cblas_daxpy(nVars, -tmpFactor, Xt + nVars * idx, 1, w, 1);
+#else
             for(j = 0; j < nVars; j++)
             {
                 w[j] -= tmpFactor * Xt[j + nVars * idx];
             }
+#endif
         }
 #if DEBUG
         printf("w[0]: %lf\n", w[0]);
@@ -163,10 +173,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 #if DEBUG
             printf("Oops, we have to re-nomalize...\n");
 #endif
+
+#if USE_BLAS
+            cblas_dscal(nVars, c, w, 1);
+#else
             for(j = 0; j < nVars; j++)
             {
                 w[j] = c * w[j];
             }
+#endif
             c = 1;
         }
     }
@@ -176,10 +191,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 #if DEBUG
         printf("Oops, we are using scaling ...\n");
 #endif
+
+#if USE_BLAS
+        cblas_dscal(nVars, c, w, 1);
+#else
         for(j = 0; j < nVars; j++)
         {
             w[j] *= c;
         }
+#endif
     }
     return;
 }
