@@ -40,7 +40,7 @@ if strcmp(dataset, 'covtype')
 %     batchSize = 1;
 
 elseif strcmp(dataset, 'rcv1')
-    passes = 10;
+    passes = 20;
     factor = 1;
     factorA = 0.5;
     factorIAG = 0.1;
