@@ -1,4 +1,4 @@
-classdef ObjFunc
+classdef LR
     properties
         lambda = 0;
         L = 0;
@@ -8,7 +8,7 @@ classdef ObjFunc
     end
     methods
         % constructor
-        function obj = ObjFunc(lambda, L, mu)
+        function obj = LR(lambda, L, mu)
             obj.lambda = lambda;
             obj.L = L;
             obj.mu = mu;
