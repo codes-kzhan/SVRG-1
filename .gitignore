@@ -98,3 +98,4 @@ ENV/
 # mypy
 .mypy_cache/
 *.mat
+**/*.mexa64
