@@ -1,6 +1,5 @@
 #include <math.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <time.h>
 #include "mex.h"
 #include "mkl.h"
@@ -26,12 +25,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 #endif
     /* Variables */
     int nSamples, maxIter;
-    int sparse = 0, useScaling = 1;
+    int sparse = 0, useScaling = 1, useLazy=1,*lastVisited;
     long i, idx, j, nVars;
 
     mwIndex *jc, *ir;
 
-    double *w, *wtilde, *G, *Xt, *y, lambda, eta, innerProdI, innerProdZ, tmpDelta, c = 1, tmpFactor;
+    double *w, *wtilde, *G, *Xt, *y, lambda, eta, innerProdI, innerProdZ, tmpDelta, c = 1, tmpFactor, *cumSum;
 
     if (nrhs != 8)
         mexErrMsgTxt("Function needs 8 arguments");
@@ -72,10 +71,20 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     else
     {
         useScaling = 0;
+        useLazy = 0;
     }
 
     if (sparse && eta * lambda == 1)
+    {
         mexErrMsgTxt("Sorry, I don't like it when Xt is sparse and eta*lambda=1\n");
+    }
+
+    /* Allocate memory needed for lazy updates */
+    if (useLazy)
+    {
+        lastVisited = mxCalloc(nVars,sizeof(int));
+        cumSum = mxCalloc(maxIter,sizeof(double));
+    }
 
     // @NOTE main loop
     for (i = 0; i < maxIter; i++)
@@ -83,7 +92,23 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         idx = rand() % nSamples;  // sample
         //idx = i; // % nSamples;
 
-        /* Compute derivative of loss */
+        /* Step 1: Compute current values of needed parameters w_{i} */
+        if (useLazy && i > 0)
+        {
+            for(j = jc[i]; j < jc[i+1]; j++)
+            {
+                if (lastVisited[ir[j]] == 0)
+                {  // or we can let lastVisited[-1] = 0
+                    w[ir[j]] -= G[ir[j]] * cumSum[i-1];
+                }
+                else { // if lastVisited[ir[j]] > 0
+                    w[ir[j]] -= G[ir[j]] * (cumSum[i-1] - cumSum[lastVisited[ir[j]]-1]);
+                }
+                lastVisited[ir[j]] = i;
+            }
+        }
+
+        /* Step 2:  Compute derivative of loss \nabla f(w_{i}) */
         innerProdI = 0;
         innerProdZ = 0;
         if (sparse)
@@ -108,21 +133,31 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         }
         tmpDelta = -y[idx] / (1 + exp(y[idx] * innerProdI)) + y[idx] / (1 + exp(y[idx] * innerProdZ));
 
-        /* Update parameters */
+        // update cumSum
         if (useScaling)
         {
             c *= 1-eta*lambda;
             tmpFactor = eta / c;
 
-#if USE_BLAS
-            //cblas_daxpy(nVars, -tmpFactor, G, 1, w, 1);
-#else
-            for(j = 0; j < nVars; j++)
+            if (useLazy)
             {
-                w[j] -= tmpFactor * G[j];
+                if (i == 0)
+                    cumSum[0] = tmpFactor;
+                else
+                    cumSum[i] = cumSum[i-1] + tmpFactor;
             }
+            else
+            {
+#if USE_BLAS
+                cblas_daxpy(nVars, -tmpFactor, G, 1, w, 1);
+#else
+                for(j = 0; j < nVars; j++)
+                {
+                    w[j] -= tmpFactor * G[j];
+                }
 #endif
-            tmpFactor = eta / c * tmpDelta; // tmpFactor is used for next if-else
+                tmpFactor = eta / c * tmpDelta; // tmpFactor is used for next if-else
+            }
         }
         else
         {
@@ -139,6 +174,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             tmpFactor = eta * tmpDelta;
         }
 
+        /* Step 3: approximate w_{i+1} */
         if (sparse)
         {
 #if USE_BLAS
@@ -163,10 +199,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 #endif
         }
 
-        /* Re-normalize the parameter vector if it has gone numerically crazy */
+        // Re-normalize the parameter vector if it has gone numerically crazy
         if(c > 1e100 || c < -1e100 || (c > 0 && c < 1e-100) || (c < 0 && c > -1e-100))
         {
-
 #if USE_BLAS
             cblas_dscal(nVars, c, w, 1);
 #else
@@ -176,6 +211,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             }
 #endif
             c = 1;
+        }
+    }
+
+    if (useLazy)
+    {
+        for(j = 0; j < nVars; j++)
+        {
+            if (lastVisited[j] == 0)
+            {
+                w[j] -= G[j] * cumSum[maxIter-1];
+            }
+            else
+            {
+                w[j] -= G[j] * (cumSum[maxIter-1] - cumSum[lastVisited[j]-1]);
+            }
         }
     }
 
@@ -189,6 +239,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             w[j] *= c;
         }
 #endif
+    }
+
+    if(useLazy)
+    {
+        mxFree(lastVisited);
+        mxFree(cumSum);
     }
     return;
 }
