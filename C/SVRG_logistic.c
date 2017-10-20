@@ -143,8 +143,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         if (sparse)
         {
 #if USE_BLAS
-            //printf("nz: %d, Xt: %ld, indx: %ld\n", jc[idx+1] - jc[idx], Xt + jc[idx], (int *)ir + jc[idx]);
-            cblas_daxpyi(jc[idx+1] - jc[idx], -tmpFactor, Xt + jc[idx], ir + jc[idx], w);
+            cblas_daxpyi(jc[idx+1] - jc[idx], -tmpFactor, Xt + jc[idx], (int *)(ir + jc[idx]), w);
+            // @NOTE (int *) here is 64bit because mwIndex is 64bit, and we have to link libmkl_intel_ilp64.a for 64bit integer
 #else
             for(j = jc[idx]; j < jc[idx+1]; j++)
             {
