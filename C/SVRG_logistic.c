@@ -1,7 +1,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
-#include "mex.h"
+//#include "mex.h"
+#include "/usr/local/MATLAB/R2017a/extern/include/mex.h"
 #include "mkl.h"
 #define DEBUG 0
 #define USE_BLAS 1
@@ -19,10 +20,6 @@ SVRG_logistic(w,Xt,y,lambda,eta,d,g);
 */
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-
-#if DEBUG
-    printf("Entering mex function...\n");
-#endif
     /* Variables */
     int nSamples, maxIter;
     int sparse = 0, useScaling = 1, useLazy=1,*lastVisited;
@@ -145,6 +142,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
                     cumSum[0] = tmpFactor;
                 else
                     cumSum[i] = cumSum[i-1] + tmpFactor;
+#if DEBUG
+                printf("cumSum[%d]: %lf\n", i, cumSum[i]);
+#endif
             }
             else
             {
@@ -156,8 +156,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
                     w[j] -= tmpFactor * G[j];
                 }
 #endif
-                tmpFactor = eta / c * tmpDelta; // tmpFactor is used for next if-else
             }
+            tmpFactor = eta / c * tmpDelta; // tmpFactor is used for next if-else
         }
         else
         {
@@ -202,6 +202,19 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         // Re-normalize the parameter vector if it has gone numerically crazy
         if(c > 1e100 || c < -1e100 || (c > 0 && c < 1e-100) || (c < 0 && c > -1e-100))
         {
+
+            if (useLazy)
+            {
+                for(j = 0; j < nVars; j++)
+                {
+                    if (lastVisited[j] == 0)
+                        w[j] -= G[j] * cumSum[i];
+                    else
+                        w[j] -= G[j] * (cumSum[i]-cumSum[lastVisited[j]-1]);
+                    lastVisited[j] = i+1;
+                }
+                cumSum[i] = 0;
+            }
 #if USE_BLAS
             cblas_dscal(nVars, c, w, 1);
 #else
