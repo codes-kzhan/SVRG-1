@@ -73,8 +73,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     for (i = 0; i < maxIter; i++)
     {
-        //i = k % nSamples; // deterministic order
         idx = rand() % nSamples;  // sample
+        //idx = i; // % nSamples;
 
         /* Compute derivative of loss */
         innerProdI = 0;
@@ -100,11 +100,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             }
         }
         tmpDelta = -y[idx] / (1 + exp(y[idx] * innerProdI)) + y[idx] / (1 + exp(y[idx] * innerProdZ));
-#if DEBUG
-        printf("tmpDelta: %lf\n", tmpDelta);
-        printf("w[0]: %lf\n", w[0]);
-        printf("wtilde[0]: %lf\n", wtilde[0]);
-#endif
 
         /* Update parameters */
         if (useScaling)
@@ -136,9 +131,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 #endif
             tmpFactor = eta * tmpDelta;
         }
-#if DEBUG
-        printf("w[0]: %lf\n", w[0]);
-#endif
 
         if (sparse)
         {
@@ -163,16 +155,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             }
 #endif
         }
-#if DEBUG
-        printf("w[0]: %lf\n", w[0]);
-#endif
 
         /* Re-normalize the parameter vector if it has gone numerically crazy */
         if(c > 1e100 || c < -1e100 || (c > 0 && c < 1e-100) || (c < 0 && c > -1e-100))
         {
-#if DEBUG
-            printf("Oops, we have to re-nomalize...\n");
-#endif
 
 #if USE_BLAS
             cblas_dscal(nVars, c, w, 1);
@@ -188,10 +174,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     if(useScaling)
     {
-#if DEBUG
-        printf("Oops, we are using scaling ...\n");
-#endif
-
 #if USE_BLAS
         cblas_dscal(nVars, c, w, 1);
 #else

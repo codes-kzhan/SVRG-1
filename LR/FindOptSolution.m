@@ -27,21 +27,24 @@ reward = 0;
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
 
-    for i = 1:iterNum
-        idx = randperm(n, batchSize);
-        Xtmp = X(:, idx);
-        ytmp = y(idx);
-        % new gradient
-        tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
-        % old gradient
-        tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
-        wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
+    % for i = 1:iterNum
+    %     idx = randperm(n, batchSize);
+    %     Xtmp = X(:, idx);
+    %     ytmp = y(idx);
+    %     % new gradient
+    %     tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
+    %     % old gradient
+    %     tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
+    %     wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
+    %
+    %     wDelta2 = wDelta1 + lambda * w;
+    %     wDelta3 = wDelta2 + ntilde;
+    %     w = w - eta * wDelta3;
+    % end
+    ntilde = full(ntilde);
+    SVRG_logistic_inner(w, wtilde, ntilde, X, y, lambda, eta, iterNum);
+    wtilde(:) = w(:); % to avoid copy-on-write
 
-        wDelta2 = wDelta1 + lambda * w;
-        wDelta3 = wDelta2 + ntilde;
-        w = w - eta * wDelta3;
-    end
-    wtilde = w;
     currentCost = objFunc.PrintCost(wtilde, X, y, s);
     if currentCost <= optCost
         optCost = currentCost;
