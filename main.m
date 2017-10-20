@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'rcv1';
+dataset = 'avazu';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
@@ -8,6 +8,7 @@ if strcmp(dataset, 'covtype')
     factor = 1/2;
     factorNR = 1/2;
     alpha = 1;
+    factorIAG = 1e-5;
     lambda = 1e-5;
     batchSize = 1;
 
@@ -68,16 +69,28 @@ elseif strcmp(dataset, 'MNIST')
 %     lambda = 1e-5;
 %     batchSize = 64;
 
+% elseif strcmp(dataset, 'avazu')
+%     passes = 10;
+%     factor = 10;
+%     factorNR = 10;
+%     factorIAG = 0.05;
+%     factorDIG = 1;
+%     alpha = 9;
+%     alphaNR = 9;
+%     lambda = 1e-8;
+%     batchSize = 64;
+%     ourlimit = 5000;
+
 elseif strcmp(dataset, 'avazu')
     passes = 10;
-    factor = 10;
+    factor = 1;
     factorNR = 10;
-    factorIAG = 0.05;
+    factorIAG = 5e-6;
     factorDIG = 1;
     alpha = 9;
     alphaNR = 9;
     lambda = 1e-8;
-    batchSize = 64;
+    batchSize = 1;
     ourlimit = 5000;
 
 elseif strcmp(dataset, 'criteo')
@@ -127,9 +140,9 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 % subOptDIG = DIG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorDIG, batchSize, dataset, gridNum, ourlimit);
 % subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
 % subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alphaNR, batchSize, dataset, gridNum);
-% subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
+subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % subOptA = SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
-subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, dataset, gridNum);
+% subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 % subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
 % subOptRR = SVRGRR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 

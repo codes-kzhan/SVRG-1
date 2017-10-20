@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 #include "mex.h"
 #include "mkl.h"
@@ -19,6 +20,10 @@ SVRG_logistic(w,Xt,y,lambda,eta,d,g);
 */
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
+
+#if DEBUG
+    printf("Entering mex function...\n");
+#endif
     /* Variables */
     int nSamples, maxIter;
     int sparse = 0, useScaling = 1;
@@ -53,7 +58,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         mexErrMsgTxt("number of columns of Xt must be the same as the number of rows in y");
 
     srand(time(NULL));
-    //printf("size of index: %d, size of int: %d\n", sizeof(mwIndex), sizeof(int));
+#if DEBUG
+    printf("here we are\n");
+#endif
 
     // sparse matrix uses scaling and lazy stuff
     if (mxIsSparse(prhs[3]))
@@ -69,8 +76,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     if (sparse && eta * lambda == 1)
         mexErrMsgTxt("Sorry, I don't like it when Xt is sparse and eta*lambda=1\n");
-        // why not?
 
+    // @NOTE main loop
     for (i = 0; i < maxIter; i++)
     {
         idx = rand() % nSamples;  // sample
@@ -108,7 +115,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             tmpFactor = eta / c;
 
 #if USE_BLAS
-            cblas_daxpy(nVars, -tmpFactor, G, 1, w, 1);
+            //cblas_daxpy(nVars, -tmpFactor, G, 1, w, 1);
 #else
             for(j = 0; j < nVars; j++)
             {

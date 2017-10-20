@@ -5,6 +5,7 @@ fprintf('Fitting data with SVRG ...\n');
 % initialization
 [d, n] = size(X);
 iterNum = round(n/batchSize);
+% iterNum = 10;
 lambda = objFunc.lambda;
 
 eta = factor / objFunc.L

@@ -1,5 +1,7 @@
 #include <math.h>
 #include "mex.h"
+#include <time.h>
+#include <stdlib.h>
 #define DEBUG 0
 
 /*
@@ -56,6 +58,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     if (nSamples != mxGetM(prhs[6]))
         mexErrMsgTxt("Xt and g must have the same number of columns");
 
+    srand(time(NULL));
+
     // sparse matrix uses scaling and lazy stuff
     if (mxIsSparse(prhs[1])) {
         sparse = 1;
@@ -83,7 +87,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     for(k = 0; k < maxIter; k++)
     {
         /* Select next training example */
-        i = k % nSamples;
+        //i = k % nSamples;
+        i = rand() % nSamples;  // sample
 
         /* Compute current values of needed parameters */
         if (useLazy && k > 0) {
