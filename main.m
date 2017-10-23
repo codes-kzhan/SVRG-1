@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'avazu';
+dataset = 'criteo';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
@@ -94,11 +94,11 @@ elseif strcmp(dataset, 'avazu')
     ourlimit = 5000;
 
 elseif strcmp(dataset, 'criteo')
-    passes = 6;
+    passes = 1;
     factor = 1/2;
     alpha = 1;
     lambda = 1e-5;
-    batchSize = 64;
+    batchSize = 1;
 elseif strcmp(dataset, 'HIGGS')
     passes = 20;
     factor = 0.1;
