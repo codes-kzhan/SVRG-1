@@ -11,12 +11,13 @@ lambda = objFunc.lambda;
 eta = factor / objFunc.L
 % eta = 5e-1
 
-if issparse(X)
-    wtilde = sparse(d, 1);
-else
-    wtilde = zeros(d, 1);
-end
-w = wtilde;
+% if issparse(X)
+%     wtilde = sparse(d, 1);
+% else
+%     wtilde = zeros(d, 1);
+% end
+wtilde = zeros(d, 1);
+w(:) = wtilde(:);
 
 
 initCost = objFunc.PrintCost(wtilde, X, y, 0);
@@ -28,11 +29,12 @@ tstart = tic;
 tau2 = 1/2;
 % tau1 = min(sqrt(iterNum * objFunc.mu / 3 / objFunc.L), 1/2);
 % alpha = 1/(3 * tau1 * objFunc.L);
-u = wtilde;
-z = wtilde;
+u(:) = wtilde(:);
+z(:) = wtilde(:);
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
+    ntilde = full(ntilde);
     tau1 = 1/(s+2);
     alpha = factor/(3 * tau1 * objFunc.L);
 

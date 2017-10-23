@@ -17,20 +17,24 @@ SVRG_logistic(w,Xt,y,lambda,eta,d,g);
 % lambda - scalar regularization param
 % eta - scalar constant step size
 % maxIter - maximal iterations of inner loop
+% u(p,1) - updated in place
+% z(p,1) - updated in place
+% tau1 - parameter
+% tau2 - parameter
 */
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     /* Variables */
     int nSamples, maxIter;
-    int sparse = 0, useScaling = 1, useLazy=1,*lastVisited;
+    int sparse = 0;
     long i, idx, j, nVars;
 
     mwIndex *jc, *ir;
 
-    double *w, *wtilde, *G, *Xt, *y, lambda, eta, innerProdI, innerProdZ, tmpDelta, c = 1, tmpFactor, *cumSum;
+    double *w, *wtilde, *G, *Xt, *y, lambda, eta, *u, *z, tau1, tau2, *znew, innerProdI, innerProdZ, tmpDelta, c = 1, tmpFactor;
 
-    if (nrhs != 8)
-        mexErrMsgTxt("Function needs 8 arguments");
+    if (nrhs != 12)
+        mexErrMsgTxt("Function needs 12 arguments");
 
     /* Input */
 
@@ -42,6 +46,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     lambda = mxGetScalar(prhs[5]);
     eta = mxGetScalar(prhs[6]);
     maxIter = (int)mxGetScalar(prhs[7]);
+    u = mxGetPr(prhs[8]);
+    z = mxGetPr(prhs[9]);
+    tau1 = mxGetScalar(prhs[10]);
+    tau2 = mxGetScalar(prhs[11]);
 
     /* Compute Sizes */
     nVars = mxGetM(prhs[3]);
@@ -52,8 +60,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         mexErrMsgTxt("w and Xt must have the same number of rows");
     if (nSamples != mxGetM(prhs[4]))
         mexErrMsgTxt("number of columns of Xt must be the same as the number of rows in y");
+    if (nVars != mxGetM(prhs[8]))
+        mexErrMsgTxt("w and u must have the same number of rows");
+    if (nVars != mxGetM(prhs[9]))
+        mexErrMsgTxt("w and z must have the same number of rows");
 
     srand(time(NULL));
+
+    znew = mxCalloc(nVars, sizeof(double));
+#if DEBUG
+    mexPrintf("here we are\n");
+#endif
 
     // sparse matrix uses scaling and lazy stuff
     if (mxIsSparse(prhs[3]))
@@ -62,49 +79,31 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         jc = mxGetJc(prhs[3]);
         ir = mxGetIr(prhs[3]);
     }
-    else
-    {
-        useScaling = 0;
-        useLazy = 0;
-    }
 
     if (sparse && eta * lambda == 1)
     {
         mexErrMsgTxt("Sorry, I don't like it when Xt is sparse and eta*lambda=1\n");
     }
 
-    /* Allocate memory needed for lazy updates */
-    if (useLazy)
-    {
-        lastVisited = mxCalloc(nVars,sizeof(int));
-        cumSum = mxCalloc(maxIter,sizeof(double));
-    }
-
-
-#if DEBUG
-    mexPrintf("maxIter: %d\n", maxIter);
-#endif
     // @NOTE main loop
     for (i = 0; i < maxIter; i++)
     {
         idx = rand() % nSamples;  // sample
         //idx = i; // % nSamples;
 
-        /* Step 1: Compute current values of needed parameters w_{i} */
-        if (useLazy && i > 0)
-        {
-            for(j = jc[i]; j < jc[i+1]; j++)
-            {
-                if (lastVisited[ir[j]] == 0)
-                {  // or we can let lastVisited[-1] = 0
-                    w[ir[j]] -= G[ir[j]] * cumSum[i-1];
-                }
-                else { // if lastVisited[ir[j]] > 0
-                    w[ir[j]] -= G[ir[j]] * (cumSum[i-1] - cumSum[lastVisited[ir[j]]-1]);
-                }
-                lastVisited[ir[j]] = i;
-            }
-        }
+        /* Step 1: update w */
+#if USE_BLAS
+
+#else
+
+#endif
+
+        /* Step 2: calculate the new z */
+
+        /* Step 3: update u */
+
+        /* Step 4: update z */
+
 
         /* Step 2:  Compute derivative of loss \nabla f(w_{i}) */
         innerProdI = 0;
@@ -143,6 +142,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
                     cumSum[0] = tmpFactor;
                 else
                     cumSum[i] = cumSum[i-1] + tmpFactor;
+#if DEBUG
+                printf("cumSum[%d]: %lf\n", i, cumSum[i]);
+#endif
             }
             else
             {
