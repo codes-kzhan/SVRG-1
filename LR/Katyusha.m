@@ -38,7 +38,7 @@ for s = 1:passes % for each epoch
     tau1 = 1/(s+2);
     alpha = factor/(3 * tau1 * objFunc.L);
 
-    for i = 1:iterNum
+    % for i = 1:iterNum
         % idx = mod(i-1, n) + 1;
         % idx = randperm(n, batchSize);
         % w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;
@@ -57,9 +57,9 @@ for s = 1:passes % for each epoch
         % znew = z - alpha * wDelta;
         % u = w + tau1 * (znew - z);
         % z = znew;
-        Katyusha_logistic(w, wtilde, ntilde, X, y, lambda, eta, iterNum, u, z, tau1, tau2);
 
-    end
+    % end
+    Katyusha_logistic(w, wtilde, ntilde, X, y, lambda, eta, iterNum, u, z, tau1, tau2);
     wtilde = u;
 
     % print and plot

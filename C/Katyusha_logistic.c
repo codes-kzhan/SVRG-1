@@ -4,7 +4,7 @@
 //#include "mex.h"
 #include "/usr/local/MATLAB/R2017a/extern/include/mex.h"
 #include "mkl.h"
-#define DEBUG 0
+#define DEBUG 1
 #define USE_BLAS 1
 
 /*
@@ -68,9 +68,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     srand(time(NULL));
 
     znew = mxCalloc(nVars, sizeof(double));
-#if DEBUG
-    mexPrintf("here we are\n");
-#endif
 
     // sparse matrix uses scaling and lazy stuff
     if (mxIsSparse(prhs[3]))
@@ -122,20 +119,30 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
                 innerProdZ += wtilde[j] * Xt[j + nVars * idx];
             }
         }
-        tmpDelta = -eta * y[idx] / (1 + exp(y[idx] * innerProdI)) + y[idx] / (1 + exp(y[idx] * innerProdZ));
+        tmpDelta = -y[idx] / (1 + exp(y[idx] * innerProdI)) + y[idx] / (1 + exp(y[idx] * innerProdZ));
 #if USE_BLAS
+
         cblas_dcopy(nVars, z, 1, znew, 1);
         cblas_daxpy(nVars, -eta, G, 1, znew, 1);
         cblas_daxpy(nVars, -eta*lambda, w, 1, znew, 1);
 
-        //cblas_daxpyi(jc[idx+1] - jc[idx], -tmpFactor, Xt + jc[idx], (int *)(ir + jc[idx]), w);
-        for(j = jc[idx]; j < jc[idx+1]; j++)
+        if (sparse)
         {
-            znew[ir[j]] -= tmpDelta * Xt[j];
+            //cblas_daxpyi(jc[idx+1] - jc[idx], -tmpDelta, Xt + jc[idx], (int *)(ir + jc[idx]), w);
+            for(j = jc[idx]; j < jc[idx+1]; j++)
+            {
+                printf("ir[%ld]: %d\n", j, ir[j]);
+                znew[ir[j]] -= tmpDelta * Xt[j];
+            }
+        }
+        else
+        {
+            cblas_daxpy(nVars, -eta * tmpDelta, Xt + idx * nVars, 1, znew, 1);
         }
 #else
         // @TODO
 #endif
+
 
         /* Step 3: update u */
 #if USE_BLAS
