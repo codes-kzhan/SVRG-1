@@ -17,7 +17,9 @@ eta = factor / objFunc.L
 %     wtilde = zeros(d, 1);
 % end
 wtilde = zeros(d, 1);
-w(:) = wtilde(:);
+w = zeros(d, 1);
+u = zeros(d, 1);
+z = zeros(d, 1);
 
 
 initCost = objFunc.PrintCost(wtilde, X, y, 0);
@@ -29,8 +31,6 @@ tstart = tic;
 tau2 = 1/2;
 % tau1 = min(sqrt(iterNum * objFunc.mu / 3 / objFunc.L), 1/2);
 % alpha = 1/(3 * tau1 * objFunc.L);
-u(:) = wtilde(:);
-z(:) = wtilde(:);
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
@@ -40,23 +40,24 @@ for s = 1:passes % for each epoch
 
     for i = 1:iterNum
         % idx = mod(i-1, n) + 1;
-        idx = randperm(n, batchSize);
-        w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;
-
-        Xtmp = X(:, idx);
-        ytmp = y(idx);
-        % new gradient
-        tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
-        % old gradient
-        tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
-        wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
-
-        wDelta2 = wDelta1 + lambda * w;
-        wDelta = wDelta2 + ntilde;
-
-        znew = z - alpha * wDelta;
-        u = w + tau1 * (znew - z);
-        z = znew;
+        % idx = randperm(n, batchSize);
+        % w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;
+        %
+        % Xtmp = X(:, idx);
+        % ytmp = y(idx);
+        % % new gradient
+        % tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
+        % % old gradient
+        % tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
+        % wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
+        %
+        % wDelta2 = wDelta1 + lambda * w;
+        % wDelta = wDelta2 + ntilde;
+        %
+        % znew = z - alpha * wDelta;
+        % u = w + tau1 * (znew - z);
+        % z = znew;
+        Katyusha_logistic(w, wtilde, ntilde, X, y, lambda, eta, iterNum, u, z, tau1, tau2);
 
     end
     wtilde = u;
