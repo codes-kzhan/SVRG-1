@@ -44,7 +44,7 @@ for s = 1:passes% for each iteration
     % % update what we store
     % sumIG = sumIG - oldGrad + newGrad;
     % gradients(:, idx) = newGrad;
-    SAG_logistic(w, X, y, lambda, eta, sumIG, gradients, iterNum);
+    IAG_logistic(w, X, y, lambda, eta, sumIG, gradients, iterNum);
 
     cost = objFunc.PrintCost(w, X, y, s);
     if cost <= objFunc.optCost

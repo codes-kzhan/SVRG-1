@@ -24,12 +24,9 @@ classdef LR
         % compute gradient without regularizer
         function gradient = Gradient(~, w, X, y)
             [d, n] = size(X);
-            tmpExp = exp(-y .* (X' * w))'; % 1-by-n vector
+            tmpExp = exp(y .* (X' * w)); % n-by-1 vector
             % tmpOnes = ones(n, 1);
-            g1 = tmpExp./(1 + tmpExp);
-            g2 = -y' .* g1;
-            g3 = g2 .* X;
-            gradient = mean(g3, 2);
+            gradient = -1/n * (X*(y./(1+tmpExp)));
         end
 
         % compute hypothesis

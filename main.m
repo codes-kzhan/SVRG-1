@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'MNIST';
+dataset = 'avazu';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
@@ -82,7 +82,7 @@ elseif strcmp(dataset, 'MNIST')
 %     ourlimit = 5000;
 
 elseif strcmp(dataset, 'avazu')
-    passes = 10;
+    passes = 1;
     factor = 1;
     factorNR = 10;
     factorIAG = 5e-6;
@@ -142,7 +142,7 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 % subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alphaNR, batchSize, dataset, gridNum);
 subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 % subOptA = SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
-% subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, dataset, gridNum);
+subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 % subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
 % subOptRR = SVRGRR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
