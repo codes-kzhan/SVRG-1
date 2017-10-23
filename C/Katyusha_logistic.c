@@ -31,7 +31,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     mwIndex *jc, *ir;
 
-    double *w, *wtilde, *G, *Xt, *y, lambda, eta, *u, *z, tau1, tau2, *znew, innerProdI, innerProdZ, tmpDelta, c = 1, tmpFactor;
+    double *w, *wtilde, *G, *Xt, *y, lambda, eta, *u, *z, tau1, tau2, *znew, innerProdI, innerProdZ, tmpDelta, *tmpPtr;
 
     if (nrhs != 12)
         mexErrMsgTxt("Function needs 12 arguments");
@@ -93,19 +93,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
         /* Step 1: update w */
 #if USE_BLAS
-
+        tmpPtr = w;
+        w = u;
+        u = tmpPtr;
+        cblas_daxpby(nVars, tau2, wtilde, 1, 1 - tau1 - tau2, w, 1);
+        cblas_daxpy(nVars, tau1, z, 1, w, 1);
 #else
-
+        // @TODO
 #endif
 
         /* Step 2: calculate the new z */
-
-        /* Step 3: update u */
-
-        /* Step 4: update z */
-
-
-        /* Step 2:  Compute derivative of loss \nabla f(w_{i}) */
+        // compute derivative first
         innerProdI = 0;
         innerProdZ = 0;
         if (sparse)
@@ -114,10 +112,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             {
                 innerProdI += w[ir[j]] * Xt[j];
                 innerProdZ += wtilde[ir[j]] * Xt[j];
-            }
-            if (useScaling)
-            {
-                innerProdI *= c;
             }
         }
         else
@@ -128,136 +122,36 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
                 innerProdZ += wtilde[j] * Xt[j + nVars * idx];
             }
         }
-        tmpDelta = -y[idx] / (1 + exp(y[idx] * innerProdI)) + y[idx] / (1 + exp(y[idx] * innerProdZ));
-
-        // update cumSum
-        if (useScaling)
-        {
-            c *= 1-eta*lambda;
-            tmpFactor = eta / c;
-
-            if (useLazy)
-            {
-                if (i == 0)
-                    cumSum[0] = tmpFactor;
-                else
-                    cumSum[i] = cumSum[i-1] + tmpFactor;
-#if DEBUG
-                printf("cumSum[%d]: %lf\n", i, cumSum[i]);
-#endif
-            }
-            else
-            {
+        tmpDelta = -eta * y[idx] / (1 + exp(y[idx] * innerProdI)) + y[idx] / (1 + exp(y[idx] * innerProdZ));
 #if USE_BLAS
-                cblas_daxpy(nVars, -tmpFactor, G, 1, w, 1);
-#else
-                for(j = 0; j < nVars; j++)
-                {
-                    w[j] -= tmpFactor * G[j];
-                }
-#endif
-            }
-            tmpFactor = eta / c * tmpDelta; // tmpFactor is used for next if-else
-        }
-        else
+        cblas_dcopy(nVars, z, 1, znew, 1);
+        cblas_daxpy(nVars, -eta, G, 1, znew, 1);
+        cblas_daxpy(nVars, -eta*lambda, w, 1, znew, 1);
+
+        //cblas_daxpyi(jc[idx+1] - jc[idx], -tmpFactor, Xt + jc[idx], (int *)(ir + jc[idx]), w);
+        for(j = jc[idx]; j < jc[idx+1]; j++)
         {
+            znew[ir[j]] -= tmpDelta * Xt[j];
+        }
+#else
+        // @TODO
+#endif
+
+        /* Step 3: update u */
 #if USE_BLAS
-            cblas_daxpby(nVars, -eta, G, 1, 1 - eta * lambda, w, 1);
+        tmpPtr = u;
+        u = z;
+        z = tmpPtr;
+        cblas_daxpby(nVars, tau1, znew, 1, -tau1, u, 1);
+        cblas_daxpy(nVars, 1, w, 1, u, 1);
 #else
-            tmpFactor = 1 - eta * lambda;
-            for(j = 0; j < nVars; j++)
-            {
-                w[j] *= tmpFactor;
-                w[j] -= eta * G[j];
-            }
+        // @TODO
 #endif
-            tmpFactor = eta * tmpDelta;
-        }
 
-        /* Step 3: approximate w_{i+1} */
-        if (sparse)
-        {
-#if USE_BLAS_SPARSE
-            cblas_daxpyi(jc[idx+1] - jc[idx], -tmpFactor, Xt + jc[idx], (int *)(ir + jc[idx]), w);
-            // @NOTE (int *) here is 64bit because mwIndex is 64bit, and we have to link libmkl_intel_ilp64.a for 64bit integer
-#else
-            for(j = jc[idx]; j < jc[idx+1]; j++)
-            {
-                w[ir[j]] -= tmpFactor * Xt[j];
-            }
-#endif
-        }
-        else
-        {
-#if USE_BLAS
-            cblas_daxpy(nVars, -tmpFactor, Xt + nVars * idx, 1, w, 1);
-#else
-            for(j = 0; j < nVars; j++)
-            {
-                w[j] -= tmpFactor * Xt[j + nVars * idx];
-            }
-#endif
-        }
-
-        // Re-normalize the parameter vector if it has gone numerically crazy
-        if(c > 1e100 || c < -1e100 || (c > 0 && c < 1e-100) || (c < 0 && c > -1e-100))
-        {
-
-            if (useLazy)
-            {
-                for(j = 0; j < nVars; j++)
-                {
-                    if (lastVisited[j] == 0)
-                        w[j] -= G[j] * cumSum[i];
-                    else
-                        w[j] -= G[j] * (cumSum[i]-cumSum[lastVisited[j]-1]);
-                    lastVisited[j] = i+1;
-                }
-                cumSum[i] = 0;
-            }
-#if USE_BLAS
-            cblas_dscal(nVars, c, w, 1);
-#else
-            for(j = 0; j < nVars; j++)
-            {
-                w[j] = c * w[j];
-            }
-#endif
-            c = 1;
-        }
-    }
-
-    if (useLazy)
-    {
-        for(j = 0; j < nVars; j++)
-        {
-            if (lastVisited[j] == 0)
-            {
-                w[j] -= G[j] * cumSum[maxIter-1];
-            }
-            else
-            {
-                w[j] -= G[j] * (cumSum[maxIter-1] - cumSum[lastVisited[j]-1]);
-            }
-        }
-    }
-
-    if(useScaling)
-    {
-#if USE_BLAS
-        cblas_dscal(nVars, c, w, 1);
-#else
-        for(j = 0; j < nVars; j++)
-        {
-            w[j] *= c;
-        }
-#endif
-    }
-
-    if(useLazy)
-    {
-        mxFree(lastVisited);
-        mxFree(cumSum);
+        /* Step 4: update z */
+        tmpPtr = z;
+        z = znew;
+        znew = tmpPtr;
     }
     return;
 }
