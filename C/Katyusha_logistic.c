@@ -4,7 +4,7 @@
 //#include "mex.h"
 #include "/usr/local/MATLAB/R2017a/extern/include/mex.h"
 #include "mkl.h"
-#define DEBUG 1
+#define DEBUG 0
 #define USE_BLAS 1
 
 /*
@@ -21,11 +21,12 @@ SVRG_logistic(w,Xt,y,lambda,eta,d,g);
 % z(p,1) - updated in place
 % tau1 - parameter
 % tau2 - parameter
+% iVals - random indices
 */
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     /* Variables */
-    int nSamples, maxIter;
+    int nSamples, maxIter, *iVals;
     int sparse = 0;
     long i, idx, j, nVars;
 
@@ -33,8 +34,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     double *w, *wtilde, *G, *Xt, *y, lambda, eta, *u, *z, tau1, tau2, *znew, innerProdI, innerProdZ, tmpDelta, *tmpPtr, *uBackup, *zBackup;
 
-    if (nrhs != 12)
-        mexErrMsgTxt("Function needs 12 arguments");
+    if (nrhs != 13)
+        mexErrMsgTxt("Function needs 13 arguments");
 
     /* Input */
 
@@ -50,6 +51,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     zBackup = mxGetPr(prhs[9]);
     tau1 = mxGetScalar(prhs[10]);
     tau2 = mxGetScalar(prhs[11]);
+    iVals = (int *)mxGetPr(prhs[12]);
 
     /* Compute Sizes */
     nVars = mxGetM(prhs[3]);
@@ -94,7 +96,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     // @NOTE main loop
     for (i = 0; i < maxIter; i++)
     {
-        idx = rand() % nSamples;  // sample
+        //idx = rand() % nSamples;  // sample
+        idx = iVals[i] - 1;  // sample
 #if DEBUG
         if (i == 0)
             printf("idx: %ld\n", idx);

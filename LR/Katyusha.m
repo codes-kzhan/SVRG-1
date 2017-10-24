@@ -59,7 +59,8 @@ for s = 1:passes % for each epoch
         % z = znew;
 
     % end
-    Katyusha_logistic(w, wtilde, ntilde, X, y, lambda, alpha, iterNum, u, z, tau1, tau2);
+    iVals = int32(ceil(n*rand(iterNum, 1)));
+    Katyusha_logistic(w, wtilde, ntilde, X, y, lambda, alpha, iterNum, u, z, tau1, tau2, iVals);
     wtilde(:) = u(:);
 
     % print and plot
