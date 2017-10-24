@@ -4,7 +4,7 @@
 //#include "mex.h"
 #include "/usr/local/MATLAB/R2017a/extern/include/mex.h"
 #include "mkl.h"
-#define DEBUG 1
+#define DEBUG 0
 #define USE_BLAS 1
 
 /*
@@ -31,7 +31,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     mwIndex *jc, *ir;
 
-    double *w, *wtilde, *G, *Xt, *y, lambda, eta, *u, *z, tau1, tau2, *znew, innerProdI, innerProdZ, tmpDelta, *tmpPtr;
+    double *w, *wtilde, *G, *Xt, *y, lambda, eta, *u, *z, tau1, tau2, *znew, innerProdI, innerProdZ, tmpDelta, *tmpPtr, *uBackup, *zBackup;
 
     if (nrhs != 12)
         mexErrMsgTxt("Function needs 12 arguments");
@@ -46,8 +46,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     lambda = mxGetScalar(prhs[5]);
     eta = mxGetScalar(prhs[6]);
     maxIter = (int)mxGetScalar(prhs[7]);
-    u = mxGetPr(prhs[8]);
-    z = mxGetPr(prhs[9]);
+    uBackup = mxGetPr(prhs[8]);
+    zBackup = mxGetPr(prhs[9]);
     tau1 = mxGetScalar(prhs[10]);
     tau2 = mxGetScalar(prhs[11]);
 
@@ -68,6 +68,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     srand(time(NULL));
 
     znew = mxCalloc(nVars, sizeof(double));
+    z = mxCalloc(nVars, sizeof(double));
+    u = mxCalloc(nVars, sizeof(double));
+#if USE_BLAS
+    cblas_dcopy(nVars, zBackup, 1, z, 1);
+    cblas_dcopy(nVars, uBackup, 1, u, 1);
+#else
+    // @TODO
+#endif
+
 
     // sparse matrix uses scaling and lazy stuff
     if (mxIsSparse(prhs[3]))
@@ -86,6 +95,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     for (i = 0; i < maxIter; i++)
     {
         idx = rand() % nSamples;  // sample
+#if DEBUG
+        printf("idx: %ld\n", idx);
+#endif
         //idx = i; // % nSamples;
 
         /* Step 1: update w */
@@ -132,7 +144,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             for(j = jc[idx]; j < jc[idx+1]; j++)
             {
                 printf("ir[%ld]: %d\n", j, ir[j]);
-                znew[ir[j]] -= tmpDelta * Xt[j];
+                znew[ir[j]] -= eta * tmpDelta * Xt[j];
             }
         }
         else
@@ -160,5 +172,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         z = znew;
         znew = tmpPtr;
     }
+
+#if USE_BLAS
+    cblas_dcopy(nVars, z, 1, zBackup, 1);
+    cblas_dcopy(nVars, u, 1, uBackup, 1);
+#else
+    // @TODO
+#endif
     return;
 }

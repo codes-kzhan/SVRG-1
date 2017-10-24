@@ -59,8 +59,8 @@ for s = 1:passes % for each epoch
         % z = znew;
 
     % end
-    Katyusha_logistic(w, wtilde, ntilde, X, y, lambda, eta, iterNum, u, z, tau1, tau2);
-    wtilde = u;
+    Katyusha_logistic(w, wtilde, ntilde, X, y, lambda, alpha, iterNum, u, z, tau1, tau2);
+    wtilde(:) = u(:);
 
     % print and plot
     cost = objFunc.PrintCost(wtilde, X, y, s);
@@ -81,7 +81,7 @@ wOpt = wtilde;
 
 telapsed = toc(tstart);
 fprintf('training accuracy: %f\n', objFunc.Score(wOpt, X, y));
-fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
+% fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 

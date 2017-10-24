@@ -18,9 +18,8 @@ eta = factor / objFunc.L
 % end
 wtilde = zeros(d, 1);
 w = zeros(d, 1);
-subOptimality = zeros(passes + 1, 4);
 initCost = objFunc.PrintCost(wtilde, X, y, 0);
-subOptimality(1, :) = [0, 0, 1, 1];
+subOptimality = [0, 0, 1, 1];
 
 initDistance = sum((wtilde - objFunc.optSolution).^2);
 
@@ -69,6 +68,6 @@ fprintf('time elapsed: %f\n', telapsed);
 label = 'SVRG';
 curve_style = 'r:';
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);
-% PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
+PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function
