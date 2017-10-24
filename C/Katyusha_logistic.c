@@ -4,7 +4,7 @@
 //#include "mex.h"
 #include "/usr/local/MATLAB/R2017a/extern/include/mex.h"
 #include "mkl.h"
-#define DEBUG 0
+#define DEBUG 1
 #define USE_BLAS 1
 
 /*
@@ -96,7 +96,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     {
         idx = rand() % nSamples;  // sample
 #if DEBUG
-        printf("idx: %ld\n", idx);
+        if (i == 0)
+            printf("idx: %ld\n", idx);
 #endif
         //idx = i; // % nSamples;
 
