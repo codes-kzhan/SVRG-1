@@ -72,6 +72,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     znew = mxCalloc(nVars, sizeof(double));
     z = mxCalloc(nVars, sizeof(double));
     u = mxCalloc(nVars, sizeof(double));
+    w = mxCalloc(nVars, sizeof(double));
 #if USE_BLAS
     cblas_dcopy(nVars, zBackup, 1, z, 1);
     cblas_dcopy(nVars, uBackup, 1, u, 1);
@@ -182,5 +183,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 #else
     // @TODO
 #endif
+
+    mxFree(znew);
+    mxFree(z);
+    mxFree(u);
+    mxFree(w);
     return;
 }
