@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'MNIST';
+dataset = 'rcv1';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
