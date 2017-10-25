@@ -147,7 +147,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             //cblas_daxpyi(jc[idx+1] - jc[idx], -tmpDelta, Xt + jc[idx], (int *)(ir + jc[idx]), w);
             for(j = jc[idx]; j < jc[idx+1]; j++)
             {
-                printf("ir[%ld]: %d\n", j, ir[j]);
                 znew[ir[j]] -= eta * tmpDelta * Xt[j];
             }
         }
