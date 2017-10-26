@@ -4,7 +4,7 @@
 //#include "mex.h"
 #include "/usr/local/MATLAB/R2017a/extern/include/mex.h"
 #include "mkl.h"
-#define DEBUG 1
+#define DEBUG 0
 
 /*
 SVRG_logistic(w,Xt,y,lambda,eta,d,g);
@@ -103,7 +103,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         /* Step 1: Compute current values of needed parameters u_{i} and z_{i} */
         if (i > 0)
         {
-            for(j = jc[i]; j < jc[i+1]; j++)
+            for(j = jc[idx]; j < jc[idx+1]; j++)
             {
                 tmpIdx2 = ir[j];
                 tmpIdx1 = lastVisited[tmpIdx2]-1;
@@ -129,7 +129,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         }
 
         /* Step 2: lazily update w_{i+1} */
-        for(j = jc[i]; j < jc[i+1]; j++)
+        for(j = jc[idx]; j < jc[idx+1]; j++)
         {
             tmpIdx2 = ir[j];
             w[tmpIdx2] = (1 - tau1 - tau2) * u[tmpIdx2] * cU + tau2 * wtilde[tmpIdx2] + tau1 * z[tmpIdx2] * cZ;
