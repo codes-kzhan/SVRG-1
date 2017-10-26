@@ -32,6 +32,9 @@ tau2 = 1/2;
 % tau1 = min(sqrt(iterNum * objFunc.mu / 3 / objFunc.L), 1/2);
 % alpha = 1/(3 * tau1 * objFunc.L);
 
+iterNum = 1;
+passes = 120;
+
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
     ntilde = full(ntilde);
@@ -61,6 +64,7 @@ for s = 1:passes % for each epoch
     % end
     iVals = int32(ceil(n*rand(iterNum, 1)));
     Katyusha_sparse(w, wtilde, ntilde, X, y, lambda, alpha, iterNum, u, z, tau1, tau2, iVals);
+    % Katyusha_logistic(w, wtilde, ntilde, X, y, lambda, alpha, iterNum, u, z, tau1, tau2, iVals);
     wtilde(:) = u(:);
 
     % print and plot
@@ -88,6 +92,6 @@ fprintf('time elapsed: %f\n', telapsed);
 
 label = 'Katyusha';
 curve_style = 'b-.';
-PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
+% PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function

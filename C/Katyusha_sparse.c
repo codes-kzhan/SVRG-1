@@ -4,7 +4,7 @@
 //#include "mex.h"
 #include "/usr/local/MATLAB/R2017a/extern/include/mex.h"
 #include "mkl.h"
-#define DEBUG 0
+#define DEBUG 1
 
 /*
 SVRG_logistic(w,Xt,y,lambda,eta,d,g);
@@ -95,7 +95,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     {
         //idx = rand() % nSamples;  // sample
         idx = iVals[i] - 1;  // sample
-#if DEBUG
+#if DEBUG_RANDOM
         if (i == 0)
             printf("idx: %ld\n", idx);
 #endif
@@ -178,6 +178,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         // Re-normalize the parameter vector if it has gone numerically crazy
         if((cZ > 1e100 || cZ < -1e100 || (cZ > 0 && cZ < 1e-100) || (cZ < 0 && cZ > -1e-100)) || (cU > 1e100 || cU < -1e100 || (cU > 0 && cU < 1e-100) || (cU < 0 && cU > -1e-100)))
         {
+#if DEBUG
+            mexPrintf("Oop, we have to re-normalize, i: %d\n", i);
+#endif
             for(j = 0; j < nVars; j++)
             {
                 tmpIdx2 = j;
