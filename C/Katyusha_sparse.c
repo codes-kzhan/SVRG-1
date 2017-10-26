@@ -160,12 +160,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         }
         else
         {
-            cumSumUG[i] = cumSumUG[i] - eta * tau1 / cU;
-            cumSumUZ[i] = cumSumUZ[i] + tau1 * (1 - eta * tau1 * lambda) / cU;
-            cumSumUW[i] = cumSumUW[i] + tau2 * (1 - eta * tau1 * lambda) / cU;
-            cumSumZG[i] = cumSumZG[i] - eta / cZ;
-            cumSumZU[i] = cumSumZU[i] - eta * lambda * (1 - tau1 - tau2) / cZ;
-            cumSumZW[i] = cumSumZW[i] - eta * lambda * tau2 / cZ;
+            cumSumUG[i] = cumSumUG[i-1] - eta * tau1 / cU;
+            cumSumUZ[i] = cumSumUZ[i-1] + tau1 * (1 - eta * tau1 * lambda) / cU;
+            cumSumUW[i] = cumSumUW[i-1] + tau2 * (1 - eta * tau1 * lambda) / cU;
+            cumSumZG[i] = cumSumZG[i-1] - eta / cZ;
+            cumSumZU[i] = cumSumZU[i-1] - eta * lambda * (1 - tau1 - tau2) / cZ;
+            cumSumZW[i] = cumSumZW[i-1] - eta * lambda * tau2 / cZ;
         }
 
         /* Step 4: approximate z_{i+1} and z_{i+1} */
