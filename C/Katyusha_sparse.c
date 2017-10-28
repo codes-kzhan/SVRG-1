@@ -247,7 +247,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     cblas_dscal(nVars, cU, u, 1);
 
 #if DEBUG
-    printf("cZ: %e, cU: %e\n", cZ, cU);
+    printf("cZ: %e, cU: %e, cumSumUW[%d]: %e\n", cZ, cU, maxIter-1, cumSumUW[maxIter-1]);
 #endif
 
     mxFree(lastVisited);
