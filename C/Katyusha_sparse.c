@@ -111,8 +111,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
                 {  // or we can let lastVisited[-1] = 0
                     z[tmpIdx2] += G[tmpIdx2] * cumSumZG[i-1] + wtilde[tmpIdx2] * cumSumZW[i-1];
                     u[tmpIdx2] += G[tmpIdx2] * cumSumUG[i-1] + wtilde[tmpIdx2] * cumSumUW[i-1];
-                    z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * cumSumZU[i-1]) / (1 - cumSumZU[i-1] * cumSumUZ[i-1]);
-                    u[tmpIdx2] += z[tmpIdx2] * cumSumUZ[i-1];
+                    z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * cumSumZU[i-1] * cU) / (1 - cumSumZU[i-1] * cumSumUZ[i-1] * cU * cZ);
+                    u[tmpIdx2] += z[tmpIdx2] * cumSumUZ[i-1] * cZ;
                 }
                 else
                 { // if lastVisited[ir[j]] > 0
@@ -121,7 +121,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
                     z[tmpIdx2] += G[tmpIdx2] * (cumSumZG[i-1] - cumSumZG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumZW[i-1] - cumSumZW[tmpIdx1]);
                     u[tmpIdx2] += G[tmpIdx2] * (cumSumUG[i-1] - cumSumUG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumUW[i-1] - cumSumUW[tmpIdx1]);
-                    z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * tmpFactor1) / (1 - tmpFactor1 * tmpFactor2);
+                    z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * tmpFactor1 * cU) / (1 - tmpFactor1 * tmpFactor2 * cU * cZ);
                     u[tmpIdx2] += z[tmpIdx2] * tmpFactor2;
                 }
                 lastVisited[tmpIdx2] = i;
@@ -189,8 +189,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
                 {
                     z[tmpIdx2] += G[tmpIdx2] * cumSumZG[i] + wtilde[tmpIdx2] * cumSumZW[i];
                     u[tmpIdx2] += G[tmpIdx2] * cumSumUG[i] + wtilde[tmpIdx2] * cumSumUW[i];
-                    z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * cumSumZU[i]) / (1 - cumSumZU[i] * cumSumUZ[i]);
-                    u[tmpIdx2] += z[tmpIdx2] * cumSumUZ[i];
+                    z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * cumSumZU[i] * cU) / (1 - cumSumZU[i] * cumSumUZ[i] * cZ * cU);
+                    u[tmpIdx2] += z[tmpIdx2] * cumSumUZ[i] * cZ;
                 }
                 else
                 {
@@ -199,8 +199,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
                     z[tmpIdx2] += G[tmpIdx2] * (cumSumZG[i] - cumSumZG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumZW[i] - cumSumZW[tmpIdx1]);
                     u[tmpIdx2] += G[tmpIdx2] * (cumSumUG[i] - cumSumUG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumUW[i] - cumSumUW[tmpIdx1]);
-                    z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * tmpFactor1) / (1 - tmpFactor1 * tmpFactor2);
-                    u[tmpIdx2] += z[tmpIdx2] * tmpFactor2;
+                    z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * tmpFactor1 * cU) / (1 - tmpFactor1 * tmpFactor2 * cZ * cU);
+                    u[tmpIdx2] += z[tmpIdx2] * tmpFactor2 * cZ;
                 }
                 lastVisited[j] = i+1;
             }
@@ -227,8 +227,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         {
             z[tmpIdx2] += G[tmpIdx2] * cumSumZG[i] + wtilde[tmpIdx2] * cumSumZW[i];
             u[tmpIdx2] += G[tmpIdx2] * cumSumUG[i] + wtilde[tmpIdx2] * cumSumUW[i];
-            z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * cumSumZU[i]) / (1 - cumSumZU[i] * cumSumUZ[i]);
-            u[tmpIdx2] += z[tmpIdx2] * cumSumUZ[i];
+            z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * cumSumZU[i] * cU) / (1 - cumSumZU[i] * cumSumUZ[i] * cZ * cU);
+            u[tmpIdx2] += z[tmpIdx2] * cumSumUZ[i] * cZ;
         }
         else
         {
@@ -237,8 +237,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
             z[tmpIdx2] += G[tmpIdx2] * (cumSumZG[i] - cumSumZG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumZW[i] - cumSumZW[tmpIdx1]);
             u[tmpIdx2] += G[tmpIdx2] * (cumSumUG[i] - cumSumUG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumUW[i] - cumSumUW[tmpIdx1]);
-            z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * tmpFactor1) / (1 - tmpFactor1 * tmpFactor2);
-            u[tmpIdx2] += z[tmpIdx2] * tmpFactor2;
+            z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * tmpFactor1 * cU) / (1 - tmpFactor1 * tmpFactor2 * cZ * cU);
+            u[tmpIdx2] += z[tmpIdx2] * tmpFactor2 * cZ;
         }
         lastVisited[j] = i+1;
     }
