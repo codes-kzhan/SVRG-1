@@ -120,7 +120,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
                     tmpFactor2 = cumSumUZ[i-1] - cumSumUZ[tmpIdx1];
 
                     z[tmpIdx2] += G[tmpIdx2] * (cumSumZG[i-1] - cumSumZG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumZW[i-1] - cumSumZG[tmpIdx1]);
-                    u[tmpIdx2] += G[tmpIdx2] * (cumSumUG[i-1] - cumSumUG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumUW[i-1] - cumSumUG[tmpIdx1]);
+                    u[tmpIdx2] += G[tmpIdx2] * (cumSumUG[i-1] - cumSumUG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumUW[i-1] - cumSumUW[tmpIdx1]);
                     z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * tmpFactor1) / (1 - tmpFactor1 * tmpFactor2);
                     u[tmpIdx2] += z[tmpIdx2] * tmpFactor2;
                 }
@@ -198,7 +198,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
                     tmpFactor2 = cumSumUZ[i] - cumSumUZ[tmpIdx1];
 
                     z[tmpIdx2] += G[tmpIdx2] * (cumSumZG[i] - cumSumZG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumZW[i] - cumSumZG[tmpIdx1]);
-                    u[tmpIdx2] += G[tmpIdx2] * (cumSumUG[i] - cumSumUG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumUW[i] - cumSumUG[tmpIdx1]);
+                    u[tmpIdx2] += G[tmpIdx2] * (cumSumUG[i] - cumSumUG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumUW[i] - cumSumUW[tmpIdx1]);
                     z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * tmpFactor1) / (1 - tmpFactor1 * tmpFactor2);
                     u[tmpIdx2] += z[tmpIdx2] * tmpFactor2;
                 }
@@ -236,7 +236,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             tmpFactor2 = cumSumUZ[i] - cumSumUZ[tmpIdx1];
 
             z[tmpIdx2] += G[tmpIdx2] * (cumSumZG[i] - cumSumZG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumZW[i] - cumSumZG[tmpIdx1]);
-            u[tmpIdx2] += G[tmpIdx2] * (cumSumUG[i] - cumSumUG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumUW[i] - cumSumUG[tmpIdx1]);
+            u[tmpIdx2] += G[tmpIdx2] * (cumSumUG[i] - cumSumUG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumUW[i] - cumSumUW[tmpIdx1]);
             z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * tmpFactor1) / (1 - tmpFactor1 * tmpFactor2);
             u[tmpIdx2] += z[tmpIdx2] * tmpFactor2;
         }
