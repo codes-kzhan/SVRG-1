@@ -122,7 +122,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
                     z[tmpIdx2] += G[tmpIdx2] * (cumSumZG[i-1] - cumSumZG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumZW[i-1] - cumSumZW[tmpIdx1]);
                     u[tmpIdx2] += G[tmpIdx2] * (cumSumUG[i-1] - cumSumUG[tmpIdx1]) + wtilde[tmpIdx2] * (cumSumUW[i-1] - cumSumUW[tmpIdx1]);
                     z[tmpIdx2] = (z[tmpIdx2] + u[tmpIdx2] * tmpFactor1 * cU) / (1 - tmpFactor1 * tmpFactor2 * cU * cZ);
-                    u[tmpIdx2] += z[tmpIdx2] * tmpFactor2;
+                    u[tmpIdx2] += z[tmpIdx2] * tmpFactor2 * cZ;
                 }
                 lastVisited[tmpIdx2] = i;
             }
