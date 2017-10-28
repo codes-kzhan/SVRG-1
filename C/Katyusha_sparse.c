@@ -30,7 +30,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     mwIndex *jc, *ir;
 
-    double *w, *wtilde, *G, *Xt, *y, lambda, eta, *u, *z, tau1, tau2, innerProdI, innerProdZ, tmpDeltaZ, tmpDeltaU;
+    double *w, *wtilde, *G, *Xt, *y, lambda, eta, *u, *z, tau1, tau2, innerProdI, innerProdZ, tmpDelta;
 
     double cZ = 1, cU = 1, *cumSumZG, *cumSumZW, *cumSumZU, *cumSumUG, *cumSumUZ, *cumSumUW, tmpFactor1, tmpFactor2;
     int tmpIdx1, tmpIdx2, *lastVisited;
@@ -143,8 +143,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             innerProdI += w[ir[j]] * Xt[j];
             innerProdZ += wtilde[ir[j]] * Xt[j];
         }
-        tmpDeltaZ = -y[idx] / (1 + exp(y[idx] * innerProdI * cZ)) + y[idx] / (1 + exp(y[idx] * innerProdZ));
-        tmpDeltaU = -y[idx] / (1 + exp(y[idx] * innerProdI * cU)) + y[idx] / (1 + exp(y[idx] * innerProdZ));
+        tmpDelta = -y[idx] / (1 + exp(y[idx] * innerProdI)) + y[idx] / (1 + exp(y[idx] * innerProdZ));
 
         // update cumSum
         cZ *= 1 - eta * tau1 * lambda;
@@ -172,8 +171,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         /* Step 4: approximate z_{i+1} and z_{i+1} */
         for(j = jc[idx]; j < jc[idx+1]; j++)
         {
-            z[ir[j]] -= eta / cZ * tmpDeltaZ * Xt[j];
-            u[ir[j]] -= eta * tau1 / cU * tmpDeltaU * Xt[j];
+            z[ir[j]] -= eta / cZ * tmpDelta * Xt[j];
+            u[ir[j]] -= eta * tau1 / cU * tmpDelta * Xt[j];
         }
 
         // Re-normalize the parameter vector if it has gone numerically crazy

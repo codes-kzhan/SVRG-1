@@ -32,8 +32,8 @@ tau2 = 1/2;
 % tau1 = min(sqrt(iterNum * objFunc.mu / 3 / objFunc.L), 1/2);
 % alpha = 1/(3 * tau1 * objFunc.L);
 
-iterNum = 100;
-passes = 10;
+% iterNum = 100;
+% passes = 10;
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
@@ -70,8 +70,8 @@ for s = 1:passes % for each epoch
     % u(1:10)
     wtilde(:) = u(:);
 
-    % sum(wtilde.^2)
-    sum(z.^2)
+    sum(wtilde.^2)
+    % sum(z.^2)
     % print and plot
     cost = objFunc.PrintCost(wtilde, X, y, s);
     if cost <= objFunc.optCost
