@@ -4,7 +4,7 @@
 //#include "mex.h"
 #include "/usr/local/MATLAB/R2017a/extern/include/mex.h"
 #include "mkl.h"
-#define DEBUG 1
+#define DEBUG 0
 
 /*
 SVRG_logistic(w,Xt,y,lambda,eta,d,g);

@@ -70,7 +70,8 @@ for s = 1:passes % for each epoch
     % u(1:10)
     wtilde(:) = u(:);
 
-    sum(wtilde.^2)
+    % sum(wtilde.^2)
+    sum(z.^2)
     % print and plot
     cost = objFunc.PrintCost(wtilde, X, y, s);
     if cost <= objFunc.optCost
