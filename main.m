@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'rcv1';
+dataset = 'criteo';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
@@ -102,6 +102,7 @@ elseif strcmp(dataset, 'criteo')
     alpha = 1;
     lambda = 1e-5;
     batchSize = 1;
+    ourlimit = 5000;
 elseif strcmp(dataset, 'HIGGS')
     passes = 20;
     factor = 0.1;
@@ -116,7 +117,7 @@ end
 % filename = strcat('../data/', dataset, '_dataset.mat');
 % load(filename);
 
-L = max(sum(Xtrain.^2, 1)) / 4 + lambda;
+L = sum(Xtrain(:, 1).^2, 1) / 4 + lambda;
 mu = lambda;
 logCost = LR(lambda, L, mu);
 
