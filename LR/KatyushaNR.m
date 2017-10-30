@@ -1,4 +1,4 @@
-function subOptimality = KatyushaNR(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function subOptimality = KatyushaNR(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit)
 
 fprintf('Fitting data with DVRG-K ...\n');
 
@@ -87,6 +87,10 @@ for s = 1:passes % for each epoch
         error = (cost - objFunc.optCost)/(initCost - objFunc.optCost);
         distance = sum((wtilde - objFunc.optSolution).^2) / objOptNorm;
         subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
+    end
+    now = toc(tstart);
+    if now > ourlimit
+        break;
     end
 end % epoch
 
