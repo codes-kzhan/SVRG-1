@@ -12,13 +12,14 @@ lambda = objFunc.lambda;
 eta = factor / objFunc.L
 % eta = 5e-1
 
-if issparse(X)
-    wtilde = sparse(d, 1);
-else
-    wtilde = zeros(d, 1);
-end
-w = wtilde;
-wOpt = wtilde;
+% if issparse(X)
+%     wtilde = sparse(d, 1);
+% else
+%     wtilde = zeros(d, 1);
+% end
+wtilde = zeros(d, 1);
+w = zeros(d, 1);
+wOpt = zeros(d, 1);
 optCost = objFunc.PrintCost(wtilde, X, y, 0);;
 preCost = optCost;
 reward = 0;
@@ -42,13 +43,14 @@ for s = 1:passes % for each epoch
     %     w = w - eta * wDelta3;
     % end
     ntilde = full(ntilde);
-    SVRG_logistic_inner(w, wtilde, ntilde, X, y, lambda, eta, iterNum);
+    iVals = int32(ceil(n*rand(iterNum, 1)));
+    SVRG_logistic(w, wtilde, ntilde, X, y, lambda, eta, iterNum, iVals);
     wtilde(:) = w(:); % to avoid copy-on-write
 
     currentCost = objFunc.PrintCost(wtilde, X, y, s);
     if currentCost <= optCost
         optCost = currentCost;
-        wOpt = w;
+        wOpt(:) = w(:);
         save('wOpt_tmp.mat', 'wOpt');
     end
     if currentCost == preCost

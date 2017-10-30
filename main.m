@@ -1,5 +1,5 @@
 % function main(dataset, gridNum)
-dataset = 'avazu';
+dataset = 'criteo';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
@@ -97,7 +97,7 @@ elseif strcmp(dataset, 'avazu')
     ourlimit = 5000;
 
 elseif strcmp(dataset, 'criteo')
-    passes = 1;
+    passes = 20;
     factor = 1/2;
     alpha = 1;
     lambda = 1e-5;
@@ -127,7 +127,7 @@ logCost = LR(lambda, L, mu);
 objFuncType = '_logistic_norm';
 filename = strcat('../data/', dataset, objFuncType, '_opt.mat');
 if exist(filename, 'file') ~= 2
-    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes*20, factor, batchSize);
+    wOpt = FindOptSolution(logCost, Xtrain, ytrain, Xtest, ytest, passes*10, factor, batchSize);
     save(filename, 'wOpt');
 else
     load(filename, 'wOpt');

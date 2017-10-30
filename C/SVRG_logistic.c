@@ -31,7 +31,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     double *w, *wtilde, *G, *Xt, *y, lambda, eta, innerProdI, innerProdZ, tmpDelta, c = 1, tmpFactor, *cumSum;
 
     if (nrhs != 9)
-        mexErrMsgTxt("Function needs 8 arguments");
+        mexErrMsgTxt("Function needs 9 arguments");
 
     /* Input */
 

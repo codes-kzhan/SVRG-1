@@ -43,7 +43,7 @@ for s = 1:passes % for each epoch
     %     w = w - eta * wDelta3;
     % end
     ntilde = full(ntilde);
-    iVals = int32(ceil((1:iterNum)));
+    iVals = int32(ceil(n*rand(iterNum, 1)));
     SVRG_logistic(w, wtilde, ntilde, X, y, lambda, eta, iterNum, iVals);
     wtilde(:) = w(:); % to avoid copy-on-write
 
