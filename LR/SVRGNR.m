@@ -28,38 +28,40 @@ for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
 
 
-    for i = 1:iterNum
-        idx = (i-1)*batchSize + 1 : i*batchSize;
-        Xtmp = X(:, idx);
-        ytmp = y(idx);
-        % new gradient
-        tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
-        % old gradient
-        tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
-        wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
+    % for i = 1:iterNum
+    %     idx = (i-1)*batchSize + 1 : i*batchSize;
+    %     Xtmp = X(:, idx);
+    %     ytmp = y(idx);
+    %     % new gradient
+    %     tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
+    %     % old gradient
+    %     tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
+    %     wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
+    %
+    %     wDelta2 = wDelta1 + lambda * w;
+    %     wDelta3 = wDelta2 + ntilde;
+    %     w = w - eta * wDelta3;
+    % end
+    %
+    % if done < n
+    %     idx = done + 1 : n;
+    %     Xtmp = X(:, idx);
+    %     ytmp = y(idx);
+    %     % new gradient
+    %     tmpExp = exp(-ytmp .* (w'*Xtmp)')'; % 1-by-n vector
+    %     % old gradient
+    %     tmpExpTilde = exp(-ytmp .* (wtilde'*Xtmp)')'; % 1-by-n vector
+    %     wDelta1 = mean(-ytmp' .* (tmpExp./(1 + tmpExp) - tmpExpTilde./(1 + tmpExpTilde)) .* Xtmp, 2);
+    %
+    %     wDelta2 = wDelta1 + lambda * w;
+    %     wDelta3 = wDelta2 + ntilde;
+    %     w = w - eta * wDelta3;
+    % end
+    % wtilde = w;
+    ntilde = full(ntilde);
+    SIG_logistic(w, wtilde, ntilde, X, y, lambda, eta, iterNum);
+    wtilde(:) = w(:); % to avoid copy-on-write
 
-        wDelta2 = wDelta1 + lambda * w;
-        wDelta3 = wDelta2 + ntilde;
-        w = w - eta * wDelta3;
-    end
-
-    if done < n
-        idx = done + 1 : n;
-        Xtmp = X(:, idx);
-        ytmp = y(idx);
-        % new gradient
-        tmpExp = exp(-ytmp .* (w'*Xtmp)')'; % 1-by-n vector
-        % old gradient
-        tmpExpTilde = exp(-ytmp .* (wtilde'*Xtmp)')'; % 1-by-n vector
-        wDelta1 = mean(-ytmp' .* (tmpExp./(1 + tmpExp) - tmpExpTilde./(1 + tmpExpTilde)) .* Xtmp, 2);
-
-        wDelta2 = wDelta1 + lambda * w;
-        wDelta3 = wDelta2 + ntilde;
-        w = w - eta * wDelta3;
-    end
-
-
-    wtilde = w;
 
     % print and plot
     cost = objFunc.PrintCost(wtilde, X, y, s);

@@ -31,50 +31,52 @@ z = wtilde;
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, X, y);
-    tau1 = 2/(s+4);
+    tau1 = 1/(s+2);
     alpha = factor/(3 * tau1 * objFunc.L);
-    for i = 1:iterNum
-        idx = (i-1)*batchSize + 1 : i*batchSize;
+    % for i = 1:iterNum
+    %     idx = (i-1)*batchSize + 1 : i*batchSize;
+    %
+    %     w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;
+    %
+    %     Xtmp = X(:, idx);
+    %     ytmp = y(idx);
+    %     % new gradient
+    %     tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
+    %     % old gradient
+    %     tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
+    %     wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
+    %
+    %     wDelta2 = wDelta1 + lambda * w;
+    %     wDelta = wDelta2 + ntilde;
+    %
+    %     znew = z - alpha * wDelta;
+    %     u = w + tau1 * (znew - z);
+    %     z = znew;
+    % end
+    %
+    % if done < n
+    %     idx = done + 1 : n;
+    %     w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;
+    %
+    %     Xtmp = X(:, idx);
+    %     ytmp = y(idx);
+    %     % new gradient
+    %     tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
+    %     % old gradient
+    %     tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
+    %     wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
+    %
+    %     wDelta2 = wDelta1 + lambda * w;
+    %     wDelta = wDelta2 + ntilde;
+    %
+    %     znew = z - alpha * wDelta;
+    %     u = w + tau1 * (znew - z);
+    %     z = znew;
+    % end
+    % wtilde = u;
 
-        w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;
-
-        Xtmp = X(:, idx);
-        ytmp = y(idx);
-        % new gradient
-        tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
-        % old gradient
-        tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
-        wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
-
-        wDelta2 = wDelta1 + lambda * w;
-        wDelta = wDelta2 + ntilde;
-
-        znew = z - alpha * wDelta;
-        u = w + tau1 * (znew - z);
-        z = znew;
-    end
-
-    if done < n
-        idx = done + 1 : n;
-        w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;
-
-        Xtmp = X(:, idx);
-        ytmp = y(idx);
-        % new gradient
-        tmpExp = exp(-ytmp .* (Xtmp' *w))'; % 1-by-n vector
-        % old gradient
-        tmpExpTilde = exp(-ytmp .* (Xtmp' * wtilde))'; % 1-by-n vector
-        wDelta1 = mean(-ytmp' .* (1./(1 + tmpExpTilde) - 1./(1 + tmpExp)) .* Xtmp, 2);
-
-        wDelta2 = wDelta1 + lambda * w;
-        wDelta = wDelta2 + ntilde;
-
-        znew = z - alpha * wDelta;
-        u = w + tau1 * (znew - z);
-        z = znew;
-    end
-
-    wtilde = u;
+    SIGM_sparse(w, wtilde, ntilde, X, y, lambda, alpha, iterNum, u, z, tau1, tau2);
+    wtilde(:) = u(:);
 
     % print and plot
     cost = objFunc.PrintCost(wtilde, X, y, s);

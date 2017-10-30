@@ -8,7 +8,7 @@
 #define USE_BLAS 1
 
 /*
-SVRG_logistic(w,Xt,y,lambda,eta,d,g);
+SIG_logistic(w,Xt,y,lambda,eta,d,g);
 % w(p,1) - updated in place
 % wtilde(p,1) - updated in place
 % G(p,1) - updated in place
@@ -17,12 +17,11 @@ SVRG_logistic(w,Xt,y,lambda,eta,d,g);
 % lambda - scalar regularization param
 % eta - scalar constant step size
 % maxIter - maximal iterations of inner loop
-% iVals - random indices
 */
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     /* Variables */
-    int nSamples, maxIter, *iVals;
+    int nSamples, maxIter;
     int sparse = 0, useScaling = 1, useLazy=1,*lastVisited;
     long i, idx, j, nVars;
 
@@ -30,7 +29,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     double *w, *wtilde, *G, *Xt, *y, lambda, eta, innerProdI, innerProdZ, tmpDelta, c = 1, tmpFactor, *cumSum;
 
-    if (nrhs != 9)
+    if (nrhs != 8)
         mexErrMsgTxt("Function needs 8 arguments");
 
     /* Input */
@@ -43,7 +42,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     lambda = mxGetScalar(prhs[5]);
     eta = mxGetScalar(prhs[6]);
     maxIter = (int)mxGetScalar(prhs[7]);
-    iVals = (int *)mxGetPr(prhs[8]);
 
     /* Compute Sizes */
     nVars = mxGetM(prhs[3]);
@@ -90,8 +88,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     for (i = 0; i < maxIter; i++)
     {
         // idx = rand() % nSamples;  // sample
-        //idx = i; // % nSamples;
-        idx = iVals[i] - 1;  // sample
+        idx = i % nSamples;
 
         /* Step 1: Compute current values of needed parameters w_{i} */
         if (useLazy && i > 0)

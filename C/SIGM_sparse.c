@@ -7,7 +7,7 @@
 #define DEBUG 0
 
 /*
-Katyusha_sparse(w,Xt,y,lambda,eta,d,g);
+SIGM_sparse(w,Xt,y,lambda,eta,d,g);
 % w(p,1) - updated in place
 % wtilde(p,1) - updated in place
 % G(p,1) - updated in place
@@ -20,12 +20,11 @@ Katyusha_sparse(w,Xt,y,lambda,eta,d,g);
 % z(p,1) - updated in place
 % tau1 - parameter
 % tau2 - parameter
-% iVals - random indices
 */
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     /* Variables */
-    int nSamples, maxIter, *iVals;
+    int nSamples, maxIter;
     long i, idx, j, nVars;
 
     mwIndex *jc, *ir;
@@ -35,8 +34,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     double cZ = 1, cU = 1, *cumSumZG, *cumSumZW, *cumSumZU, *cumSumUG, *cumSumUZ, *cumSumUW, tmpFactor1, tmpFactor2;
     int tmpIdx1, tmpIdx2, *lastVisited;
 
-    if (nrhs != 13)
-        mexErrMsgTxt("Function needs 13 arguments");
+    if (nrhs != 12)
+        mexErrMsgTxt("Function needs 12 arguments");
 
     /* Input */
 
@@ -52,7 +51,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     z = mxGetPr(prhs[9]);
     tau1 = mxGetScalar(prhs[10]);
     tau2 = mxGetScalar(prhs[11]);
-    iVals = (int *)mxGetPr(prhs[12]);
 
     /* Compute Sizes */
     nVars = mxGetM(prhs[3]);
@@ -94,7 +92,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     for (i = 0; i < maxIter; i++)
     {
         //idx = rand() % nSamples;  // sample
-        idx = iVals[i] - 1;  // sample
+        idx = i % nSamples;  // sample
 #if DEBUG_RANDOM
         if (i == 0)
             printf("idx: %ld\n", idx);

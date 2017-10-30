@@ -43,7 +43,8 @@ for s = 1:passes % for each epoch
     %     w = w - eta * wDelta3;
     % end
     ntilde = full(ntilde);
-    SVRG_logistic(w, wtilde, ntilde, X, y, lambda, eta, iterNum);
+    iVals = int32(ceil((1:iterNum)));
+    SVRG_logistic(w, wtilde, ntilde, X, y, lambda, eta, iterNum, iVals);
     wtilde(:) = w(:); % to avoid copy-on-write
 
     % print and plot
