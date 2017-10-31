@@ -50,7 +50,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 
     if (nVars != mxGetM(prhs[0]))
-        mexErrMsgTxt("w and Xt must have the same number of rows");
+        mexErrMsgTxt("w and Z must have the same number of rows");
 
     srand(time(NULL));
 
@@ -130,7 +130,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             }
         }
         tmpDelta = 2 * (max(1 + innerProdI, 0) - max(1 + innerProdZ, 0));
-        // @TODO
+
         // update cumSum
         if (useScaling)
         {
@@ -181,14 +181,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 #else
             for(j = jc[idx]; j < jc[idx+1]; j++)
             {
-                w[ir[j]] -= tmpFactor * Xt[j];
+                w[ir[j]] -= tmpFactor * Z[j];
             }
 #endif
         }
         else
         {
 #if USE_BLAS
-            cblas_daxpy(nVars, -tmpFactor, Xt + nVars * idx, 1, w, 1);
+            cblas_daxpy(nVars, -tmpFactor, Z + nVars * idx, 1, w, 1);
 #else
             for(j = 0; j < nVars; j++)
             {
