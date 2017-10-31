@@ -3,7 +3,7 @@ dataset = 'avazu';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
-passes = 20;
+passes = 5000;
 factor = 0.1;
 factorNR = 0.1;
 factorIAG = 5e-6;
