@@ -11,12 +11,8 @@ lambda = objFunc.lambda;
 eta = factor / objFunc.L
 % eta = 5e-1
 
-if issparse(X)
-    wtilde = sparse(d, 1);
-else
-    wtilde = zeros(d, 1);
-end
-w = wtilde;
+wtilde = zeros(d, 1);
+w = zeros(d, 1);
 
 initCost = objFunc.PrintCost(wtilde, ZT, 0);
 subOptimality = [0, 0, 1, 1];
@@ -28,31 +24,35 @@ tstart = tic;
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, Z, ZT);
 
-    for i = 1:iterNum
-        idx = (i-1)*batchSize + 1 : i*batchSize;
-        Ztmp = Z(:, idx);
-        ZTtmp = Ztmp';
+    % for i = 1:iterNum
+    %     idx = (i-1)*batchSize + 1 : i*batchSize;
+    %     Ztmp = Z(:, idx);
+    %     ZTtmp = Ztmp';
+    %
+    %     tmpDeltaG = Ztmp * (max(1 + ZTtmp * w, 0) - max(1 + ZTtmp * wtilde, 0)) * 2/batchSize;
+    %
+    %     wDelta1 = tmpDeltaG + lambda * w;
+    %     wDelta2 = wDelta1 + ntilde;
+    %     w = w - eta * wDelta2;
+    % end
+    %
+    % if done < n
+    %     idx = done + 1 : n;
+    %     Ztmp = Z(:, idx);
+    %     ZTtmp = ZT(idx, :);
+    %
+    %     tmpDeltaG = Ztmp * (max(1 + ZTtmp * w, 0) - max(1 + ZTtmp * wtilde, 0)) * 2/batchSize;
+    %
+    %     wDelta1 = tmpDeltaG + lambda * w;
+    %     wDelta2 = wDelta1 + ntilde;
+    %     w = w - eta * wDelta2;
+    % end
+    %
+    % wtilde = w;
 
-        tmpDeltaG = Ztmp * (max(1 + ZTtmp * w, 0) - max(1 + ZTtmp * wtilde, 0)) * 2/batchSize;
-
-        wDelta1 = tmpDeltaG + lambda * w;
-        wDelta2 = wDelta1 + ntilde;
-        w = w - eta * wDelta2;
-    end
-
-    if done < n
-        idx = done + 1 : n;
-        Ztmp = Z(:, idx);
-        ZTtmp = ZT(idx, :);
-
-        tmpDeltaG = Ztmp * (max(1 + ZTtmp * w, 0) - max(1 + ZTtmp * wtilde, 0)) * 2/batchSize;
-
-        wDelta1 = tmpDeltaG + lambda * w;
-        wDelta2 = wDelta1 + ntilde;
-        w = w - eta * wDelta2;
-    end
-
-    wtilde = w;
+    ntilde = full(ntilde);
+    SIG_svm(w, wtilde, ntilde, Z, lambda, eta, iterNum);
+    wtilde(:) = w(:);
 
     % print and plot
     cost = objFunc.PrintCost(wtilde, ZT, s);

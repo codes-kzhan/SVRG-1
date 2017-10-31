@@ -4,7 +4,7 @@ fprintf('Fitting data with IAG...\n');
 
 % initialization
 [d ,n] = size(X);
-iterNum = 2 * n * passes;
+iterNum = 2 * n;
 
 eta = factor/objFunc.L
 
@@ -28,39 +28,31 @@ gradients = Z .* (2 .* (max(1 + ZT * w, 0))') + objFunc.lambda * w;  % d-by-n ma
 
 sumIG = sum(gradients, 2);
 
-for t = 1:iterNum % for each iteration
-    % update w
-    % idx = randperm(n, 1);
-    idx = mod(t-1, n) + 1;
-    Ztmp = Z(:, idx);
-    ZTtmp = Ztmp';
+for s = 1:passes% for each iteration
+    % % update w
+    % % idx = randperm(n, 1);
+    % idx = mod(t-1, n) + 1;
+    % Ztmp = Z(:, idx);
+    % ZTtmp = Ztmp';
+    %
+    % newGrad = Ztmp * (2 .* max(1 + ZTtmp * w, 0)) + objFunc.lambda * w;
+    % oldGrad = gradients(:, idx);
+    % w = w - eta/n * (newGrad - oldGrad + sumIG);
+    %
+    % % update what we store
+    % sumIG = sumIG - oldGrad + newGrad;
+    % gradients(:, idx) = newGrad;
 
-    newGrad = Ztmp * (2 .* max(1 + ZTtmp * w, 0)) + objFunc.lambda * w;
-    oldGrad = gradients(:, idx);
-    w = w - eta/n * (newGrad - oldGrad + sumIG);
-
-    % update what we store
-    sumIG = sumIG - oldGrad + newGrad;
-    gradients(:, idx) = newGrad;
+    IAG_svm(w, Z, lambda, eta, sumIG, gradients, iterNum);
 
     % print and plot
-    if mod(t, n) == 0
-      % order = randperm(size(X, 2));
-      % Z = Z(:, order); % random shuffle
-      % gradients = gradients(:, order); % random shuffle
-
-        if mod(t, 2*n) == 0
-            s = round(t/n/2);
-            cost = objFunc.PrintCost(w, ZT, s);
-            if cost <= objFunc.optCost
-                fprintf('Oops, we attain the optimal solution ...\n');
-            else
-                error = (cost - objFunc.optCost)/(initCost - objFunc.optCost);
-                distance = sum((w- objFunc.optSolution).^2) / initDistance;
-                subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
-            end
-        end
-
+    cost = objFunc.PrintCost(w, ZT, s);
+    if cost <= objFunc.optCost
+        fprintf('Oops, we attain the optimal solution ...\n');
+    else
+        error = (cost - objFunc.optCost)/(initCost - objFunc.optCost);
+        distance = sum((w- objFunc.optSolution).^2) / initDistance;
+        subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
     end
 end % iteration
 
