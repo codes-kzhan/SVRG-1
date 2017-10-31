@@ -84,8 +84,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         }
         sig = -y[i]/(1+exp(y[i]*innerProd));
 
-        //alpha = factor * 1.0 /((passes - 1) * maxIter + k + 1)/lambda;
-        alpha = factor / (passes + 1);
+        alpha = factor /((passes - 1) * maxIter + k + 1); // /lambda;
+        //alpha = factor / (passes + 1);
 #if DEBUG
         printf("alpha: %lf\n", alpha);
         //break;
