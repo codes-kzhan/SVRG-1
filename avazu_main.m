@@ -7,9 +7,9 @@ passes = 20;
 factor = 0.1;
 factorNR = 0.1;
 factorIAG = 5e-6;
-factorDIG = 1;
+factorDIG = 1e2;
 alpha = 0.5;
-alphaNR = 9;
+alphaNR = 0.5;
 lambda = 1e-8;
 batchSize = 1;
 ourlimit = 5000;
@@ -40,20 +40,20 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
-% filename = strcat('../data/', dataset, '_result_4_1e-8_2G.mat');
+% filename = strcat('../data/', dataset, '_C_result_6.mat');
 % load(filename);
 
 % subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
-subOptKatyusha = Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum, ourlimit);
+% subOptKatyusha = Katyusha(logCost, Xtrain, ytrain, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum, ourlimit);
 % subOptDIG = DIG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorDIG, batchSize, dataset, gridNum, ourlimit);
 % subOptNR = SVRGNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum);
-% subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alphaNR, batchSize, dataset, gridNum);
+subOptK = KatyushaNR(logCost, Xtrain, ytrain, Xtest, ytest, passes, alphaNR, batchSize, dataset, gridNum, ourlimit);
 % subOptA = SAGA(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorA, dataset, gridNum);
 % subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, dataset, gridNum);
 % subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum);
 % subOptRR = SVRGRR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum);
 
-% save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptDIG', 'subOptKatyusha');
+% save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptDIG', 'subOptKatyusha', 'subOptIAG');
 
 %% save figure and exit
 % figname = strcat('./', dataset, objFuncType, '.png');
