@@ -1,4 +1,4 @@
-function subOptimality = SVRGNR(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function subOptimality = SVRGNR(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit)
 
 fprintf('Fitting data with SVRG-NR ...\n');
 
@@ -73,13 +73,17 @@ for s = 1:passes % for each epoch
         distance = sum((wtilde - objFunc.optSolution).^2) / objOptNorm;
         subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
     end
+    now = toc(tstart);
+    if now > ourlimit
+        break;
+    end
 end % epoch
 
 wOpt = wtilde;
 
 telapsed = toc(tstart);
 fprintf('training accuracy: %f\n', objFunc.Score(wOpt, X, y));
-fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
+% fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 
@@ -87,6 +91,6 @@ label = 'DVRG';
 curve_style = '-';
 
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);
-PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
+% PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function

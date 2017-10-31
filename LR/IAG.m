@@ -1,4 +1,4 @@
-function subOptimality = IAG(objFunc, X, y, Xtest, ytest, passes, factor, dataset, gridNum)
+function subOptimality = IAG(objFunc, X, y, Xtest, ytest, passes, factor, dataset, gridNum, ourlimit)
 
 fprintf('Fitting data with IAG...\n');
 
@@ -54,7 +54,10 @@ for s = 1:passes% for each iteration
         distance = sum((w- objFunc.optSolution).^2) / initDistance;
         subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
     end
-
+    now = toc(tstart);
+    if now > ourlimit
+        break;
+    end
 end % iteration
 
 wOpt = w;

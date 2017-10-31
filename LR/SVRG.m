@@ -1,4 +1,4 @@
-function subOptimality = SVRG(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function subOptimality = SVRG(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit)
 
 fprintf('Fitting data with SVRG ...\n');
 
@@ -56,6 +56,10 @@ for s = 1:passes % for each epoch
         distance = sum((wtilde - objFunc.optSolution).^2) / initDistance;
         subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
     end
+    now = toc(tstart);
+    if now > ourlimit
+        break;
+    end
 end % epoch
 
 wOpt = wtilde;
@@ -69,6 +73,6 @@ fprintf('time elapsed: %f\n', telapsed);
 label = 'SVRG';
 curve_style = 'r:';
 % PlotTime(subOptimality, curve_style, label, dataset, gridNum);
-PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
+% PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function
