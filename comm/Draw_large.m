@@ -1,5 +1,5 @@
 % avazu dataset
-load('../data/avazu_result_4_1e-8_4G.mat');
+load('../data/avazu_C_result_6_2G.mat');
 PlotLarge(subOptNR, 'b-', 'SIG', 'avazu', 1);
 PlotLarge(subOpt, 'b:', 'SVRG', 'avazu', 1);
 PlotLarge(subOptK, '-', 'SIG-M', 'avazu', 1);
