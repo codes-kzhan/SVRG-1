@@ -51,7 +51,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     if (nVars != mxGetM(prhs[4]))
         mexErrMsgTxt("Z and d must have the same number of rows");
     if (nSamples != mxGetM(prhs[5]))
-        mexErrMsgTxt("Xt and g must have the same number of columns");
+        mexErrMsgTxt("Z and g must have the same number of columns");
 
     // sparse matrix uses scaling and lazy stuff
     if (mxIsSparse(prhs[1])) {

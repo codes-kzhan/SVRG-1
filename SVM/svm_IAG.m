@@ -1,4 +1,4 @@
-function subOptimality = svm_IAG(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, dataset, gridNum)
+function subOptimality = svm_IAG(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, dataset, gridNum, ourlimit)
 
 fprintf('Fitting data with IAG...\n');
 
@@ -24,9 +24,13 @@ tstart = tic;
 
 % tmpExp = exp(-y .* (X' * w))';
 % gradients = ((-y' .* tmpExp) ./ (1 + tmpExp) .* X) + objFunc.lambda * w;  % d-by-n matrix
-gradients = Z .* (2 .* (max(1 + ZT * w, 0))') + objFunc.lambda * w;  % d-by-n matrix
+% gradients = Z .* (2 .* (max(1 + ZT * w, 0))') + objFunc.lambda * w;  % d-by-n matrix
 
-sumIG = sum(gradients, 2);
+% sumIG = sum(gradients, 2);
+
+sumIG = zeros(d,1);
+gradients = zeros(n,1);
+lambda = objFunc.lambda;
 
 for s = 1:passes% for each iteration
     % % update w
@@ -54,17 +58,21 @@ for s = 1:passes% for each iteration
         distance = sum((w- objFunc.optSolution).^2) / initDistance;
         subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
     end
+    now = toc(tstart);
+    if now > ourlimit
+        break;
+    end
 end % iteration
 
 wOpt = w;
 
 telapsed = toc(tstart);
 fprintf('training accuracy: %f\n', objFunc.Score(wOpt, X, y));
-fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
+% fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 label = 'IAG';
 curve_style = 'g-';
-PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
+% PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function
