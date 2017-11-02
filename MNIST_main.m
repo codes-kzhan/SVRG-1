@@ -1,4 +1,5 @@
-function main(mem_amount)
+% function main(mem_amount)
+mem_amount = '32G'
 dataset = 'MNIST';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
@@ -55,7 +56,7 @@ subOptIAG = IAG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorIAG, datase
 subOptGD = GD(logCost, Xtrain, ytrain, Xtest, ytest, passes, factorGD, batchSize, dataset, gridNum, ourlimit);
 subOptRR = SVRGRR(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit);
 
-save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptDIG', 'subOptKatyusha', 'subOptIAG');
+save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptDIG', 'subOptKatyusha', 'subOptIAG', 'subOptA', 'subOptGD', 'subOptRR');
 
 %% save figure and exit
 % figname = strcat('./', dataset, objFuncType, '.png');

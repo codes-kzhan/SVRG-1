@@ -1,4 +1,4 @@
-function subOptimality = GD(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function subOptimality = GD(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit)
 
 fprintf('Fitting data with GD ...\n');
 
@@ -9,11 +9,7 @@ lambda = objFunc.lambda;
 
 eta = 1 / objFunc.L
 
-if issparse(X)
-    w = sparse(d, 1);
-else
-    w = zeros(d, 1);
-end
+w = zeros(d, 1);
 % wOpt = 0;
 
 initCost = objFunc.PrintCost(w, ZT, 0);
@@ -36,6 +32,10 @@ for t = 1:iterNum % for each iteration
             distance = sum((w - objFunc.optSolution).^2) / initDistance;
             subOptimality = [subOptimality; [t/2, toc(tstart), error, distance]];
         end
+    end
+    now = toc(tstart);
+    if now > ourlimit
+        break;
     end
 end % iteration
 

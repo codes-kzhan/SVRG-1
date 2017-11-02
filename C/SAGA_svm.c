@@ -1,12 +1,12 @@
 #include <math.h>
 #include "mex.h"
+#include "comm.h"
 #define DEBUG 0
 
 /*
-IAG_logistic(w,Xt,y,lambda,alpha,d,g);
+IAG_svm(w,Z,lambda,alpha,d,g);
 % w(p,1) - updated in place
-% Xt(p,n) - real, can be sparse
-% y(n,1) - {-1,1}
+% Z(p,n) - real, can be sparse
 % lambda - scalar regularization param
 % stepSize - scalar constant step size
 % who cares % iVals(maxIter,1) - sequence of examples to choose
@@ -25,38 +25,35 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     mwIndex *jc,*ir;
 
-    double *w, *Xt, *y, lambda, alpha, innerProd, sig,c=1,*g,*d,*cumSum, tmpFactor;
+    double *w, *Z, lambda, alpha, innerProd, sig,c=1,*g,*d,*cumSum, tmpFactor;
 
-    if (nrhs != 9)
-        mexErrMsgTxt("Function needs 9 arguments: {w,Xt,y,lambda,alpha,d,g,iVals}");
+    if (nrhs != 8)
+        mexErrMsgTxt("Function needs 7 arguments: {w,Z,lambda,alpha,d,g, maxIter, iVals}");
 
     /* Input */
 
     w = mxGetPr(prhs[0]);
-    Xt = mxGetPr(prhs[1]);
-    y = mxGetPr(prhs[2]);
-    lambda = mxGetScalar(prhs[3]);
-    alpha = mxGetScalar(prhs[4]);
-    d = mxGetPr(prhs[5]);
-    g = mxGetPr(prhs[6]);
+    Z = mxGetPr(prhs[1]);
+    lambda = mxGetScalar(prhs[2]);
+    alpha = mxGetScalar(prhs[3]);
+    d = mxGetPr(prhs[4]);
+    g = mxGetPr(prhs[5]);
 
     /* Compute Sizes */
     nVars = mxGetM(prhs[1]);
     nSamples = mxGetN(prhs[1]);
-    maxIter = (int)mxGetScalar(prhs[7]);
-    iVals = (int *)mxGetPr(prhs[8]);
+    maxIter = (int)mxGetScalar(prhs[6]);
+    iVals = (int *)mxGetPr(prhs[7]);
 #if DEBUG
     printf("maxIter: %d\n", maxIter);
 #endif
 
     if (nVars != mxGetM(prhs[0]))
-        mexErrMsgTxt("w and Xt must have the same number of rows");
-    if (nSamples != mxGetM(prhs[2]))
-        mexErrMsgTxt("number of columns of Xt must be the same as the number of rows in y");
-    if (nVars != mxGetM(prhs[5]))
-        mexErrMsgTxt("Xt and d must have the same number of rows");
-    if (nSamples != mxGetM(prhs[6]))
-        mexErrMsgTxt("Xt and g must have the same number of columns");
+        mexErrMsgTxt("w and Z must have the same number of rows");
+    if (nVars != mxGetM(prhs[4]))
+        mexErrMsgTxt("Z and d must have the same number of rows");
+    if (nSamples != mxGetM(prhs[5]))
+        mexErrMsgTxt("Z and g must have the same number of columns");
 
     // sparse matrix uses scaling and lazy stuff
     if (mxIsSparse(prhs[1])) {
@@ -85,7 +82,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     for(k = 0; k < maxIter; k++)
     {
         /* Select next training example */
-        //i = k % nSamples;
         i = iVals[k] - 1;  // sample
 
         /* Compute current values of needed parameters */
@@ -105,15 +101,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         innerProd = 0;
         if (sparse) {
             for(j=jc[i];j<jc[i+1];j++)
-                innerProd += w[ir[j]]*Xt[j];
+                innerProd += w[ir[j]]*Z[j];
             if (useScaling)
                 innerProd *= c;
         }
         else {
             for(j=0;j<nVars;j++)
-                innerProd += w[j]*Xt[j + nVars*i];
+                innerProd += w[j]*Z[j + nVars*i];
         }
-        sig = -y[i]/(1+exp(y[i]*innerProd));
+        sig = 2 * max(1 + innerProd, 0);
 
         /* Update cumSum */
         if (useScaling)
@@ -152,7 +148,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 #else
             for(j = jc[i]; j < jc[i+1]; j++)
             {
-                w[ir[j]] -= tmpFactor * Xt[j];
+                w[ir[j]] -= tmpFactor * Z[j];
             }
 #endif
         }
@@ -163,7 +159,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 #else
             for(j = 0; j < nVars; j++)
             {
-                w[j] -= tmpFactor * Xt[j + nVars * i];
+                w[j] -= tmpFactor * Z[j + nVars * i];
             }
 #endif
         }
@@ -172,16 +168,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         /* Update direction */
         if (sparse) {
             for(j=jc[i];j<jc[i+1];j++)
-                d[ir[j]] += Xt[j]*(sig - g[i]);
+                d[ir[j]] += Z[j]*(sig - g[i]);
         }
         else {
             for(j=0;j<nVars;j++)
-                d[j] += Xt[j + nVars*i]*(sig - g[i]);
+                d[j] += Z[j + nVars*i]*(sig - g[i]);
         }
 
         /* Store derivative of loss */
         g[i] = sig;
-
 
          /* Re-normalize the parameter vector if it has gone numerically crazy */
         if(c > 1e100 || c < -1e100 || (c > 0 && c < 1e-100) || (c < 0 && c > -1e-100)) {
