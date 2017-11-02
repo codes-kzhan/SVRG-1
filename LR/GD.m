@@ -1,4 +1,4 @@
-function subOptimality = GD(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum)
+function subOptimality = GD(objFunc, X, y, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit)
 
 fprintf('Fitting data with GD ...\n');
 
@@ -9,12 +9,12 @@ lambda = objFunc.lambda;
 
 eta = factor / objFunc.L
 
-if issparse(X)
-    w = sparse(d, 1);
-else
-    w = zeros(d, 1);
-end
-% wOpt = 0;
+% if issparse(X)
+%     w = sparse(d, 1);
+% else
+%     w = zeros(d, 1);
+% end
+w = zeros(d, 1);
 
 initCost = objFunc.PrintCost(w, X, y, 0);
 subOptimality = [0, 0, 1, 1];
@@ -37,17 +37,21 @@ for t = 1:iterNum % for each iteration
             subOptimality = [subOptimality; [t/2, toc(tstart), error, distance]];
         end
     end
+    now = toc(tstart);
+    if now > ourlimit
+        break;
+    end
 end % iteration
 
 wOpt = w;
 
 telapsed = toc(tstart);
 fprintf('training accuracy: %f\n', objFunc.Score(wOpt, X, y));
-fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
+% fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 label = 'GD';
 curve_style = 'b-.';
-PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
+% PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function

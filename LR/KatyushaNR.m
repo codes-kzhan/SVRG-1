@@ -76,7 +76,11 @@ for s = 1:passes % for each epoch
     % end
     % wtilde = u;
 
-    SIGM_sparse(w, wtilde, ntilde, X, y, lambda, alpha, iterNum, u, z, tau1, tau2);
+    if issparse(X)
+        SIGM_sparse(w, wtilde, ntilde, X, y, lambda, alpha, iterNum, u, z, tau1, tau2);
+    else
+        SIGM_logistic(w, wtilde, ntilde, X, y, lambda, alpha, iterNum, u, z, tau1, tau2);
+    end
     wtilde(:) = u(:);
 
     % print and plot
