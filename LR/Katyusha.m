@@ -65,13 +65,13 @@ for s = 1:passes % for each epoch
 
     iVals = int32(ceil(n*rand(iterNum, 1)));
     % iVals = int32(ceil((1:iterNum)));
-    Katyusha_sparse(w, wtilde, ntilde, X, y, lambda, alpha, iterNum, u, z, tau1, tau2, iVals);
-    % Katyusha_logistic(w, wtilde, ntilde, X, y, lambda, alpha, iterNum, u, z, tau1, tau2, iVals);
-    % u(1:10)
+    if issparse(X)
+        Katyusha_sparse(w, wtilde, ntilde, X, y, lambda, alpha, iterNum, u, z, tau1, tau2, iVals);
+    else
+        Katyusha_logistic(w, wtilde, ntilde, X, y, lambda, alpha, iterNum, u, z, tau1, tau2, iVals);
+    end
     wtilde(:) = u(:);
 
-    % sum(wtilde.^2)
-    % sum(z.^2)
     % print and plot
     cost = objFunc.PrintCost(wtilde, X, y, s);
     if cost <= objFunc.optCost
