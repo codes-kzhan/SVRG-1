@@ -37,8 +37,7 @@ for t = 1:iterNum % for each iteration
             subOptimality = [subOptimality; [t/2, toc(tstart), error, distance]];
         end
     end
-    now = toc(tstart);
-    if now > ourlimit
+    if error <= ourlimit
         break;
     end
 end % iteration

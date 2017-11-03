@@ -3,7 +3,7 @@ dataset = 'avazu';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
-passes = 5000;
+passes = 500000;
 factor = 0.1;
 factorNR = 0.1;
 factorIAG = 5e-6;
@@ -12,7 +12,7 @@ alpha = 0.5;
 alphaNR = 0.5;
 lambda = 1e-8;
 batchSize = 1;
-ourlimit = 5000;
+ourlimit = 1e-4;
 
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
@@ -40,7 +40,7 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
-filename = strcat('../data/', dataset, '_C_result_6_', mem_amount, '.mat');
+filename = strcat('../data/', dataset, '_C_result_6_accu_', mem_amount, '.mat');
 % load(filename);
 
 subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit);

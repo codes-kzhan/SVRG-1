@@ -43,8 +43,7 @@ for s = 1:passes % for each iteration
         distance = sum((w- objFunc.optSolution).^2) / initDistance;
         subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
     end
-    now = toc(tstart);
-    if now > ourlimit
+    if error <= ourlimit
         break;
     end
 

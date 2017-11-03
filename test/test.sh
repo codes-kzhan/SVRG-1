@@ -2,7 +2,7 @@
 
 cgcreate -g memory:/MemGroup # in case we do not have such a user
 
-for i in {2..2..-2}
+for i in {8..2..-2}
 do
     MEM_SIZE=$(($i * 1024 * 1024 * 1024))
     echo $MEM_SIZE > /sys/fs/cgroup/memory/MemGroup/memory.limit_in_bytes

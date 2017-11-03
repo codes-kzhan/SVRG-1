@@ -81,8 +81,7 @@ for s = 1:passes % for each epoch
         distance = sum((wtilde - objFunc.optSolution).^2) / objOptNorm;
         subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
     end
-    now = toc(tstart);
-    if now > ourlimit
+    if error <= ourlimit
         break;
     end
 end % epoch
