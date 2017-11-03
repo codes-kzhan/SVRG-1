@@ -32,12 +32,15 @@ PlotCurve(subOptGD, '-.', 'GD', 'covtype', 3);
 PlotCurve(subOptKatyusha, ':', 'Katyusha', 'covtype', 3);
 
 % a9a dataset
-PlotCurve(subOptDIG, ':', 'DIG', 'a9a', 3);
-PlotCurve(subOpt, ':', 'SVRG', 'a9a', 3);
 PlotCurve(subOptNR, '-', 'SIG', 'a9a', 3);
+PlotCurve(subOpt, ':', 'SVRG', 'a9a', 3);
 PlotCurve(subOptK, '-', 'SIG-M', 'a9a', 3);
 PlotCurve(subOptKatyusha, ':', 'Katyusha', 'a9a', 3);
+PlotCurve(subOptRR, ':', 'SVRG-RR', 'a9a', 3);
+PlotCurve(subOptA, ':', 'SAGA-RR', 'a9a', 3);
 PlotCurve(subOptIAG, ':', 'IAG', 'a9a', 3);
+PlotCurve(subOptDIG, ':', 'DIG', 'a9a', 3);
+PlotCurve(subOptGD, ':', 'GD', 'a9a', 3);
 
 % % criteo dataset
 % load('../data/criteo_32G.mat')

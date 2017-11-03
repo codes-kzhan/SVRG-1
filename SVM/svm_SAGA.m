@@ -1,10 +1,10 @@
-function subOptimality = svm_SAGARR(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, dataset, gridNum)
+function subOptimality = svm_SAGARR(objFunc, X, y, Z, ZT, Xtest, ytest, passes, factor, dataset, gridNum, ourlimit)
 
 fprintf('Fitting data with SAGA ...\n');
 
 % initialization
 [d ,n] = size(X);
-iterNum = 2 * n * passes;
+iterNum = 2 * n;
 
 eta = factor/objFunc.L
 
@@ -22,45 +22,40 @@ initDistance = sum((w- objFunc.optSolution).^2);
 
 tstart = tic;
 
-% tmpExp = exp(-y .* (X' * w))';
-% gradients = ((-y' .* tmpExp) ./ (1 + tmpExp) .* X) + objFunc.lambda * w;  % d-by-n matrix
-gradients = Z .* (2 .* (max(1 + ZT * w, 0))') + objFunc.lambda * w;  % d-by-n matrix
+sumIG = zeros(d,1);
+gradients = zeros(n,1);
+lambda = objFunc.lambda;
 
-sumIG = sum(gradients, 2);
+for s = 1:passes % for each iteration
+    % % update w
+    % % idx = randperm(n, 1);
+    % idx = mod(t-1, n) + 1;
+    % Ztmp = Z(:, idx);
+    % ZTtmp = Ztmp';
+    %
+    % newGrad = Ztmp * (2 .* max(1 + ZTtmp * w, 0)) + objFunc.lambda * w;
+    % oldGrad = gradients(:, idx);
+    % w = w - eta * (newGrad - oldGrad + sumIG/n);
+    %
+    % % update what we store
+    % sumIG = sumIG - oldGrad + newGrad;
+    % gradients(:, idx) = newGrad;
 
-for t = 1:iterNum % for each iteration
-    % update w
-    % idx = randperm(n, 1);
-    idx = mod(t-1, n) + 1;
-    Ztmp = Z(:, idx);
-    ZTtmp = Ztmp';
-
-    newGrad = Ztmp * (2 .* max(1 + ZTtmp * w, 0)) + objFunc.lambda * w;
-    oldGrad = gradients(:, idx);
-    w = w - eta * (newGrad - oldGrad + sumIG/n);
-
-    % update what we store
-    sumIG = sumIG - oldGrad + newGrad;
-    gradients(:, idx) = newGrad;
+    iVals = int32([randperm(n), randperm(n)]);
+    SAGA_svm(w, Z, lambda, eta, sumIG, gradients, iterNum, iVals);
 
     % print and plot
-    if mod(t, n) == 0
-        order = randperm(size(X, 2));
-        Z = Z(:, order); % random shuffle
-        gradients = gradients(:, order); % random shuffle
-
-        if mod(t, 2*n) == 0
-            s = round(t/n/2);
-            cost = objFunc.PrintCost(w, ZT, s);
-            if cost <= objFunc.optCost
-                fprintf('Oops, we attain the optimal solution ...\n');
-            else
-                error = (cost - objFunc.optCost)/(initCost - objFunc.optCost);
-                distance = sum((w- objFunc.optSolution).^2) / initDistance;
-                subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
-            end
-        end
-
+    cost = objFunc.PrintCost(w, ZT, s);
+    if cost <= objFunc.optCost
+        fprintf('Oops, we attain the optimal solution ...\n');
+    else
+        error = (cost - objFunc.optCost)/(initCost - objFunc.optCost);
+        distance = sum((w- objFunc.optSolution).^2) / initDistance;
+        subOptimality = [subOptimality; [s, toc(tstart), error, distance]];
+    end
+    now = toc(tstart);
+    if now > ourlimit
+        break;
     end
 end % iteration
 
@@ -68,11 +63,11 @@ wOpt = w;
 
 telapsed = toc(tstart);
 fprintf('training accuracy: %f\n', objFunc.Score(wOpt, X, y));
-fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
+% fprintf('test accuracy: %f\n', objFunc.Score(wOpt, Xtest, ytest));
 fprintf('time elapsed: %f\n', telapsed);
 
 label = 'SAGA-RR';
 curve_style = '-';
-PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
+% PlotCurve(subOptimality, curve_style, label, dataset, gridNum);
 
 end  % function

@@ -28,8 +28,9 @@ tau2 = 1/2;
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, Z, ZT);
+    ntilde = full(ntilde);
     tau1 = 1/(s+2);
-    alpha = 1/(3*tau1*objFunc.L);
+    alpha = factor/(3*tau1*objFunc.L);
     % for i = 1:iterNum
     %     idx = randperm(n, batchSize);
     %     w = tau1 * z + tau2 * wtilde + (1 - tau2 - tau1) * u;

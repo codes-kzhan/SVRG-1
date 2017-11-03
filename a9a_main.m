@@ -1,11 +1,12 @@
 % function main(dataset, gridNum)
+mem_amount = '32G';
 dataset = 'a9a';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
-passes = 50;
+passes = 100;
 factor = 0.4;
 factorNR = 0.35;
-alpha = 0.5;
+alpha = 0.6;
 alphaNR = 0.6;
 factorIAG = 1e-4;
 factorA = 0.6;
@@ -42,22 +43,21 @@ svmCost.optCost = svmCost.Cost(wOpt, ZT)
 
 %% have fun
 
-% filename = strcat('../data/', dataset, '_result_5.mat');
+filename = strcat('../data/', dataset, '_C_result_6_', mem_amount, '.mat');
 % load(filename);
 
-subOptNR = svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum, ourlimit);
+subOptKatyusha = svm_Katyusha(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum, ourlimit);
 subOptK = svm_KatyushaNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alphaNR, batchSize, dataset, gridNum, ourlimit);
+subOptNR = svm_SVRGNR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorNR, batchSize, dataset, gridNum, ourlimit);
 subOptIAG = svm_IAG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorIAG, dataset, gridNum, ourlimit);
 subOpt = svm_SVRG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit);
 subOptDIG = svm_DIG(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorDIG, dataset, gridNum, ourlimit, ourlimit);
-subOptKatyusha = svm_Katyusha(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, alpha, batchSize, dataset, gridNum, ourlimit);
-
-% subOptRR = svm_SVRGRR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit);
-% subOptA = svm_SAGA(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorA, dataset, gridNum, ourlimit);
-% subOptGD = svm_GD(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit);
+subOptRR = svm_SVRGRR(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit);
+subOptA = svm_SAGA(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factorA, dataset, gridNum, ourlimit);
+subOptGD = svm_GD(svmCost, Xtrain, ytrain, Z, ZT, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit);
 
 
-% save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptRR', 'subOptA', 'subOptGD');
+save(filename, 'subOpt', 'subOptNR', 'subOptK', 'subOptDIG', 'subOptKatyusha', 'subOptIAG', 'subOptA', 'subOptGD', 'subOptRR');
 
 % Katyusha(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);
 % SAGA(svmCost, Xtrain, ytrain, Xtest, ytest, passes, factor);

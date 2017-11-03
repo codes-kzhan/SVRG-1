@@ -26,6 +26,7 @@ tau2 = 1/2;
 
 for s = 1:passes % for each epoch
     ntilde = objFunc.Gradient(wtilde, Z, ZT);
+    ntilde = full(ntilde);
     tau1 = 1/(s+2);
     alpha = factor/(3 * tau1 * objFunc.L);
 
