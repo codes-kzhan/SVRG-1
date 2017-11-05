@@ -1,46 +1,52 @@
 % MNIST dataset
-load('../data/MNIST_result_5.mat')
-PlotCurve(subOptNR, '-', 'SIG', 'MNIST', 1);
-PlotCurve(subOpt, ':', 'SVRG', 'MNIST', 1);
-PlotCurve(subOptKatyusha, ':', 'SVRG-K', 'MNIST', 1);
-PlotCurve(subOptK, '-', 'SIG-K', 'MNIST', 1);
-PlotCurve(subOptRR, ':', 'SVRG-RR', 'MNIST', 1);
-PlotCurve(subOptA, ':', 'SAGA-RR', 'MNIST', 1);
-PlotCurve(subOptIAG, ':', 'IAG', 'MNIST', 1);
-PlotCurve(subOptGD, '-.', 'GD', 'MNIST', 1);
+label = 'MNIST';
+grid = 1;
+load('../data/MNIST_C_result_6_32G.mat');
+PlotCurve(subOptNR, '-', 'SIG', label, grid);
+PlotCurve(subOpt, ':', 'SVRG', label, grid);
+PlotCurve(subOptKatyusha, ':', 'SVRG-K', label, grid);
+PlotCurve(subOptK, '-', 'SIG-K', label, grid);
+PlotCurve(subOptRR, ':', 'SVRG-RR', label, grid);
+PlotCurve(subOptA, ':', 'SAGA-RR', 'MNIST', grid);
+PlotCurve(subOptIAG, ':', 'IAG', label, grid);
+PlotCurve(subOptGD, '-.', 'GD', label, grid);
 
 % rcv1 dataset
-load('../data/rcv1_result_5_1e-8.mat')
-PlotCurve(subOptNR, '-', 'SIG', 'rcv1', 2);
-PlotCurve(subOpt, ':', 'SVRG', 'rcv1', 2);
-PlotCurve(subOptK, '-', 'SIG-K', 'rcv1', 2);
-PlotCurve(subOptRR, ':', 'SVRG-RR', 'rcv1', 2);
-PlotCurve(subOptA, ':', 'SAGA-RR', 'rcv1', 2);
-PlotCurve(subOptIAG, ':', 'IAG', 'rcv1', 2);
-PlotCurve(subOptGD, '-.', 'GD', 'rcv1', 2);
-PlotCurve(subOptKatyusha, ':', 'Katyusha', 'rcv1', 2);
+label = 'rcv1';
+grid = 2;
+load('../data/rcv1_C_result_6_32G.mat');
+PlotCurve(subOptNR, '-', 'SIG', label, grid);
+PlotCurve(subOpt, ':', 'SVRG', label, grid);
+PlotCurve(subOptKatyusha, ':', 'SVRG-K', label, grid);
+PlotCurve(subOptK, '-', 'SIG-K', label, grid);
+PlotCurve(subOptRR, ':', 'SVRG-RR', label, grid);
+PlotCurve(subOptA, ':', 'SAGA-RR', 'MNIST', grid);
+PlotCurve(subOptIAG, ':', 'IAG', label, grid);
+PlotCurve(subOptGD, '-.', 'GD', label, grid);
 
-% covtype dataset
-load('../data/covtype_result_5.mat')
-PlotCurve(subOptNR, '-', 'SIG', 'covtype', 3);
-PlotCurve(subOpt, ':', 'SVRG', 'covtype', 3);
-PlotCurve(subOptK, '-', 'SIG-K', 'covtype', 3);
-PlotCurve(subOptRR, ':', 'SVRG-RR', 'covtype', 3);
-PlotCurve(subOptA, ':', 'SAGA-RR', 'covtype', 3);
-PlotCurve(subOptIAG, ':', 'IAG', 'covtype', 3);
-PlotCurve(subOptGD, '-.', 'GD', 'covtype', 3);
-PlotCurve(subOptKatyusha, ':', 'Katyusha', 'covtype', 3);
+% % covtype dataset
+% load('../data/covtype_result_5.mat')
+% PlotCurve(subOptNR, '-', 'SIG', 'covtype', 3);
+% PlotCurve(subOpt, ':', 'SVRG', 'covtype', 3);
+% PlotCurve(subOptK, '-', 'SIG-K', 'covtype', 3);
+% PlotCurve(subOptRR, ':', 'SVRG-RR', 'covtype', 3);
+% PlotCurve(subOptA, ':', 'SAGA-RR', 'covtype', 3);
+% PlotCurve(subOptIAG, ':', 'IAG', 'covtype', 3);
+% PlotCurve(subOptGD, '-.', 'GD', 'covtype', 3);
+% PlotCurve(subOptKatyusha, ':', 'Katyusha', 'covtype', 3);
 
 % a9a dataset
-PlotCurve(subOptNR, '-', 'SIG', 'a9a', 3);
-PlotCurve(subOpt, ':', 'SVRG', 'a9a', 3);
-PlotCurve(subOptK, '-', 'SIG-M', 'a9a', 3);
-PlotCurve(subOptKatyusha, ':', 'Katyusha', 'a9a', 3);
-PlotCurve(subOptRR, ':', 'SVRG-RR', 'a9a', 3);
-PlotCurve(subOptA, ':', 'SAGA-RR', 'a9a', 3);
-PlotCurve(subOptIAG, ':', 'IAG', 'a9a', 3);
-PlotCurve(subOptDIG, ':', 'DIG', 'a9a', 3);
-PlotCurve(subOptGD, ':', 'GD', 'a9a', 3);
+label = 'a9a';
+grid = 3;
+load('../data/a9a_C_result_6_32G.mat');
+PlotCurve(subOptNR, '-', 'SIG', label, grid);
+PlotCurve(subOpt, ':', 'SVRG', label, grid);
+PlotCurve(subOptKatyusha, ':', 'SVRG-K', label, grid);
+PlotCurve(subOptK, '-', 'SIG-K', label, grid);
+PlotCurve(subOptRR, ':', 'SVRG-RR', label, grid);
+PlotCurve(subOptA, ':', 'SAGA-RR', 'MNIST', grid);
+PlotCurve(subOptIAG, ':', 'IAG', label, grid);
+PlotCurve(subOptGD, '-.', 'GD', label, grid);
 
 % % criteo dataset
 % load('../data/criteo_32G.mat')
