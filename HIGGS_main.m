@@ -1,9 +1,9 @@
-% function main(dataset, gridNum)
+function HIGGS_main(mem_amount)
 dataset = 'HIGGS';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
 lambda = 1e-8;
-passes = 20;
+passes = 100000000;
 factor = 0.1;
 factorNR = 0.1;
 alpha = 0.15;
@@ -17,6 +17,10 @@ ourlimit = 5000;
 
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
+
+filename = strcat('../data/', dataset, '_dataset.mat');
+load(filename);
+
 [d, n] = size(Xtrain);
 Z = -ytrain' .* Xtrain;
 ZT = Z';
