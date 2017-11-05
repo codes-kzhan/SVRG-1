@@ -7,8 +7,9 @@ PlotCurve(subOpt, ':', 'SVRG', label, grid);
 PlotCurve(subOptKatyusha, ':', 'SVRG-K', label, grid);
 PlotCurve(subOptK, '-', 'SIG-K', label, grid);
 PlotCurve(subOptRR, ':', 'SVRG-RR', label, grid);
-PlotCurve(subOptA, ':', 'SAGA-RR', 'MNIST', grid);
+PlotCurve(subOptA, ':', 'SAGA-RR', label, grid);
 PlotCurve(subOptIAG, ':', 'IAG', label, grid);
+PlotCurve(subOptDIG, ':', 'DIG', label, grid);
 PlotCurve(subOptGD, '-.', 'GD', label, grid);
 
 % rcv1 dataset
@@ -20,8 +21,9 @@ PlotCurve(subOpt, ':', 'SVRG', label, grid);
 PlotCurve(subOptKatyusha, ':', 'SVRG-K', label, grid);
 PlotCurve(subOptK, '-', 'SIG-K', label, grid);
 PlotCurve(subOptRR, ':', 'SVRG-RR', label, grid);
-PlotCurve(subOptA, ':', 'SAGA-RR', 'MNIST', grid);
+PlotCurve(subOptA, ':', 'SAGA-RR', label, grid);
 PlotCurve(subOptIAG, ':', 'IAG', label, grid);
+PlotCurve(subOptDIG, ':', 'DIG', label, grid);
 PlotCurve(subOptGD, '-.', 'GD', label, grid);
 
 % % covtype dataset
@@ -44,8 +46,9 @@ PlotCurve(subOpt, ':', 'SVRG', label, grid);
 PlotCurve(subOptKatyusha, ':', 'SVRG-K', label, grid);
 PlotCurve(subOptK, '-', 'SIG-K', label, grid);
 PlotCurve(subOptRR, ':', 'SVRG-RR', label, grid);
-PlotCurve(subOptA, ':', 'SAGA-RR', 'MNIST', grid);
+PlotCurve(subOptA, ':', 'SAGA-RR', label, grid);
 PlotCurve(subOptIAG, ':', 'IAG', label, grid);
+PlotCurve(subOptDIG, ':', 'DIG', label, grid);
 PlotCurve(subOptGD, '-.', 'GD', label, grid);
 
 % % criteo dataset

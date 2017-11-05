@@ -1,20 +1,21 @@
 % function main(dataset, gridNum)
-mem_amount = '32G';
+mem_amount = '32G_limit';
 dataset = 'a9a';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST.
-passes = 100;
+% passes = 100;
+passes = 100000;
 factor = 0.4;
 factorNR = 0.35;
 alpha = 0.6;
-alphaNR = 0.6;
+alphaNR = 0.5;
 factorIAG = 1e-4;
 factorA = 0.6;
 factorDIG = 1;
 facotrGD = 1;
 lambda = 1e-7;
 batchSize = 1;
-ourlimit = 20;
+ourlimit = 2;
 
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset

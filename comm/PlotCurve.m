@@ -21,11 +21,11 @@ legend('show')
 % grid on
 hold on
 
-subplot(3, 3, gridNum+6)
-% semilogy(data_point(:, 2), data_point(:, 3), curve_style, 'linewidth', 2, 'DisplayName', label);
-semilogy(data_point(:, 2), data_point(:, 4), curve_style, 'linewidth', 2, 'DisplayName', label);
-hold on;
-xlabel('time(seconds)')
-% ylabel('log-suboptimality')
-ylabel('distance to opt')
-legend('show')
+% subplot(3, 3, gridNum+6)
+% % semilogy(data_point(:, 2), data_point(:, 3), curve_style, 'linewidth', 2, 'DisplayName', label);
+% semilogy(data_point(:, 2), data_point(:, 4), curve_style, 'linewidth', 2, 'DisplayName', label);
+% hold on;
+% xlabel('time(seconds)')
+% % ylabel('log-suboptimality')
+% ylabel('distance to opt')
+% legend('show')

@@ -1,10 +1,11 @@
 % function main(mem_amount)
-mem_amount = '32G'
+mem_amount = '32G_limit'
 dataset = 'rcv1';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
-passes = 100;
+% passes = 100;
+passes = 100000;
 factor = 1;
 factorNR = 1;
 factorA = 0.5;
@@ -15,7 +16,7 @@ alpha = 1;
 factorDIG = 10;
 lambda = 1e-8;
 batchSize = 1;
-ourlimit = 5000;
+ourlimit = 8;
 
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
