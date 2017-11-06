@@ -5,7 +5,7 @@
 #include "/usr/local/MATLAB/R2017a/extern/include/mex.h"
 #include "mkl.h"
 #define DEBUG 0
-#define USE_BLAS 1
+#define USE_BLAS 0
 #define BILLION  1E9;
 
 /*
@@ -23,10 +23,10 @@ SVRG_logistic(w,Xt,y,lambda,eta,d,g);
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     /* Variables */
-    
+
     // Calculate time taken by a request
     struct timespec requestStart, requestEnd;
-    clock_gettime(CLOCK_REALTIME, &requestStart);
+    clock_gettime(CLOCK_MONOTONIC, &requestStart);
     clock_t cpu_begin = clock();
 
     int nSamples, maxIter, *iVals;
@@ -272,7 +272,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     // caculate elapsed total time and CPU time
     clock_t cpu_end = clock();
     double cpu_time_spent = (double)(cpu_end - cpu_begin) / CLOCKS_PER_SEC;
-    clock_gettime(CLOCK_REALTIME, &requestEnd);
+    clock_gettime(CLOCK_MONOTONIC, &requestEnd);
     double accum = ( requestEnd.tv_sec - requestStart.tv_sec )
       + ( requestEnd.tv_nsec - requestStart.tv_nsec )
       / BILLION;
