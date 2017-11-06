@@ -12,19 +12,19 @@ xlim([0, 5000]);
 
 % HIGGS dataset
 label = 'HIGGS';
-grid = 2;
-load('../data/HIGGS_C_result_6_32G.mat');
+grid = 3;
+load('../data/HIGGS_C_result_6_2G.mat');
 PlotLarge(subOptNR, '-', 'SIG', label, grid);
 PlotLarge(subOpt, ':', 'SVRG', label, grid);
 PlotLarge(subOptKatyusha, ':', 'SVRG-K', label, grid);
 PlotLarge(subOptK, '-', 'SIG-K', label, grid);
 PlotLarge(subOptIAG, ':', 'IAG', label, grid);
 PlotLarge(subOptDIG, ':', 'DIG', label, grid);
-xlim([0, 100]);
+xlim([0, 3500]);
 
 % criteo dataset
 label = 'criteo';
-grid = 3;
+grid = 2;
 load('../data/criteo_C_result_6_8G.mat');
 PlotLarge(subOptNR, '-', 'SIG', label, grid);
 PlotLarge(subOpt, ':', 'SVRG', label, grid);
