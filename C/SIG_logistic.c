@@ -6,6 +6,7 @@
 #include "mkl.h"
 #define DEBUG 0
 #define USE_BLAS 1
+#define BILLION  1E9;
 
 /*
 SIG_logistic(w,Xt,y,lambda,eta,d,g);
@@ -21,6 +22,12 @@ SIG_logistic(w,Xt,y,lambda,eta,d,g);
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     /* Variables */
+
+    // Calculate time taken by a request
+    struct timespec requestStart, requestEnd;
+    clock_gettime(CLOCK_REALTIME, &requestStart);
+    clock_t cpu_begin = clock();
+
     int nSamples, maxIter;
     int sparse = 0, useScaling = 1, useLazy=1,*lastVisited;
     long i, idx, j, nVars;
@@ -257,5 +264,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         mxFree(lastVisited);
         mxFree(cumSum);
     }
+
+    // caculate elapsed total time and CPU time
+    clock_t cpu_end = clock();
+    double cpu_time_spent = (double)(cpu_end - cpu_begin) / CLOCKS_PER_SEC;
+    clock_gettime(CLOCK_REALTIME, &requestEnd);
+    double accum = ( requestEnd.tv_sec - requestStart.tv_sec )
+      + ( requestEnd.tv_nsec - requestStart.tv_nsec )
+      / BILLION;
+    mexPrintf( "%lf, %lf\n", accum, cpu_time_spent);
+    
     return;
 }
