@@ -26,8 +26,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     // Calculate time taken by a request
     struct timespec requestStart, requestEnd;
-    clock_gettime(CLOCK_MONOTONIC, &requestStart);
-    clock_t cpu_begin = clock();
+    clock_gettime(CLOCK_MONOTONIC_RAW, &requestStart);
+    struct timespec cpuStart, cpuEnd;
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cpuStart);
 
     int nSamples, maxIter, *iVals;
     int sparse = 0, useScaling = 1, useLazy=1,*lastVisited;
@@ -270,13 +271,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 
     // caculate elapsed total time and CPU time
-    clock_t cpu_end = clock();
-    double cpu_time_spent = (double)(cpu_end - cpu_begin) / CLOCKS_PER_SEC;
-    clock_gettime(CLOCK_MONOTONIC, &requestEnd);
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cpuEnd);
+    double accumCPU = ( cpuEnd.tv_sec - cpuStart.tv_sec )
+      + ( cpuEnd.tv_nsec - cpuStart.tv_nsec )
+      / BILLION;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &requestEnd);
     double accum = ( requestEnd.tv_sec - requestStart.tv_sec )
       + ( requestEnd.tv_nsec - requestStart.tv_nsec )
       / BILLION;
-    mexPrintf( "%lf, %lf\n", accum, cpu_time_spent);
+    mexPrintf( "%lf, %lf\n", accum, accumCPU);
 
     return;
 }
