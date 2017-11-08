@@ -3,7 +3,7 @@ dataset = 'criteo';
 gridNum = 3;
 % dataset : toy, covtype, rcv1, avazu, MNIST. HIGGS
 
-passes = 10;
+passes = 10000000;
 factor = 1/2;
 factorNR = 1/2;
 % factorA = 0.1;
@@ -14,7 +14,7 @@ alpha = 1;
 factorDIG = 1e1;
 lambda = 1e-9;
 batchSize = 1;
-ourlimit = 5000000;
+ourlimit = 5000;
 
 %% preliminaries
 % [Xtrain, Xtest, ytrain, ytest] = LoadDataset(dataset);  % load dataset
@@ -42,7 +42,7 @@ logCost.optCost = logCost.Cost(wOpt, Xtrain, ytrain)
 
 %% have fun
 
-filename = strcat('../data/', dataset, '_C_result_2_time', mem_amount, '.mat');
+filename = strcat('../data/', dataset, '_C_result_2_time_', mem_amount, '.mat');
 % load(filename);
 
 subOpt = SVRG(logCost, Xtrain, ytrain, Xtest, ytest, passes, factor, batchSize, dataset, gridNum, ourlimit);
