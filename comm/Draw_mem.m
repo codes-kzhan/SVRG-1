@@ -10,8 +10,8 @@ for i = 1:3
     xlim([0, 1000]);
 end
 
-% load('../data/bar_time.mat');
-% plotBarStackGroups(time3, {'32GB', '16GB', '8GB'});
-% legend('show')
-% xlabel('phisical memory (GB)')
-% ylabel('time (s)')
+load('../data/bar_time.mat');
+plotBarStackGroups(time3, {'8GB', '16GB', '32GB'});
+legend('show')
+xlabel('phisical memory (GB)')
+ylabel('time (s)')
