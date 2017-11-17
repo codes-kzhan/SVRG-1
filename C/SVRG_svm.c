@@ -1,8 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
-//#include "mex.h"
-#include "/usr/local/MATLAB/R2017a/extern/include/mex.h"
+#include "mex.h"
 #include "mkl.h"
 #include "comm.h"
 #define DEBUG 0
