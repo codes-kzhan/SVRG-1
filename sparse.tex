@@ -1,26 +1,81 @@
 \documentclass{article}
 \usepackage{mathtools}
-\usepackage[ruled]{algorithm2e}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{amsthm}
-\newtheorem{theorem}{Theorem}
-\newtheorem{mydef}{Definition}
-\newtheorem{mylemma}{Lemma}
-\newtheorem{myproposition}{Proposition}
-\newtheorem{myassum}{Assumption}
-\newtheorem{myremark}{Remark}
 \usepackage{graphicx}
-\graphicspath{{./img/}}
-\usepackage{etoolbox}
+\usepackage[usenames, dvipsnames]{color}
 \usepackage[breaklinks=true]{hyperref}
-\usepackage{breakcites}
-\usepackage[english]{babel}
-\usepackage{blindtext}
-\usepackage{multirow}% http://ctan.org/pkg/multirow
-\usepackage{hhline}% http://ctan.org/pkg/hhline
-\usepackage{makecell}
+\graphicspath{ {./} }
+\setlength\parindent{0pt}
 
+\title{Sparse Implementation of SGD-like algorithms}
+\author{Jiahao Xie}
 \begin{document}
-\section{Sparse Implementation of SGD-like algorithms}
+\maketitle
+
+\section{Introduction}
+
+Consider the following strongly convex finite sum problem where each individual functions are convex and have Lipschitz continuous gradients
+\begin{equation} \label{eq:problem}
+\begin{aligned}
+    \mathrm{min} f(x) = \frac{1}{n} \sum_{i=1}^{n} f_i (x),
+\end{aligned}
+\end{equation}
+where $f_i(x) = \phi(A_i^T x)$, and $A_i$ represents the $i_{th}$ sample.
+
+SGD-like algorithms use to following abstract update rule at each iteration
+\begin{equation} \label{eq:sgd}
+\begin{aligned}
+    x_{t+1} = x_{t} - \gamma g_{t},
+\end{aligned}
+\end{equation}
+where $\gamma$ represents the step size and $g_{t}$ stands for approximation of the full gradient $\nabla f(x_t)$. For example, SAGA and SVRG uses the following $g_{t}$ to approximate the full gradient respectively:
+\begin{equation} \label{eq:saga}
+\begin{aligned}
+    \mathrm{SAGA: } &g_{t} = \nabla f_i(x_t) - \alpha_i + \bar{\alpha},
+\end{aligned}
+\end{equation}
+where $\alpha_i$ stands for the latest gradient evaluated before iteration $t$ for sample $i$, and $\bar{\alpha} = 1/n \sum_{i=1}^n \alpha_i$.
+
+\section{Sparse Implementation}
+The general update rule \eqref{eq:sgd} requires full vector operations, which is unfavorable when the dataset is spare. Fortunately, we can leverage sparsity to reduce computational cost for solving problem \eqref{eq:problem}. In this section, we introduce three ways (lazy update, decomposed update, and sparse update) to implement SGD-like algorithms on sparse datasets for solving problem \eqref{eq:problem}. We illustrate these methods using SAGA algorithm as an example, but they also apply to other SGD-like algorithms, such as SGD, SAG, and SVRG.
+
+\subsection{Lazy Update}
+The lazy update method is proposed by \cite{schmidt2017}. Since $\nabla f_i(x) = \phi'(A_i^T x) A_i$, one can see that the term $\gamma (\nabla f_i(x_t) - \alpha_i)$ is sparse. And the update to $\bar{\alpha}$ ($\bar{\alpha} \leftarrow \bar{\alpha} + \frac{\nabla f_i(x_t) - \alpha_i}{n}$) is also a sparse operation. Let $S_i$ denotes the support of sample $i$, and $[\cdot]_v$ denotes the $v_{th}$ coordinate of a vector, one can observe that $[\bar{\alpha}]_v$ remanis unchanged at iteration $t$ if $v \notin S_i$.
+
+\bigbreak
+
+Based on these observations, we may defer updates of those unchanged coordinates until we need to access those coordinates at some iteration. To do so, we need to keep a counter $c_v$ for each coordinate $v$ to record the last time it is visited, which requires $\mathcal{O}(d)$ extra storage where $d$ represents the dimension of data. At the start of each iteration, we perform the lazy update $[x]_v \leftarrow [x]v + (t - c_v) \gamma [\bar{\alpha}]_v$ to obtain the accurate $[x]_v$ for $v \in S_i$ just in time.
+%, which will be used to compute the stochastic gradient $\nabla f_i(x)$.
+
+\subsection{Decomposed Update}
+Another way to avoid dense vector operations at each iteration is to decompose the iterate $x$ as a combination of two or more dense vectors and perform sparse updates to those vectors. For SAGA algorithm, we can rewrite $x_t$ as
+\begin{equation}
+\begin{aligned}
+    x_t = c_t^1 \hat{x}_t + c_t^2 \hat{\alpha}_t.
+\end{aligned}
+\end{equation}
+
+Then we have
+\begin{equation}
+\begin{aligned}
+    x_{t+1} &= x_t - \gamma (\nabla f_i(x_t) - \alpha_i + \bar{\alpha})  \\
+            &= c_t^1 \big[ \hat{x}_t - \gamma (\nabla f_i(x_t) - \alpha_i) \big] + (c_t^2 - \gamma) \big[ \hat{\alpha}_t - \gamma (\bar{\alpha} - \hat{\alpha}_t) / (c_t^2 - \gamma) \big] \\
+            &= c_{t+1}^1 \hat{x}_{t+1} + c_{t+1}^2 \hat{\alpha}_{t+1},
+\end{aligned}
+\end{equation}
+where $c_{t+1} = c_{t}$, $\hat{x}_{t+1} = \hat{x}_t - \gamma (\nabla f_i(x_t) - \alpha_i)$, $c_{t+1}^2 = c_t^2 - \gamma$, and $\hat{\alpha}_{t+1} = \hat{\alpha}_t - \gamma (\bar{\alpha} - \hat{\alpha}_t) / (c_t^2 - \gamma)$.
+
+\bigbreak
+
+Since the update to $\hat{x_t}$ and
+$\hat{\alpha_t}$ % @NOTE \bar{\alpha} - \hat{\alpha} might not be sparse ???
+are sparse, we only need to perform sparse updates on them at each iteration, as well as update of scalars $c_t^1$ and $c_t^2$.
+
+
+\subsection{Sparse Update}
+We note that the above two methods does not change the algorithm, that is, the algorithm implemented by lazy update or decomposed update strategy is equivalent to the original algorithm. However the third method, sparse update, which we are going to introduce in this section, does change the algorithm. The sparse update method is proposed by \cite{mania2015}. Its main idea is to replace the dense vector $\bar{\alpha}$ in \eqref{eq:saga} with a sparse equivalent in expectation, $D_i \bar{\alpha}$, i.e., $\mathbb{E} D_i \bar{\alpha} = \bar{\alpha}$. Here $Di = P_{S_i} D$, where $P_{S_i}$ is a projection matrix that projects a vector onto the support $S_i$, and $D$ is a  $d \times d$ diagonal matrix $\mathrm{diag}\{1/p_1, \dots, 1/p_d\}$, where $p_v$ denotes the probability that $[A_i]_v$ is nonzero ($i=1, \dots, n$).
+
+\bibliographystyle{apalike}
+\bibliography{cite}
 \end{document}
