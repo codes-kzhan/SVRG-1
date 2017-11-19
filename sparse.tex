@@ -8,7 +8,7 @@
 \graphicspath{ {./} }
 \setlength\parindent{0pt}
 
-\title{Sparse Implementation of SGD-like algorithms}
+\title{Sparse Implementations of SGD-like algorithms}
 \author{Jiahao Xie}
 \begin{document}
 \maketitle
@@ -75,6 +75,42 @@ are sparse, we only need to perform sparse updates on them at each iteration, as
 
 \subsection{Sparse Update}
 We note that the above two methods does not change the algorithm, that is, the algorithm implemented by lazy update or decomposed update strategy is equivalent to the original algorithm. However the third method, sparse update, which we are going to introduce in this section, does change the algorithm. The sparse update method is proposed by \cite{mania2015}. Its main idea is to replace the dense vector $\bar{\alpha}$ in \eqref{eq:saga} with a sparse equivalent in expectation, $D_i \bar{\alpha}$, i.e., $\mathbb{E} D_i \bar{\alpha} = \bar{\alpha}$. Here $Di = P_{S_i} D$, where $P_{S_i}$ is a projection matrix that projects a vector onto the support $S_i$, and $D$ is a  $d \times d$ diagonal matrix $\mathrm{diag}\{1/p_1, \dots, 1/p_d\}$, where $p_v$ denotes the probability that $[A_i]_v$ is nonzero ($i=1, \dots, n$).
+
+\section{Problems with Katyusha}
+The Katyusha algorithm \cite{allen2016} is a direct acceleration of stochastic gradient methods. Katyusha uses the following update rule for problem \eqref{eq:problem}:
+\begin{equation} \label{eq:katyusha}
+\begin{aligned}
+    x_{t+1} &= \tau_1 z_t + \tau_2 \tilde{x} + \tau_3 y_k \\
+    \tilde{\nabla}_{t+1} &= \nabla f(\tilde{x}) + \nabla f_i(x_{t+1}) - \nabla f_i(\tilde{x}) \\
+    y_{t+1} &= x_{t+1} - \frac{1}{3L} \tilde{\nabla}_{t+1} \\
+    z_{t+1} &= z_{t} - \alpha \tilde{\nabla}_{t+1},
+\end{aligned}
+\end{equation}
+where $\tau_1 + \tau_2 + \tau_3 = 1$ and $\tau_2 = 1/2$, $L$ is the Lipschitz constant of the problem, $\alpha$ is a constant, and $\tilde{x}$ is a snapshot of $x$ which is updated at the start of each epoch like that of SVRG algorithm.
+
+We can rewrite the update rule of Katyusha using the decomposed update method as follows:
+\begin{equation}
+\begin{aligned}
+    x_t &= b_t^1 \hat{x_t} + b_t^2 \tilde{x} + b_t^3 \nabla f(\tilde{x}) + b_t^4 \hat{z_t} \\
+    z_t &= a_t^1 \hat{z_t} + a_t^2 \nabla f(\tilde{x}),
+\end{aligned}
+\end{equation}
+where
+\begin{equation}
+\begin{aligned}
+    a_{t+1}^1 &= a_t^1, \  a_0^1 = 1 \\
+    a_{t+1}^2 &= a_t^2 - \alpha,\  a_0^2 = 0  \\
+    \hat{z}_{t+1} &= \hat{z}_t - \frac{\alpha \big(\nabla f_i(x_{t+1}) - \nabla f_i(\tilde{x}) \big)}{a_t^1}  \\
+    b_{t+1}^1 &= \tau_3 b_t^1,\  b_0^1 = 1 \\
+    b_{t+1}^2 &= \tau_3 b_t^2 + \tau_2,\  b_0^2 = 0 \\
+    b_{t+1}^3 &= \tau_3 b_t^3 - \farc{\tau_3}{3L} + \tau_1 \tau_3 a_t^2,\  b_0^3 = 0 \\
+    b_{t+1}^4 &= \tau_1 \tau_3 a_t^1 + \tau_3 b_t^4,\  b_0^4 = 0\\
+    \hat{x}_{t+1} &= \hat{x}_t + \frac{\big(\nabla f_i(x_{t+1}) - \nabla f_i(\tilde{x}) \big)}{\tau_3 b_t^1}.
+\end{aligned}
+\end{equation}
+
+Since $\tau_3 < 1/2$, $b_t^1 = {\tau_3}^t$ will become too small (and 1/$b_t^1$ will become too large) after several hundreds of iterations (e.g., ${\tau_3}^{400} \le 10^{-120}$). Thus we have to renormalize $b_t^1$ periodically, say every 400 iterations, before the factor becomes too small or too large. When the dataset is large, such renormalization is costly since it requires expansive dense vector operations and has to be done frequently. The other two spare implementations (lazy update and sparse update) have exactly the same problem for Katyusha. As a result, when compared with SVRG algorithm, Katyusha might takes more time to attain a certain accuracy than SVRG for sparse datasets.
+
 
 \bibliographystyle{apalike}
 \bibliography{cite}
