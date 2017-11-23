@@ -29,13 +29,19 @@ SGD-like algorithms use to following abstract update rule at each iteration
     x_{t+1} = x_{t} - \gamma g_{t},
 \end{aligned}
 \end{equation}
-where $\gamma$ represents the step size and $g_{t}$ stands for approximation of the full gradient $\nabla f(x_t)$. For example, SAGA and SVRG uses the following $g_{t}$ to approximate the full gradient respectively:
+where $\gamma$ represents the step size and $g_{t}$ stands for approximation of the full gradient $\nabla f(x_t)$. For example, SAGA uses the following $g_{t}$ to approximate the full gradient:
 \begin{equation} \label{eq:saga}
 \begin{aligned}
     \mathrm{SAGA: } &g_{t} = \nabla f_i(x_t) - \alpha_i + \bar{\alpha},
 \end{aligned}
 \end{equation}
-where $\alpha_i$ stands for the latest gradient evaluated before iteration $t$ for sample $i$, and $\bar{\alpha} = 1/n \sum_{i=1}^n \alpha_i$.
+where $\alpha_i$ stands for the latest gradient evaluated before iteration $t$ for sample $i$, and $\bar{\alpha} = 1/n \sum_{i=1}^n \alpha_i$. Thus the update rule of SAGA becomes
+\begin{equation} \label{eq:saga_rule}
+\begin{aligned}
+    x_{t+1} = x_{t} - \gamma \big( \nabla f_i(x_t) - \alpha_i + \bar{\alpha} \big).
+\end{aligned}
+\end{equation}
+
 
 \section{Sparse Implementation}
 The general update rule \eqref{eq:sgd} requires full vector operations, which is unfavorable when the dataset is spare. Fortunately, we can leverage sparsity to reduce computational cost for solving problem \eqref{eq:problem}. In this section, we introduce three ways (lazy update, decomposed update, and sparse update) to implement SGD-like algorithms on sparse datasets for solving problem \eqref{eq:problem}. We illustrate these methods using SAGA algorithm as an example, but they also apply to other SGD-like algorithms, such as SGD, SAG, and SVRG.
@@ -45,11 +51,14 @@ The lazy update method is proposed by \cite{schmidt2017}. Since $\nabla f_i(x) =
 
 \bigbreak
 
-Based on these observations, we may defer updates of those unchanged coordinates until we need to access those coordinates at some iteration. To do so, we need to keep a counter $c_v$ for each coordinate $v$ to record the last time it is visited, which requires $\mathcal{O}(d)$ extra storage where $d$ represents the dimension of data. At the start of each iteration, we perform the lazy update $[x]_v \leftarrow [x]v + (t - c_v) \gamma [\bar{\alpha}]_v$ to obtain the accurate $[x]_v$ for $v \in S_i$ just in time.
+Based on these observations, we may defer
+%updates of those unchanged coordinates until we need to access those coordinates at some iteration.
+the dense part ($\bar{\alpha}$) of the update \eqref{eq:saga_rule} and only perform sparse operations at each iteration.
+To do so, we need to keep a counter $c_v$ for each coordinate $v$ to record the last time it is visited, which requires $\mathcal{O}(d)$ extra storage where $d$ represents the dimension of data. At the start of each iteration, we perform the lazy update $[x]_v \leftarrow [x]v + (t - c_v) \gamma [\bar{\alpha}]_v$ to obtain the accurate $[x]_v$ for $v \in S_i$ just in time (so that we can compute the stochastic gradient).
 %, which will be used to compute the stochastic gradient $\nabla f_i(x)$.
 
 \subsection{Decomposed Update}
-Another way to avoid dense vector operations at each iteration is to decompose the iterate $x$ as a combination of two or more dense vectors and perform sparse updates to those vectors. For SAGA algorithm, we can rewrite $x_t$ as
+Another way to avoid dense vector operations at each iteration is to decompose the iterate $x$ as a combination of two or more dense vectors and perform sparse operations to those vectors. For SAGA algorithm, we can rewrite $x_t$ as
 \begin{equation}
 \begin{aligned}
     x_t = c_t^1 \hat{x}_t + c_t^2 \hat{\alpha}_t.
@@ -70,7 +79,7 @@ where $c_{t+1} = c_{t}$, $\hat{x}_{t+1} = \hat{x}_t - \gamma (\nabla f_i(x_t) - 
 
 Since the update to $\hat{x_t}$ and
 $\hat{\alpha_t}$ % @NOTE \bar{\alpha} - \hat{\alpha} might not be sparse ???
-are sparse, we only need to perform sparse updates on them at each iteration, as well as update of scalars $c_t^1$ and $c_t^2$.
+are sparse, we only need to perform sparse operations on them at each iteration, as well as update of scalars $c_t^1$ and $c_t^2$.
 
 
 \subsection{Sparse Update}
@@ -109,7 +118,7 @@ where
 \end{aligned}
 \end{equation}
 
-Since $\tau_3 < 1/2$, $b_t^1 = {\tau_3}^t$ will become too small (and 1/$b_t^1$ will become too large) after several hundreds of iterations (e.g., ${\tau_3}^{400} \le 10^{-120}$). Thus we have to renormalize $b_t^1$ periodically, say every 400 iterations, before the factor becomes too small or too large. When the dataset is large, such renormalization is costly since it requires expansive dense vector operations and has to be done frequently. The other two spare implementations (lazy update and sparse update) have exactly the same problem for Katyusha. As a result, when compared with SVRG algorithm, Katyusha might takes more time to attain a certain accuracy than SVRG for sparse datasets.
+Since $\tau_3 < 1/2$, $b_t^1 = {\tau_3}^t$ will become too small (and 1/$b_t^1$ will become too large) after several hundreds of iterations (e.g., ${\tau_3}^{400} \le 10^{-120}$). Thus we have to renormalize $b_t^1$ periodically, say every 400 iterations, before the factor becomes too small or too large. When the dataset is large, such renormalization is costly since it requires expansive dense vector operations and has to be done frequently. The other two spare implementations (lazy update and sparse update) have exactly the same problem for Katyusha. As a result, when compared with SVRG algorithm, Katyusha might takes more time than SVRG to attain a certain accuracy for sparse datasets.
 
 
 \bibliographystyle{apalike}
