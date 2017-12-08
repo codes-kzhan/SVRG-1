@@ -89,7 +89,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         /* Step 1: Compute current values of needed parameters w_{i} */
         if (useLazy && i > 0)
         {
-            for(j = jc[i]; j < jc[i+1]; j++)
+            for(j = jc[idx]; j < jc[idx+1]; j++)
             {
                 if (lastVisited[ir[j]] == 0)
                 {  // or we can let lastVisited[-1] = 0
